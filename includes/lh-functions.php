@@ -39,6 +39,60 @@ class main {
         );
 
         add_menu_page(
+            "Appointments",
+            "Appointments",
+            "manage_patient",
+            "lh-manage-appointments",
+            array(__CLASS__,'cpc_create'),
+            "dashicons-admin-home",'2.2.9'
+        );
+
+        add_submenu_page(
+            "lh-manage-appointments",
+            "Search Patients",
+            "Search Patients",
+            "manage_patient",
+            "lh-manage-appointments",
+            array(__CLASS__,'cpc_create')
+        );
+
+        add_submenu_page(
+            "lh-manage-appointments",
+            "Book Appointment",
+            "Book Appointment",
+            "manage_patient",
+            "lh-book-appointments",
+            array(__CLASS__,'cpc_create')
+        );
+
+        add_submenu_page(
+            "lh-manage-appointments",
+            "Today",
+            "Today",
+            "manage_patient",
+            "lh-today-appointments",
+            array(__CLASS__,'cpc_create')
+        );
+
+        add_submenu_page(
+            "lh-manage-appointments",
+            "Upcoming",
+            "Upcoming",
+            "manage_patient",
+            "lh-comming-appointments",
+            array(__CLASS__,'cpc_create')
+        );
+
+        add_submenu_page(
+            "lh-manage-appointments",
+            "Past",
+            "Past",
+            "manage_patient",
+            "lh-past-appointments",
+            array(__CLASS__,'cpc_create')
+        );
+
+        add_menu_page(
             "Billing and Accounts",
             "Billing and Accounts",
             "mamange_accounts",
@@ -96,10 +150,12 @@ class main {
     function lh_install () {
         //setup tables
         $inventory  = new inventory;
-        global $patient;
-        global $billing;
+        $patient    = new patient;
+        $billing    = new billing;
 
         $inventory->initialize_table();
+        $patient->initialize_table();
+        $billing->initialize_table();
         //add user roles
         //add admin
 		add_role(
@@ -170,11 +226,21 @@ class main {
     public function lh_deactivate() {
         self::remove_cap();
         self::remove_role();
+        $inventory  = new inventory;
+        $patient    = new patient;
+        $billing    = new billing;
+        $inventory->delete_table();
+        $patient->delete_table();
+        $billing->delete_table();
     }
 
     public function lh_uninstall() {
-        global $inventory;
+        $inventory  = new inventory;
+        $patient    = new patient;
+        $billing    = new billing;
         $inventory->delete_table();
+        $patient->delete_table();
+        $billing->delete_table();
     }
 
     // Remove the plugin-specific custom capability

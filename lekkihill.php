@@ -12,7 +12,7 @@ Text Domain: akismet
 global $wpdb;
 
 define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define(  "table_name_prefix", $wpdb->prefix, true );
+define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );
 //common functions
 require_once LH_PLUGIN_DIR . 'includes/common.php';
 $common = new common;

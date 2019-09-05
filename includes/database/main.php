@@ -239,7 +239,6 @@
         */
         public function run($query, $prepare=false, $type=false, $search=false) {
             $db       = $this->connect();
-            var_dump($db);
             try {
                 if ($prepare != false) {
                     if ($search != false) {
