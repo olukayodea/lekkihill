@@ -19,7 +19,7 @@
         /*  $table  =   name of table to be inserted into
         *   $data   =   an array containing the value key pair of the data to be inserted
         */
-        public function insert($table, $data) {
+        public static function insert($table, $data) {
             $queryLine1 = "";
             $queryLine2 = "";
 
@@ -34,14 +34,14 @@
             $queryLine2 = trim($queryLine2, ",");
 
             $query = "INSERT INTO `".$table."` (".$queryLine1.") VALUES (".$queryLine2.")";
-            return $this->run($query, $prepare, "insert");
+            return self::run($query, $prepare, "insert");
         }
 
         /*  $table      =   name of table to be inserted into
         *   $data       =   an array containing the value key pair of the data to be inserted
         *   $replace    =   an array containing the value key pair of the data to be replaced if exisit
         */
-        public function replace($table, $data, $replace) {
+        public static function replace($table, $data, $replace) {
             $queryLine1 = "";
             $queryLine2 = "";
             $queryLine_r = "";
@@ -64,7 +64,7 @@
             $query = "INSERT INTO `".$table."` (".$queryLine1.") VALUES (".$queryLine2.")
             ON DUPLICATE KEY UPDATE ".$queryLine_r;
 
-            return $this->run($query, $prepare, "replace");
+            return self::run($query, $prepare, "replace");
         }
 
         /*  Get a row of items in a table based on the search criteria
@@ -72,10 +72,10 @@
         *   $tag: the col to fetch from
         *   $id: the row to fetch from
         */
-        public function getOne($table, $id, $tag='ref') {
+        public static function getOne($table, $id, $tag='ref') {
             $query = "SELECT * FROM `".$table."` WHERE `".$tag."` = :".$tag." LIMIT 1";
             $return[":".$tag] = $id;
-            return $this->run($query, $return, "getRow");
+            return self::run($query, $return, "getRow");
         }
 		
         /*  Get a row of items in a table based on the search criteria
@@ -85,13 +85,13 @@
         *   $ref: the row reference to return
         *   $where: the WHERE clause where included
         */
-		public function getOneField($table, $id, $tag, $ref) {
+		public static function getOneField($table, $id, $tag, $ref) {
             $query = "SELECT `".$ref."` FROM `".$table."` WHERE `".$tag."` = :".$tag." LIMIT 1";
             $return[":".$tag] = $id;
-            return $this->run($query, $return, "getCol");
+            return self::run($query, $return, "getCol");
         }
         
-        public function list($table, $start=false, $limit=false, $order='ref', $dir='ASC', $where=false, $type="list") {
+        public static function list($table, $start=false, $limit=false, $order='ref', $dir='ASC', $where=false, $type="list") {
             $endTag = "";
             if ($where != false ) {
                 $endTag .= " WHERE ".$where;
@@ -106,10 +106,10 @@
             }
 
             $query = "SELECT * FROM `".$table."`".$endTag;
-            return $this->run($query, false, $type);
+            return self::run($query, false, $type);
         }
 
-        public function sortAll($table, $id, $tag, $tag2=false, $id2=false, $tag3=false, $id3=false, $order='ref', $dir="ASC", $logic="AND", $start=false, $limit=false, $type="list") {
+        public static function sortAll($table, $id, $tag, $tag2=false, $id2=false, $tag3=false, $id3=false, $order='ref', $dir="ASC", $logic="AND", $start=false, $limit=false, $type="list") {
 			$prepare = array(':'.$tag => $id);
 			if ($tag2 != false) {
 				$sqlTag = " ".$logic." `".$tag2."` = :".$tag2;
@@ -132,7 +132,7 @@
                 $endTag = "";
             }
             $query = "SELECT * FROM `".$table."` WHERE `".$tag."` = :".$tag.$sqlTag." ORDER BY `".$order."` ".$dir.$endTag;
-            return $this->run($query, $prepare, $type);
+            return self::run($query, $prepare, $type);
         }
         
         /*  $table   =   name of table to be update
@@ -142,7 +142,7 @@
         *   $logic   =   single LOGICAL operator to use in where clause of multiple keys
         *   $multiple=   replace the where clasue with string
         */
-        public function update($table, $data, $where=false, $logic=false, $multiple=false) {
+        public static function update($table, $data, $where=false, $logic=false, $multiple=false) {
             $queryLine = "";
             $whereLine = "";
 
@@ -180,7 +180,7 @@
             
             $query = "UPDATE `".$table."` SET ".$queryLine." WHERE ".$whereLine;
 
-            return $this->run($query, $prepare);
+            return self::run($query, $prepare);
         }
         
         /*  $table   =   name of table to be update
@@ -189,27 +189,27 @@
         *   $ref     =   row to update
         *   $id      =   unique colounm in row to update
         */
-        public function updateOne($table, $tag, $value, $id, $ref="ref") {
+        public static function updateOne($table, $tag, $value, $id, $ref="ref") {
             $query = "UPDATE `".$table."` SET  `".$tag."` = :".$tag." WHERE `".$ref."`=:w_".$ref;
             $prepare[":".$tag] = $value;
             $prepare[":w_".$ref] = $id;
 
-            return $this->run($query, $prepare);
+            return self::run($query, $prepare);
         }
 
-        public function delete($table, $id, $ref="ref") {
+        public static function delete($table, $id, $ref="ref") {
             $prepare[':'.$ref] = $id;
             $query = "DELETE FROM `".$table."` WHERE `".$ref."` = :".$ref;
            
-            return $this->run($query, $prepare);
+            return self::run($query, $prepare);
         }
 
         /*  run direct SQL queries in the database
         *   queries either pepared or raw
         *   $prepare: if query is prepared, array with the prepared values
         */
-        public function query($query, $prepare=false, $type=false) {
-            return $this->run($query, $prepare, $type);
+        public static function query($query, $prepare=false, $type=false) {
+            return self::run($query, $prepare, $type);
         }
 
         /*  che k if a particular field has a particular distinct data
@@ -217,13 +217,13 @@
         *   $key     =   coloun to check for data from
         *   $value   =   value to check against the key
         */
-        public function checkExixst($table, $key, $value, $return="count") {
+        public static function checkExixst($table, $key, $value, $return="count") {
             $query = "SELECT `ref` FROM `".$table."` WHERE `".$key."` = :".$key;
             $prepare[":".$key] = $value;
             if ($return == "col") {
-                return $this->run($query, $prepare, "getCol");
+                return self::run($query, $prepare, "getCol");
             } else {
-                return $this->run($query, $prepare, "count");
+                return self::run($query, $prepare, "count");
             }
         }
 
@@ -237,8 +237,8 @@
                     =   count: get row count
             search: the binded search word
         */
-        public function run($query, $prepare=false, $type=false, $search=false) {
-            $db       = $this->connect();
+        public static function run($query, $prepare=false, $type=false, $search=false) {
+            $db       = self::connect();
             try {
                 if ($prepare != false) {
                     if ($search != false) {

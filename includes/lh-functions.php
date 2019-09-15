@@ -25,7 +25,7 @@ class main {
             "Add Patients",
             "Add Patients",
             "manage_patient",
-            "lb-add-patient",
+            "lh-add-patient",
             array(__CLASS__,'cpc_create')
         );
 
@@ -34,7 +34,7 @@ class main {
             "Reports",
             "Reports",
             "manage_patient_report",
-            "lb-patient-billing",
+            "lh-patient-billing",
             array(__CLASS__,'cpc_create')
         );
 
@@ -106,7 +106,7 @@ class main {
             "Reports",
             "Reports",
             "mamange_accounts_report",
-            "lb-report-billing",
+            "lh-report-billing",
             array(__CLASS__,'cpc_create')
         );
 
@@ -115,26 +115,44 @@ class main {
             "Manage Inventory",
             "manage_inventory",
             "lh-inventory",
-            array(__CLASS__,'cpc_create'),
+            array("inventory",'manage'),
             "dashicons-list-view",'2.2.9'
         );
 
         add_submenu_page(
             "lh-inventory",
-            "List",
-            "List",
+            "List Inventory",
+            "List Inventory",
             "manage_inventory",
             "lh-inventory",
-            array(__CLASS__,'cpc_create')
+            array("inventory",'manage')
         );
 
         add_submenu_page(
             "lh-inventory",
-            "Add",
-            "Add",
+            "Add Inventory",
+            "Add Inventory",
             "manage_inventory",
-            "lb-add-inventory",
-            array(__CLASS__,'cpc_create')
+            "lh-add-inventory",
+            array("inventory",'add')
+        );
+
+        add_submenu_page(
+            null,
+            'Manage Inventory Item' , 
+            'Manage Inventory Item' , 
+            'manage_inventory', 
+            "lh-add-inventory-stock",
+            array("inventory",'manageStock')
+        );
+
+        add_submenu_page(
+            "lh-inventory",
+            "Categories",
+            "Categories",
+            "manage_inventory_category",
+            "lh-category-inventory",
+            array("inventory",'categories')
         );
 
         add_submenu_page(
@@ -142,18 +160,24 @@ class main {
             "Reports",
             "Reports",
             "manage_inventory_report",
-            "lb-report-inventory",
-            array(__CLASS__,'cpc_create')
+            "lh-report-inventory",
+            array("inventory",'report')
         );
     }
 
     function lh_install () {
         //setup tables
         $inventory  = new inventory;
+        $inventory_used = new inventory_used;
+        $inventory_count = new inventory_count;
+        $inventory_category = new inventory_category;
         $patient    = new patient;
         $billing    = new billing;
 
         $inventory->initialize_table();
+        $inventory_used->initialize_table();
+        $inventory_count->initialize_table();
+        $inventory_category->initialize_table();
         $patient->initialize_table();
         $billing->initialize_table();
         //add user roles
@@ -173,6 +197,7 @@ class main {
         $lekkihill_admin->add_cap( 'manage_patient_report' );
         $lekkihill_admin->add_cap( 'mamange_accounts_report' );
         $lekkihill_admin->add_cap( 'manage_inventory_report' );
+        $lekkihill_admin->add_cap( 'manage_inventory_category' );
 
         //add front desk
 		add_role(
@@ -221,24 +246,40 @@ class main {
         $administrator->add_cap( 'manage_patient_report' );
         $administrator->add_cap( 'mamange_accounts_report' );
         $administrator->add_cap( 'manage_inventory_report' );
+        $administrator->add_cap( 'manage_inventory_category' );
     }
 
     public function lh_deactivate() {
         self::remove_cap();
         self::remove_role();
+
         $inventory  = new inventory;
+        $inventory_used = new inventory_used;
+        $inventory_count = new inventory_count;
+        $inventory_category = new inventory_category;
         $patient    = new patient;
         $billing    = new billing;
+
         $inventory->delete_table();
+        $inventory_used->delete_table();
+        $inventory_count->delete_table();
+        //$inventory_category->delete_table();
         $patient->delete_table();
         $billing->delete_table();
     }
 
     public function lh_uninstall() {
         $inventory  = new inventory;
+        $inventory_used = new inventory_used;
+        $inventory_count = new inventory_count;
+        $inventory_category = new inventory_category;
         $patient    = new patient;
         $billing    = new billing;
+        
         $inventory->delete_table();
+        $inventory_used->delete_table();
+        $inventory_count->delete_table();
+        $inventory_category->delete_table();
         $patient->delete_table();
         $billing->delete_table();
     }
@@ -250,11 +291,23 @@ class main {
             if (isset($roles[$key]) && $role->has_cap('manage_patient')) {
                 $role->remove_cap('manage_patient');
             }
+            if (isset($roles[$key]) && $role->has_cap('manage_patient_report')) {
+                $role->remove_cap('manage_patient_report');
+            }
             if (isset($roles[$key]) && $role->has_cap('manage_inventory')) {
                 $role->remove_cap('manage_inventory');
             }
+            if (isset($roles[$key]) && $role->has_cap('manage_inventory_report')) {
+                $role->remove_cap('manage_inventory_report');
+            }
+            if (isset($roles[$key]) && $role->has_cap('manage_inventory_category')) {
+                $role->remove_cap('manage_inventory_category');
+            }
             if (isset($roles[$key]) && $role->has_cap('mamange_accounts')) {
                 $role->remove_cap('mamange_accounts');
+            }
+            if (isset($roles[$key]) && $role->has_cap('mamange_accounts_report')) {
+                $role->remove_cap('mamange_accounts_report');
             }
         }
     }
@@ -273,6 +326,17 @@ class main {
 		if ( get_role('lekki_hill_admin') ){
 			remove_role( 'lekki_hill_admin' );
 		}
+    }
+    
+	//external scripts and CSS
+	function admin_styles_and_script() {
+		wp_enqueue_script( 'load-fa', 'https://kit.fontawesome.com/f905a65f30.js' );
+		wp_enqueue_style( 'load-select2-css', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css' );
+		wp_enqueue_script( 'load-select2-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js' );
+		wp_enqueue_style( 'load-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css' );
+		wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
+		wp_enqueue_script( 'load-datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js' );
+		wp_enqueue_style( 'load-datepicker-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' );
 	}
 }
 ?>

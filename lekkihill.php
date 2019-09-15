@@ -14,7 +14,7 @@ global $wpdb;
 define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );
 //common functions
-require_once LH_PLUGIN_DIR . 'includes/common.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/common.php';
 $common = new common;
 
 //database
@@ -23,9 +23,9 @@ $database = new database;
 $db       = $database->connect();
 
 //classes and functions
-require_once LH_PLUGIN_DIR . 'includes/patient.php';
-require_once LH_PLUGIN_DIR . 'includes/billing.php';
-require_once LH_PLUGIN_DIR . 'includes/inventory.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
 $patient    = new patient;
 $billing    = new billing;
 $inventory  = new inventory;
@@ -37,6 +37,8 @@ class mainClass extends main {
     function __construct() {
         //add amin menu on initialization
         add_action( 'admin_menu', array( "main", 'lh_add_menu' ) );
+		//initialize the imported CDN based script
+		add_action( 'admin_enqueue_scripts', array( "main", 'admin_styles_and_script' ));
         
         //registration hooks
         register_activation_hook( __FILE__, array( $this, 'lh_install' ) );

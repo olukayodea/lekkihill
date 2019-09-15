@@ -1,8 +1,8 @@
 <?php
-class inventory extends database {
+class patient extends database {
         public function initialize_table() {
             //create database
-            $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."inventory` (
+            $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."patient` (
                 `ref` INT NOT NULL AUTO_INCREMENT, 
                 `parent_id` INT NOT NULL, 
                 `category_title` VARCHAR(50) NOT NULL,
@@ -17,14 +17,14 @@ class inventory extends database {
 
         public function clear_table() {
             //clear database
-            $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."inventory`";
+            $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."patient`";
 
             $this->query($query);
         }
 
         public function delete_table() {
             //clear database
-            $query = "DROP TABLE `".DB_NAME."`.`".table_name_prefix."inventory`";
+            $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."patient`";
 
             $this->query($query);
         }
