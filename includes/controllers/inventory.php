@@ -101,7 +101,24 @@ class inventory extends database {
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/categories.php");
     }
 
+    public function view() {
+        if (isset($_REQUEST['id'])) {
+            $id = $_REQUEST['id'];
+            $data = self::listOne($id);
+            $data['quantity'] =  self::getBalance( $id );
+            
+            $list = inventory_count::getSortedList($id, "inventory_id");
+            include_once(LH_PLUGIN_DIR."includes/pages/inventory/view.php");
+        } else {
+            echo '<div class="wrap">';
+            echo '<h2>Manage Inventory Item</h2>';
+            echo '<div class="error"><p>There was an error processing this request. <a href="'.admin_url('admin.php?page=lh-inventory').'">click here</a> to go back</a></p></div>';
+            echo '</div>';
+        }
+    }
+
     public function report() {
+        include_once(LH_PLUGIN_DIR."includes/pages/inventory/report.php");
     }
 
     private function create($array) {

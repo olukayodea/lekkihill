@@ -147,6 +147,15 @@ class main {
         );
 
         add_submenu_page(
+            null,
+            'View Inventory Item' , 
+            'View Inventory Item' , 
+            'manage_inventory', 
+            "lh-add-inventory-view",
+            array("inventory",'view')
+        );
+
+        add_submenu_page(
             "lh-inventory",
             "Categories",
             "Categories",
@@ -260,9 +269,9 @@ class main {
         $patient    = new patient;
         $billing    = new billing;
 
-        $inventory->delete_table();
-        $inventory_used->delete_table();
-        $inventory_count->delete_table();
+        //$inventory->delete_table();
+        //$inventory_used->delete_table();
+        //$inventory_count->delete_table();
         //$inventory_category->delete_table();
         $patient->delete_table();
         $billing->delete_table();

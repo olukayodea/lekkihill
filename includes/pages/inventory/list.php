@@ -23,7 +23,7 @@
     <tr>
       <td><?php echo $count; ?></td>
       <td><?php echo $list[$i]['sku']; ?></td>
-      <td><?php echo $list[$i]['title']; ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a></td>
+      <td><a href="<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$list[$i]['ref']); ?>" title="View More"><?php echo $list[$i]['title']; ?></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a></td>
       <td><?php echo number_format( self::getBalance( $list[$i]['ref'] ) ); ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&add&id='.$list[$i]['ref']); ?>" title="Add to Stock"><i class="fas fa-plus-square" style="color:green"></i></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&remove&id='.$list[$i]['ref']); ?>" title="Remove from Stock"><i class="fas fa-minus-square" style="color:red"></i></a>&nbsp;<i class="fas fa-search" title="Search History"></i></td>
       <td><?php echo $list[$i]['status']; ?>&nbsp;<?php echo self::getLink($list[$i]['status']); ?></td>
       <td><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
