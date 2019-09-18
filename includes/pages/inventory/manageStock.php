@@ -3,7 +3,7 @@
 <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
 <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
 <?php if ($error != true) { ?>
-<form id="form2" name="form2" method="post" action="<?php echo $url; ?>">
+<form id="form2" name="form2" method="post" action="">
   <table width="50%" border="0">
     <tr>
       <td width="25%"><label for="title"> Inventory Item</label></td>
@@ -24,14 +24,18 @@
     <tr>
       <td width="25%">&nbsp;</td>
       <td>
-      <button name="submit" id="submit" type="submit" class="button">
-      <i class="fa fa-floppy-o fa-lg"></i>
-      Update Stock
-      </button>
-      <button name="reset" id="reset" type="reset" class="button">
-      <i class="fa fa-undo fa-lg"></i>
-      Reset
-      </button></td>
+        <?php if (isset($_REQUEST['return'])) { ?>
+        <input type="hidden" name="return" id="return" value="<?php echo $_REQUEST['return']."&id=".$data['ref']; ?>" />
+        <?php } ?>
+        <button name="submit" id="submit" type="submit" class="button">
+        <i class="fa fa-floppy-o fa-lg"></i>
+        Update Stock
+        </button>
+        <button name="reset" id="reset" type="reset" class="button">
+        <i class="fa fa-undo fa-lg"></i>
+        Reset
+        </button>
+      </td>
     </tr>
   </table>
 </form>

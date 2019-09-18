@@ -18,14 +18,18 @@
     <tr>
       <td width="25%">&nbsp;</td>
       <td>
-      <button name="submit" id="submit" type="submit" class="button">
-      <i class="fa fa-floppy-o fa-lg"></i>
-      Add Category
-      </button>
-      <button name="reset" id="reset" type="reset" class="button">
-      <i class="fa fa-undo fa-lg"></i>
-      Reset
-      </button></td>
+        <?php if (isset($_REQUEST['return'])) { ?>
+        <input type="hidden" name="return" id="return" value="<?php echo $_REQUEST['return']."&id=".$data['ref']; ?>" />
+        <?php } ?>
+        <button name="submit" id="submit" type="submit" class="button">
+        <i class="fa fa-floppy-o fa-lg"></i>
+        Add Category
+        </button>
+        <button name="reset" id="reset" type="reset" class="button">
+        <i class="fa fa-undo fa-lg"></i>
+        Reset
+        </button
+      ></td>
     </tr>
   </table>
 </form>

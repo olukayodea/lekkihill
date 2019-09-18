@@ -1,14 +1,22 @@
+<?php
+if ($data['status'] == "INACTIVE") {
+  $tag = "This action will make this item visible to all users";
+} else if ($data['status'] == "ACTIVE") {
+  $tag = "This action will make this item invisible to all users";
+}
+?>
 <div class="wrap">
 <h2><i class="fas fa-capsules"></i>&nbsp;<?php echo $data['title'];  ?></h2>
 <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
 <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
 <table width="100%" border="0">
-  <tr class="odd">
+  <tbody>
+  <tr class='striped'>
     <td>SKU</td>
     <td><?php echo $data['sku'];  ?></td>
     <td rowspan="8" align="center" valign="middle">
     <img src="<?php echo plugins_url('lekkihill/includes/controllers/barcode.php?f=png&s=code-39-ascii&d='.$data['sku'].'&w=220'); ?>">
-    <br><a href="" title="Download Barcode"><i class="fas fa-download"></i></a>&nbsp;<a href="" title="Print Barcode"><i class="fas fa-print"></i></a>
+    <br><a href="<?php echo plugins_url('lekkihill/includes\controllers\barcode.download.php?d='.$data['sku']); ?>" title="Download Barcode"><i class="fas fa-download"></i></a>&nbsp;<a href="<?php echo plugins_url('lekkihill/includes\controllers\barcode.print.php?d='.$data['sku']); ?>" target="_blank" title="Print Barcode"><i class="fas fa-print"></i></a>
   </td>
   </tr>
   <tr>
@@ -39,6 +47,16 @@
     <td>Modified At</td>
     <td><?php echo $data['modify_time'];  ?></td>
   </tr>
+  <tr>
+    <td colspan="3">
+      <button type="submit" class="button" title="Edit" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory&return=lh-add-inventory-view&edit&id='.$data['ref']); ?>'"><i class="fas fa-edit fa-lg"></i>&nbsp;Edit</button>
+      <button type="submit" class="button" title="Add Stock" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return=lh-add-inventory-view&add&id='.$data['ref']); ?>'"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Stock</button>
+      <button type="submit" class="button" title="Remove Stock" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return=lh-add-inventory-view&remove&id='.$data['ref']); ?>'"><i class="fas fa-minus-square fa-lg"></i>&nbsp;Remove Stock</button>
+      <button type="submit" class="button" onclick="if (confirm('<?php echo $tag; ?>. Are you sure you want to Continue?')) location='<?php echo admin_url('admin.php?page=lh-inventory&return='.urlencode($_REQUEST['page'].'&id='.$data['ref']).'&changeStatus='.$data['status'].'&id='.$data['ref']); ?>'"><?php echo self::getLink($data['status'], true); ?></button>
+      <button type="button" class="button" onclick="if (confirm('this action will remove this item. This action can not be undone. are you sure you want to continue ')) location='<?php echo admin_url('admin.php?page=lh-inventory&return=lh-inventory&remove&id='.$data['ref']); ?>'"><i class="fa fa-floppy-o fa-lg"></i>&nbsp;Delete</button>
+    </td>
+  </tr>
+  </tbody>
 </table>
 <h3>History</h3>
 <table class='striped' id="datatable_list">

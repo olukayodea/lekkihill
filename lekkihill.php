@@ -46,5 +46,9 @@ class mainClass extends main {
         register_uninstall_hook( __FILE__, array( $this, 'lh_uninstall' ) );
     }
 }
+function app_output_buffer() {
+	ob_start();
+} // soi_output_buffer
+add_action('init', 'app_output_buffer');
 new mainClass;
 ?>
