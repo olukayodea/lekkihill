@@ -63,6 +63,12 @@ if ($data['status'] == "INACTIVE") {
   </tbody>
 </table>
 <h3>History</h3>
+<button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemPDF'">
+<i class="fas fa-file-pdf fa-lg"></i>&nbsp;Download or Print PDF
+</button>
+<button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemCSV'">
+<i class="fas fa-file-excel fa-lg"></i>&nbsp;Download as Excel
+</button>
 <table class='striped' id="datatable_list">
   <thead>
     <tr>

@@ -44,7 +44,7 @@ class main {
             "manage_patient",
             "lh-manage-appointments",
             array(__CLASS__,'cpc_create'),
-            "dashicons-admin-home",'2.2.9'
+            "dashicons-schedule",'2.2.9'
         );
 
         add_submenu_page(
@@ -94,20 +94,47 @@ class main {
 
         add_menu_page(
             "Billing and Accounts",
-            "Billing and Accounts",
+            "Finance",
             "mamange_accounts",
             "lh-billing",
-            array(__CLASS__,'cpc_create'),
-            "dashicons-list-view",'2.2.9'
+            array("billing",'search'),
+            "dashicons-money",'2.2.9'
+        );
+
+        add_submenu_page(
+            "lh-billing",
+            "Search Records",
+            "Search",
+            "mamange_accounts",
+            "lh-billing",
+            array("billing",'search')
+        );
+
+        add_submenu_page(
+            "lh-billing",
+            "Create New Invoice",
+            "Create Invoice",
+            "mamange_accounts",
+            "lh-billing-create",
+            array("billing",'create')
+        );
+
+        add_submenu_page(
+            "lh-billing",
+            "Components",
+            "Components",
+            "mamange_accounts",
+            "lh-billing-component",
+            array("billing",'component')
         );
 
         add_submenu_page(
             "lh-billing",
             "Reports",
             "Reports",
-            "mamange_accounts_report",
-            "lh-report-billing",
-            array(__CLASS__,'cpc_create')
+            "mamange_accounts",
+            "lh-billing-report",
+            array("billing",'report')
         );
 
         add_menu_page(
@@ -116,7 +143,7 @@ class main {
             "manage_inventory",
             "lh-inventory",
             array("inventory",'manage'),
-            "dashicons-list-view",'2.2.9'
+            "dashicons-media-spreadsheet",'2.2.9'
         );
 
         add_submenu_page(

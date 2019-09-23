@@ -1,32 +1,44 @@
 <?php
 class billing extends database {
-        public function initialize_table() {
-            //create database
-            $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."billing` (
-                `ref` INT NOT NULL AUTO_INCREMENT, 
-                `parent_id` INT NOT NULL, 
-                `category_title` VARCHAR(50) NOT NULL,
-                `status` varchar(20) NOT NULL DEFAULT 'INACTIVE',
-                `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                PRIMARY KEY (`ref`)
-            ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+    public function search() {
 
-            $this->query($query);
-        }
+    }
 
-        public function clear_table() {
-            //clear database
-            $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."billing`";
+    public function component() {
 
-            $this->query($query);
-        }
+    }
 
-        public function delete_table() {
-            //clear database
-            $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."billing`";
+    public function report() {
 
-            $this->query($query);
-        }
+    }
+    
+    public function initialize_table() {
+        //create database
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."billing` (
+            `ref` INT NOT NULL AUTO_INCREMENT, 
+            `parent_id` INT NOT NULL, 
+            `category_title` VARCHAR(50) NOT NULL,
+            `status` varchar(20) NOT NULL DEFAULT 'INACTIVE',
+            `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`ref`)
+        ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+
+        $this->query($query);
+    }
+
+    public function clear_table() {
+        //clear database
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."billing`";
+
+        $this->query($query);
+    }
+
+    public function delete_table() {
+        //clear database
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."billing`";
+
+        $this->query($query);
+    }
 }
 ?>

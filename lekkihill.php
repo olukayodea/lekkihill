@@ -16,9 +16,15 @@ define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );
 if (defined('WP_CONTENT_DIR') && !defined('WP_INCLUDE_DIR')){
     define('WP_INCLUDE_DIR', str_replace('wp-content', 'wp-includes', WP_CONTENT_DIR));
  }
-//common functions
+//common functions and utilities
 require_once LH_PLUGIN_DIR . 'includes/controllers/common.php';
 $common = new common;
+
+require_once LH_PLUGIN_DIR . 'includes\utilities\pdf\tcpdf.php';
+$pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
+
+// create new PDF document
+$pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
 //database
 require_once LH_PLUGIN_DIR . 'includes/database/main.php';
 $database = new database;
@@ -47,6 +53,18 @@ class mainClass extends main {
             require_once WP_INCLUDE_DIR . '/pluggable.php';
 
             inventory::print_report();
+			exit;
+		}
+		if(isset($_GET['downloadItemCSV'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            inventory::downloadView();
+			exit;
+		}
+		if(isset($_GET['downloadItemPDF'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            inventory::print_view();
 			exit;
 		}
         //add amin menu on initialization

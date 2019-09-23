@@ -168,6 +168,15 @@ class inventory extends database {
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/categories.php");
     }
 
+    private function processView($id) {
+        $data = self::listOne($id);
+        $data['quantity'] =  self::getBalance( $id );
+        
+        $list = inventory_count::getSortedList($id, "inventory_id");
+
+        return array( "data" => $data, "list" => $list );
+    }
+
     public function view() {
         if (isset($_REQUEST['done'])) {
             $message = $_REQUEST['done'];
@@ -177,10 +186,11 @@ class inventory extends database {
 
         if (isset($_REQUEST['id'])) {
             $id = $_REQUEST['id'];
-            $data = self::listOne($id);
-            $data['quantity'] =  self::getBalance( $id );
-            
-            $list = inventory_count::getSortedList($id, "inventory_id");
+
+            $return = self::processView($id);
+            $data = $return['data'];
+            $list = $return['list'];
+
             include_once(LH_PLUGIN_DIR."includes/pages/inventory/view.php");
         } else {
             echo '<div class="wrap">';
@@ -209,8 +219,219 @@ class inventory extends database {
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/report.php");
     }
 
+    public function print_view() {
+        if (isset($_REQUEST['id'])) {
+            global $pdf;
+            $id = $_REQUEST['id'];
+            $return = self::processView($id);
+            $data = $return['data'];
+            $list = $return['list'];
+                              
+            // set document information
+            $pdf->SetCreator('LekkiHill');
+            $pdf->SetAuthor('LekkiHill');
+            $pdf->SetTitle('Inventory Report');
+            $pdf->SetSubject('Inventory Report');
+            $pdf->SetKeywords('LekkiHill, PDF, Inventory, Report');
+            // set auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            
+            $pdf->SetDefaultMonospacedFont("courier");
+
+            $pdf->SetFont('dejavusans', '', 10);
+                        
+            // define barcode style
+            $style = array(
+                'position' => 'C',
+            );
+
+            // add a page
+            $pdf->AddPage();
+            
+            $pdf->write1DBarcode($data['sku'], 'C39', '', '', '', 18, 0.4, $style, 'N');
+
+            $pdf->Ln();
+
+            // create some HTML content
+            $html = '<h2>'.$data['title'].'</h2>
+            <table width="100%" border="0">
+            <tbody>
+            <tr class="striped">
+              <td width="25%">SKU</td>
+              <td>'.$data['sku'].'</td>
+            </tr>
+            <tr>
+              <td>Category</td>
+              <td>'.inventory_category::getSingle( $data['category_id'] ).'</td>
+             </tr>
+            <tr>
+              <td>Cost </td>
+              <td>'.'&#8358; '.number_format($data['cost'], 2).'</td>
+            </tr>
+            <tr>
+              <td>Quantity </td>
+              <td>'.$data['quantity'].'</td>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td>'.$data['status'].'</td>
+            </tr>
+            <tr>
+              <td>Created By</td>
+              <td>'.self::getuser( $data['created_by'] ).'</td>
+            </tr>
+            <tr>
+              <td>Created At</td>
+              <td>'.$data['create_time'].'</td>
+            </tr>
+            <tr>
+              <td>Last Modified by</td>
+              <td>'.self::getuser( $data['last_modified_by'] ).'</td>
+            </tr>
+            <tr>
+              <td>Modified At</td>
+              <td>'.$data['modify_time'].'</td>
+            </tr>
+            </tbody>
+          </table>
+        <h3>History</h3>
+        <table class="striped" id="datatable_list" border="1">
+        <thead>
+            <tr>
+            <td>#</td>
+            <td>Date</td>
+            <td>Quantity Left</td>
+            <td>Amount Added/Removed</td>
+            <td>Total Quantity</td>
+            <td>Added By</td>
+            </tr>
+        </thead>
+        <tbody>';
+            $count = 1;
+            for ($i = 0;  $i < count($list); $i++) {
+            $html .= '<tr>
+                <td>'.$count.'</td>
+                <td>'.$list[$i]['create_time'].'</td>
+                <td>'.number_format( $list[$i]['inventory_before_added'] ).'</td>
+                <td>'.($list[$i]['inventory_added'] < 0 ? "(".number_format( abs( $list[$i]['inventory_added'] ) ).")" : number_format( abs( $list[$i]['inventory_added'] ) ) ).'</td>
+                <td>'.number_format( $list[$i]['inventory_before_added']+$list[$i]['inventory_added'] ).'</td>
+                <td>'.self::getuser( $list[$i]['added_by'] ).'</td>
+                </tr>';
+                $count++;
+            }
+            $html .= '</tbody>
+            </table>';
+            // output the HTML content
+            $pdf->writeHTML($html, true, false, true, false, '');
+            $pdf->Output('example_006.pdf', 'I');
+        }
+    }
+
     public function  print_report() {
+        global $pdf;
         $result = self::processReport($_GET);
+                
+        // set document information
+        $pdf->SetCreator('LekkiHill');
+        $pdf->SetAuthor('LekkiHill');
+        $pdf->SetTitle('Inventory Report');
+        $pdf->SetSubject('Inventory Report');
+        $pdf->SetKeywords('LekkiHill, PDF, Inventory, Report');
+
+        $pdf->SetDefaultMonospacedFont("courier");
+
+        $pdf->SetFont('dejavusans', '', 10);
+
+        // add a page
+        $pdf->AddPage();
+
+        // create some HTML content
+
+        $html = '<h2>Inventory Report:</h2>
+        <p>Printed By: <strong>'.self::getuser( get_current_user_id() ).'</strong> | Print Date: <strong>'. date('l jS \of F Y h:i:s A').'</strong></p>
+        <table class=“striped” id="datatable_list" border="1">
+            <thead>
+                <tr>
+                <td>#</td>
+                <td>Date</td>
+                <td>Item</td>
+                <td>SKU</td>
+                <td>Cost</td>
+                <td>Quantity Left</td>
+                <td>Amount Added/Removed</td>
+                <td>Total Quantity</td>
+                <td>Added By</td>
+                </tr>
+            </thead>
+            <tbody>';
+            $html .= $count = 1;
+            for ($i = 0;  $i < count($result); $i++) {
+                $html .= '
+                <tr>
+                    <td>'.$count.'</td>
+                    <td>'.$result[$i]['create_time'].'</td>
+                    <td>'.$result[$i]['title'].'</td>
+                    <td>'.$result[$i]['sku'].'</td>
+                    <td>'."&#8358; ".number_format($result[$i]['cost'], 2).'</td>
+                    <td>'.number_format( $result[$i]['inventory_before_added'] ).'</td>
+                    <td>'.($result[$i]['inventory_added'] < 0 ? "(".number_format( abs( $result[$i]['inventory_added'] ) ).")" : number_format( abs( $result[$i]['inventory_added'] ) ) ).'</td>
+                    <td>'.number_format( $result[$i]['inventory_before_added']+$result[$i]['inventory_added'] ).'</td>
+                    <td>'.self::getuser( $result[$i]['added_by'] ).'</td>
+                </tr>';
+                $count++;
+            }
+            $html .= '</tbody>
+            </table>';
+
+        // output the HTML content
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('example_006.pdf', 'I');
+    }
+
+    public function downloadView() {
+        if (isset($_REQUEST['id'])) {
+            $id = $_REQUEST['id'];
+            $return = self::processView($id);
+            $data = $return['data'];
+            $list = $return['list'];
+            // filename for download
+            $filename = $data['title']."_" . date('Ymd') . ".csv";
+
+            header('Content-Description: File Transfer');
+            header('Content-Encoding: UTF-8');
+            header('Content-type: text/csv; charset=UTF-8');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+            $out = fopen("php://output", 'w');
+
+            $row_list = array();
+            $header = array();
+            $count = 1;
+
+            $header[] = "";
+            $header[] = "Date";
+            $header[] = "Quantity Left";
+            $header[] = "Amount Added_Remove";
+            $header[] = "Total Quantoty";
+            $header[] = "Added By";
+
+            fputcsv($out, $header, ',', '"');
+            foreach ($list as $row) {
+                $row_list[] = $count;
+                $row_list[] = $row['create_time'];
+                $row_list[] = number_format( $row['inventory_before_added'] );;
+                $row_list[] = ($row['inventory_added'] < 0 ? "(".number_format( abs( $row['inventory_added'] ) ).")" : number_format( abs( $row['inventory_added'] ) ) );
+                $row_list[] = number_format( $row['inventory_before_added']+$row['inventory_added'] );
+                $row_list[] = self::getuser( $row['added_by'] );
+
+                array_walk($row_list, array('self', 'cleanData') );
+                fputcsv($out, array_values($row_list), ',', '"');
+
+                $count++;
+                unset($row_list);
+            }
+            fclose($out);
+            exit;
+        }
     }
 
     public function downloadReport() {
@@ -268,7 +489,7 @@ class inventory extends database {
             $tag = " AND `wp_lekkihill_inventory_count`.`added_by` = ".$array['user'];
         }
 
-        $sql = "SELECT `wp_lekkihill_inventory`.`title`, `wp_lekkihill_inventory`.`sku`, `wp_lekkihill_inventory`.`category_id`, `wp_lekkihill_inventory_count`.`inventory_added`, `wp_lekkihill_inventory_count`.`inventory_before_added`, `wp_lekkihill_inventory_count`.`added_by`, `wp_lekkihill_inventory_count`.`create_time` FROM `wp_lekkihill_inventory`, `wp_lekkihill_inventory_count` WHERE `wp_lekkihill_inventory`.`ref` = `wp_lekkihill_inventory_count`.`inventory_id` AND DATE(`wp_lekkihill_inventory_count`.`create_time`) BETWEEN '".$array['from']." 00:00:00' AND '".$array['to']." 23:59:59'".$tag." ORDER BY `wp_lekkihill_inventory_count`.`create_time` DESC";
+        $sql = "SELECT `wp_lekkihill_inventory`.`ref`,`wp_lekkihill_inventory`.`title`, `wp_lekkihill_inventory`.`sku`, `wp_lekkihill_inventory`.`category_id`, `wp_lekkihill_inventory_count`.`inventory_added`, `wp_lekkihill_inventory_count`.`inventory_before_added`, `wp_lekkihill_inventory_count`.`added_by`, `wp_lekkihill_inventory_count`.`create_time` FROM `wp_lekkihill_inventory`, `wp_lekkihill_inventory_count` WHERE `wp_lekkihill_inventory`.`ref` = `wp_lekkihill_inventory_count`.`inventory_id` AND DATE(`wp_lekkihill_inventory_count`.`create_time`) BETWEEN '".$array['from']." 00:00:00' AND '".$array['to']." 23:59:59'".$tag." ORDER BY `wp_lekkihill_inventory_count`.`create_time` DESC";
         return self::query($sql, false, "list");
     }
 
