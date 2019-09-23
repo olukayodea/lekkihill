@@ -8,6 +8,10 @@
       <td width="25%"><label for="title"> Item Name</label></td>
       <td><input type="text" name="title" id="title" value="<?php echo $data['title']; ?>" required /></td>
     </tr>
+    <tr>
+      <td width="25%"><label for="cost"> Item Cost</label></td>
+      <td><input type="number" name="cost" id="cost" value="<?php echo $data['cost']; ?>" required step='0.01' placeholder='&#8358; 0.00' /></td>
+    </tr>
     <?php if (!isset($_REQUEST['id'])) { ?>
     <tr>
       <td width="25%"><label for="inventory_added">Opening Stock</label></td>

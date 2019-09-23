@@ -209,6 +209,56 @@ class inventory extends database {
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/report.php");
     }
 
+    public function  print_report() {
+        $result = self::processReport($_GET);
+    }
+
+    public function downloadReport() {
+        $result = self::processReport($_GET);
+
+        // filename for download
+        $filename = "inventory_" . date('Ymd') . ".csv";
+
+        header('Content-Description: File Transfer');
+        header('Content-Encoding: UTF-8');
+        header('Content-type: text/csv; charset=UTF-8');
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+        $out = fopen("php://output", 'w');
+
+        $row_list = array();
+        $header = array();
+        $count = 1;
+
+        $header[] = "";
+        $header[] = "Date";
+        $header[] = "Item";
+        $header[] = "SKU";
+        $header[] = "Quantity Left";
+        $header[] = "Amount Added_Remove";
+        $header[] = "Total Quantoty";
+        $header[] = "Added By";
+
+        fputcsv($out, $header, ',', '"');
+        foreach ($result as $row) {
+            $row_list[] = $count;
+            $row_list[] = $row['create_time'];
+            $row_list[] = $row['title'];
+            $row_list[] = $row['sku'];
+            $row_list[] = number_format( $row['inventory_before_added'] );;
+            $row_list[] = ($row['inventory_added'] < 0 ? "(".number_format( abs( $row['inventory_added'] ) ).")" : number_format( abs( $row['inventory_added'] ) ) );
+            $row_list[] = number_format( $row['inventory_before_added']+$row['inventory_added'] );
+            $row_list[] = self::getuser( $row['added_by'] );
+
+            array_walk($row_list, array('self', 'cleanData') );
+            fputcsv($out, array_values($row_list), ',', '"');
+
+            $count++;
+            unset($row_list);
+        }
+        fclose($out);
+        exit;
+    }
+
     private function processReport( $array ) {
         if ($array['view'] == "search") {
             $tag = " AND (`wp_lekkihill_inventory`.`title` LIKE '%".$array['search']."%' OR `wp_lekkihill_inventory`.`sku` LIKE '%".$array['search']."%')";
@@ -218,7 +268,7 @@ class inventory extends database {
             $tag = " AND `wp_lekkihill_inventory_count`.`added_by` = ".$array['user'];
         }
 
-        echo $sql = "SELECT `wp_lekkihill_inventory`.`title`, `wp_lekkihill_inventory`.`sku`, `wp_lekkihill_inventory`.`category_id`, `wp_lekkihill_inventory_count`.`inventory_added`, `wp_lekkihill_inventory_count`.`inventory_before_added`, `wp_lekkihill_inventory_count`.`added_by`, `wp_lekkihill_inventory_count`.`create_time` FROM `wp_lekkihill_inventory`, `wp_lekkihill_inventory_count` WHERE `wp_lekkihill_inventory`.`ref` = `wp_lekkihill_inventory_count`.`inventory_id` AND DATE(`wp_lekkihill_inventory_count`.`create_time`) BETWEEN '".$array['from']." 00:00:00' AND '".$array['to']." 23:59:59'".$tag." ORDER BY `wp_lekkihill_inventory_count`.`create_time` DESC";
+        $sql = "SELECT `wp_lekkihill_inventory`.`title`, `wp_lekkihill_inventory`.`sku`, `wp_lekkihill_inventory`.`category_id`, `wp_lekkihill_inventory_count`.`inventory_added`, `wp_lekkihill_inventory_count`.`inventory_before_added`, `wp_lekkihill_inventory_count`.`added_by`, `wp_lekkihill_inventory_count`.`create_time` FROM `wp_lekkihill_inventory`, `wp_lekkihill_inventory_count` WHERE `wp_lekkihill_inventory`.`ref` = `wp_lekkihill_inventory_count`.`inventory_id` AND DATE(`wp_lekkihill_inventory_count`.`create_time`) BETWEEN '".$array['from']." 00:00:00' AND '".$array['to']." 23:59:59'".$tag." ORDER BY `wp_lekkihill_inventory_count`.`create_time` DESC";
         return self::query($sql, false, "list");
     }
 
@@ -279,6 +329,7 @@ class inventory extends database {
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `title` VARCHAR(255) NOT NULL,
             `sku` VARCHAR(50) NOT NULL,
+            `cost` DOUBLE NOT NULL, 
             `category_id` INT NOT NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
             `created_by` INT NOT NULL, 

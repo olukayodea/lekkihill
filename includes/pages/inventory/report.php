@@ -62,10 +62,13 @@
 <?php if ($show == true) { ?>
 <h2>Query Result</h2>
 <p><?php echo $tag; ?></p>
-<button type="submit" class="button">
-<i class="fas fa-download fa-lg"></i>&nbsp;Download Report
+<button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-report-inventory&view='.$_POST['view'].'&search='.$_POST['search'].'&category='.$_POST['category'].'&user='.$_POST['user'].'&from='.urlencode($_POST['from']).'&to='.urlencode($_POST['to'])); ?>&downloadInventoryPDF'">
+<i class="fas fa-file-pdf fa-lg"></i>&nbsp;Download as PDF
 </button>
-<button type="submit" class="button">
+<button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-report-inventory&view='.$_POST['view'].'&search='.$_POST['search'].'&category='.$_POST['category'].'&user='.$_POST['user'].'&from='.urlencode($_POST['from']).'&to='.urlencode($_POST['to'])); ?>&downloadInventoryCSV'">
+<i class="fas fa-file-excel fa-lg"></i>&nbsp;Download as Excel
+</button>
+<button type="button" class="button">
 <i class="fas fa-print fa-lg"></i>&nbsp;Print Report
 </button>
 <table class='striped' id="datatable_list">
@@ -75,6 +78,7 @@
       <td>Date</td>
       <td>Item</td>
       <td>SKU</td>
+      <td>Cost</td>
       <td>Quantity Left</td>
       <td>Amount Added/Removed</td>
       <td>Total Quantity</td>
@@ -87,8 +91,9 @@
     <tr>
       <td><?php echo $count; ?></td>
       <td><?php echo $result[$i]['create_time']; ?></td>
-      <td><?php echo $result[$i]['title']; ?></td>
+      <td><a href="<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$list[$i]['ref']); ?>" title="View More"><?php echo $result[$i]['title']; ?></a></td>
       <td><?php echo $result[$i]['sku']; ?></td>
+      <td><?php echo "&#8358; ".number_format($result[$i]['cost'], 2); ?></td>
       <td><?php echo number_format( $result[$i]['inventory_before_added'] ); ?></td>
       <td><?php echo ($result[$i]['inventory_added'] < 0 ? "(".number_format( abs( $result[$i]['inventory_added'] ) ).")" : number_format( abs( $result[$i]['inventory_added'] ) ) ); ?></td>
       <td><?php echo number_format( $result[$i]['inventory_before_added']+$result[$i]['inventory_added'] ); ?></td>

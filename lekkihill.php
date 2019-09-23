@@ -13,10 +13,12 @@ global $wpdb;
 
 define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );
+if (defined('WP_CONTENT_DIR') && !defined('WP_INCLUDE_DIR')){
+    define('WP_INCLUDE_DIR', str_replace('wp-content', 'wp-includes', WP_CONTENT_DIR));
+ }
 //common functions
 require_once LH_PLUGIN_DIR . 'includes/controllers/common.php';
 $common = new common;
-
 //database
 require_once LH_PLUGIN_DIR . 'includes/database/main.php';
 $database = new database;
@@ -35,6 +37,18 @@ require_once LH_PLUGIN_DIR . 'includes/lh-functions.php';
 
 class mainClass extends main {
     function __construct() {
+		if(isset($_GET['downloadInventoryCSV'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            inventory::downloadReport();
+			exit;
+		}
+		if(isset($_GET['downloadInventoryPDF'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            inventory::print_report();
+			exit;
+		}
         //add amin menu on initialization
         add_action( 'admin_menu', array( "main", 'lh_add_menu' ) );
 		//initialize the imported CDN based script

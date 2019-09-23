@@ -24,6 +24,10 @@ if ($data['status'] == "INACTIVE") {
     <td><?php echo inventory_category::getSingle( $data['category_id'] );  ?></td>
    </tr>
   <tr>
+    <td>Cost </td>
+    <td><?php echo "&#8358; ".number_format($data['cost'], 2);  ?></td>
+  </tr>
+  <tr>
     <td>Quantity </td>
     <td><?php echo $data['quantity'];  ?></td>
   </tr>

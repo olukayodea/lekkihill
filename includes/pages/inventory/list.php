@@ -9,6 +9,7 @@
       <td>SKU</td>
       <td>Item</td>
       <td>Quantity</td>
+      <td>Cost</td>
       <td>Status</td>
       <td>Created By</td>
       <td>Time</td>
@@ -31,6 +32,7 @@
       <td><a href="<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$list[$i]['ref']); ?>" title="View More"><?php echo $list[$i]['title']; ?></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory&return='.$_REQUEST['page'].'&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a></td>
       <td><?php echo number_format( self::getBalance( $list[$i]['ref'] ) ); ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&add&id='.$list[$i]['ref']); ?>" title="Add to Stock"><i class="fas fa-plus-square" style="color:green"></i></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&remove&id='.$list[$i]['ref']); ?>" title="Remove from Stock"><i class="fas fa-minus-square" style="color:red"></i></a></td>
       <td><?php echo $list[$i]['status']; ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-inventory&return='.$_REQUEST['page'].'&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a></td>
+      <td><?php echo "&#8358; ".number_format($result[$i]['cost'], 2); ?></td>
       <td><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
       <td><?php echo $list[$i]['create_time']; ?></td>
       <td><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>

@@ -111,8 +111,8 @@ class main {
         );
 
         add_menu_page(
-            "Manage Inventory",
-            "Manage Inventory",
+            "Inventory",
+            "Inventory",
             "manage_inventory",
             "lh-inventory",
             array("inventory",'manage'),
