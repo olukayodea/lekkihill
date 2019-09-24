@@ -1,12 +1,16 @@
 <div class="wrap">
-<h2>Manage Inventory Category</h2>
+<h2>Manage Bill Component</h2>
 <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
 <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
 <form id="form2" name="form2" method="post" action="">
   <table width="50%" border="0">
     <tr>
-      <td width="25%"><label for="title"> Category Name</label></td>
+      <td width="25%"><label for="title"> Title</label></td>
       <td><input type="text" name="title" id="title" value="<?php echo $data['title']; ?>" required /></td>
+    </tr>
+    <tr>
+      <td width="25%"><label for="cost"> Item Cost</label></td>
+      <td><input type="number" name="cost" id="cost" value="<?php echo $data['cost']; ?>" step='0.01' placeholder='&#8358; 0.00' /></td>
     </tr>
     <?php if (isset($_REQUEST['id'])) { ?>
         <input type="hidden" name="ref" id="ref" value="<?php echo $data['ref']; ?>" />
@@ -36,12 +40,13 @@
     </tr>
   </table>
 </form>
-<h2>All Categories</h2>
+<h2>All Billing Components</h2>
 <table class='striped' id="datatable_list">
   <thead>
     <tr>
       <td>#</td>
-      <td>Category</td>
+      <td>Title</td>
+      <td>Cost</td>
       <td>Status</td>
       <td>Created By</td>
       <td>Time</td>
@@ -56,13 +61,14 @@
     <tr>
       <td><?php echo $count; ?></td>
       <td><?php echo $list[$i]['title']; ?></td>
+      <td><?php echo $list[$i]['cost']; ?></td>
       <td><?php echo $list[$i]['status']; ?></td>
       <td><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
       <td><?php echo $list[$i]['create_time']; ?></td>
       <td><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>
       <td><?php echo $list[$i]['modify_time']; ?></td>
-      <td><a href="<?php echo admin_url('admin.php?page=lh-category-inventory&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a> <a href="<?php echo admin_url('admin.php?page=lh-category-inventory&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a>
-      <a href="<?php echo admin_url('admin.php?page=lh-category-inventory&remove&id='.$list[$i]['ref']); ?>" onClick="return confirm('this action will remove this item. This action can not be undone. are you sure you want to continue ?')"><i class="fas fa-trash-alt"style="color:red"></i></a></td>
+      <td><a href="<?php echo admin_url('admin.php?page=lh-billing-component&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a> <a href="<?php echo admin_url('admin.php?page=lh-billing-component&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a>
+      <a href="<?php echo admin_url('admin.php?page=lh-billing-component&remove&id='.$list[$i]['ref']); ?>" onClick="return confirm('this action will remove this item. This action can not be undone. are you sure you want to continue ?')"><i class="fas fa-trash-alt"style="color:red"></i></a></td>
     </tr>
     <?php $count++;
     } ?>
@@ -70,10 +76,10 @@
 </table>
 
 <h3>Legend</h3>
-<i class="fas fa-play" title="Activate" style="color:green"></i>&nbsp;&nbsp;Activate Inventory Category<br>
-<i class="fas fa-stop" title="Deactivate" style="color:red"></i>&nbsp;&nbsp;Deactivate Inventory Category<br>
-<i class="fas fa-edit" title="Edit"></i>&nbsp;&nbsp;Edit Category<br>
-<i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Remove Category
+<i class="fas fa-play" title="Activate" style="color:green"></i>&nbsp;&nbsp;Activate Component<br>
+<i class="fas fa-stop" title="Deactivate" style="color:red"></i>&nbsp;&nbsp;Deactivate Component<br>
+<i class="fas fa-edit" title="Edit"></i>&nbsp;&nbsp;Edit Component<br>
+<i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Remove Component
 </div>
 
 <script>

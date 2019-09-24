@@ -92,7 +92,7 @@ class inventory extends database {
         } else {
             echo '<div class="wrap">';
             echo '<h2>Add Inventory Item</h2>';
-            echo '<div class="error"><p>You must create at least one category first. <a href="'.admin_url('cclh-category-inventory').'">click here</a> to create</a></p></div>';
+            echo '<div class="error"><p>You must create at least one category first. <a href="'.admin_url('admin.php?page=lh-category-inventory').'">click here</a> to create</a></p></div>';
             echo '</div>';
         }
     }
@@ -153,6 +153,14 @@ class inventory extends database {
             $error_message = $_REQUEST['error'];
         }
 
+        if (isset($_REQUEST['id'])) {
+            $id = $_REQUEST['id'];
+            $data = inventory_category::listOne($id);
+            $tag = "Modify Category";
+        } else {
+            $tag = "Add Category";
+        }
+
         if (isset($_POST['submit'])) {
             unset($_POST['submit']);
             $add = inventory_category::create($_POST);
@@ -162,6 +170,28 @@ class inventory extends database {
             } else {
                 $error_message = "there was an error performing this action";
                 self::returnUrl("error", $error_message);
+            }
+        } else if (isset($_GET['changeStatus'])) {
+            if ($_GET['changeStatus'] == "INACTIVE") {
+                $tag = "ACTIVE";
+                $msg = "activated";
+            } else if ($_GET['changeStatus'] == "ACTIVE") {
+                $tag = "INACTIVE";
+                $msg = "deactivated";
+            }
+
+            $update = self::updateOne(table_name_prefix."inventory_category", "status", $tag, $_GET['id']);
+            if ($update) {
+                $message = "Category ".$msg." successfully";
+            } else {
+                $error_message = "there was an error performing this action";
+            }
+        } else if (isset($_GET['remove'])) {
+            $update = self::updateOne(table_name_prefix."inventory_category", "status", "DELETED", $_GET['id']);
+            if ($update) {
+                $message = "Category deleted successfully";
+            } else {
+                $error_message = "there was an error performing this action";
             }
         }
         $list =  inventory_category::getList();

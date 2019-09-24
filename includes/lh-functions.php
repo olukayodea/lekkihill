@@ -209,6 +209,7 @@ class main {
         $inventory_category = new inventory_category;
         $patient    = new patient;
         $billing    = new billing;
+        $billing_component = new billing_component;
 
         $inventory->initialize_table();
         $inventory_used->initialize_table();
@@ -216,6 +217,7 @@ class main {
         $inventory_category->initialize_table();
         $patient->initialize_table();
         $billing->initialize_table();
+        $billing_component->initialize_table();
         //add user roles
         //add admin
 		add_role(
@@ -289,12 +291,13 @@ class main {
         self::remove_cap();
         self::remove_role();
 
-        $inventory  = new inventory;
-        $inventory_used = new inventory_used;
-        $inventory_count = new inventory_count;
+        $inventory          = new inventory;
+        $inventory_used     = new inventory_used;
+        $inventory_count    = new inventory_count;
         $inventory_category = new inventory_category;
-        $patient    = new patient;
-        $billing    = new billing;
+        $patient            = new patient;
+        $billing            = new billing;
+        $billing_component  = new billing_component;
 
         //$inventory->delete_table();
         //$inventory_used->delete_table();
@@ -302,15 +305,17 @@ class main {
         //$inventory_category->delete_table();
         $patient->delete_table();
         $billing->delete_table();
+        $billing_component->delete_table();
     }
 
     public function lh_uninstall() {
-        $inventory  = new inventory;
-        $inventory_used = new inventory_used;
-        $inventory_count = new inventory_count;
+        $inventory          = new inventory;
+        $inventory_used     = new inventory_used;
+        $inventory_count    = new inventory_count;
         $inventory_category = new inventory_category;
-        $patient    = new patient;
-        $billing    = new billing;
+        $patient            = new patient;
+        $billing            = new billing;
+        $billing_component  = new billing_component;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
@@ -318,6 +323,7 @@ class main {
         $inventory_category->delete_table();
         $patient->delete_table();
         $billing->delete_table();
+        $billing_component->delete_table();
     }
 
     // Remove the plugin-specific custom capability
