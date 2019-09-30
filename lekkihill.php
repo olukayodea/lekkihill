@@ -23,8 +23,6 @@ $common = new common;
 require_once LH_PLUGIN_DIR . 'includes\utilities\pdf\tcpdf.php';
 $pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
 
-// create new PDF document
-$pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
 //database
 require_once LH_PLUGIN_DIR . 'includes/database/main.php';
 $database = new database;
