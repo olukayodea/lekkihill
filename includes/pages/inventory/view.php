@@ -69,27 +69,37 @@ if ($data['status'] == "INACTIVE") {
 <button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemCSV'">
 <i class="fas fa-file-excel fa-lg"></i>&nbsp;Download as Excel
 </button>
-<table class='striped' id="datatable_list">
+<table class='widefat striped fixed' id="datatable_list">
   <thead>
     <tr>
-      <td>#</td>
-      <td>Date</td>
-      <td>Quantity Left</td>
-      <td>Amount Added/Removed</td>
-      <td>Total Quantity</td>
-      <td>Added By</td>
+      <th class="manage-column column-cb check-column"></th>
+      <th class="manage-column column-columnname" scope="col">Date</th>
+      <th class="manage-column column-columnname" scope="col">Quantity Left</th>
+      <th class="manage-column column-columnname" scope="col">Amount Added/Removed</th>
+      <th class="manage-column column-columnname" scope="col">Total Quantity</th>
+      <th class="manage-column column-columnname" scope="col">Added By</th>
     </tr>
   </thead>
+  <tfoot>
+    <tr>
+      <th class="manage-column column-cb check-column"></th>
+      <th class="manage-column column-columnname" scope="col">Date</th>
+      <th class="manage-column column-columnname" scope="col">Quantity Left</th>
+      <th class="manage-column column-columnname" scope="col">Amount Added/Removed</th>
+      <th class="manage-column column-columnname" scope="col">Total Quantity</th>
+      <th class="manage-column column-columnname" scope="col">Added By</th>
+    </tr>
+  </tfoot>
   <tbody>
     <?php $count = 1;
     for ($i = 0;  $i < count($list); $i++) { ?>
     <tr>
-      <td><?php echo $count; ?></td>
-      <td><?php echo $list[$i]['create_time']; ?></td>
-      <td><?php echo number_format( $list[$i]['inventory_before_added'] ); ?></td>
-      <td><?php echo ($list[$i]['inventory_added'] < 0 ? "(".number_format( abs( $list[$i]['inventory_added'] ) ).")" : number_format( abs( $list[$i]['inventory_added'] ) ) ); ?></td>
-      <td><?php echo number_format( $list[$i]['inventory_before_added']+$list[$i]['inventory_added'] ); ?></td>
-      <td><?php echo self::getuser( $list[$i]['added_by'] ); ?></td>
+      <th class="check-column" scope="row"><?php echo $count; ?></th>
+      <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
+      <td class="column-columnname"><?php echo number_format( $list[$i]['inventory_before_added'] ); ?></td>
+      <td class="column-columnname"><?php echo ($list[$i]['inventory_added'] < 0 ? "(".number_format( abs( $list[$i]['inventory_added'] ) ).")" : number_format( abs( $list[$i]['inventory_added'] ) ) ); ?></td>
+      <td class="column-columnname"><?php echo number_format( $list[$i]['inventory_before_added']+$list[$i]['inventory_added'] ); ?></td>
+      <td class="column-columnname"><?php echo self::getuser( $list[$i]['added_by'] ); ?></td>
     </tr>
     <?php $count++;
     } ?>
@@ -98,9 +108,6 @@ if ($data['status'] == "INACTIVE") {
 </div>
 <script>
 jQuery(function ($) {
-    $('#datatable_list').dataTable({
-	  "pageLength": 25
-	});
     $('#toplevel_page_lh-inventory').addClass('current wp-has-current-submenu wp-menu-open');
 } );
 </script>
