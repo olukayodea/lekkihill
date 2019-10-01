@@ -20,7 +20,7 @@ if (defined('WP_CONTENT_DIR') && !defined('WP_INCLUDE_DIR')){
 require_once LH_PLUGIN_DIR . 'includes/controllers/common.php';
 $common = new common;
 
-require_once LH_PLUGIN_DIR . 'includes\utilities\pdf\tcpdf.php';
+require_once LH_PLUGIN_DIR . 'includes/utilities/pdf/tcpdf.php';
 $pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
 
 //database
