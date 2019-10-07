@@ -51,7 +51,7 @@ class main {
             "Appointments",
             "manage_patient",
             "lh-manage-appointments",
-            array(__CLASS__,'cpc_create'),
+            array("appointments",'manage'),
             "dashicons-schedule",'2.2.9'
         );
 
@@ -61,7 +61,7 @@ class main {
             "Search Patients",
             "manage_patient",
             "lh-manage-appointments",
-            array(__CLASS__,'cpc_create')
+            array("appointments",'manage')
         );
 
         add_submenu_page(
@@ -70,7 +70,7 @@ class main {
             "Book Appointment",
             "manage_patient",
             "lh-book-appointments",
-            array(__CLASS__,'cpc_create')
+            array("appointments",'cpc_create')
         );
 
         add_submenu_page(
@@ -79,7 +79,7 @@ class main {
             "Today",
             "manage_patient",
             "lh-today-appointments",
-            array(__CLASS__,'cpc_create')
+            array("appointments",'cpc_create')
         );
 
         add_submenu_page(
@@ -88,7 +88,7 @@ class main {
             "Upcoming",
             "manage_patient",
             "lh-comming-appointments",
-            array(__CLASS__,'cpc_create')
+            array("appointments",'cpc_create')
         );
 
         add_submenu_page(
@@ -97,7 +97,7 @@ class main {
             "Past",
             "manage_patient",
             "lh-past-appointments",
-            array(__CLASS__,'cpc_create')
+            array("appointmentsk",'cpc_create')
         );
 
         add_menu_page(
@@ -211,13 +211,17 @@ class main {
 
     function lh_install () {
         //setup tables
-        $inventory  = new inventory;
-        $inventory_used = new inventory_used;
-        $inventory_count = new inventory_count;
-        $inventory_category = new inventory_category;
-        $patient    = new patient;
-        $billing    = new billing;
-        $billing_component = new billing_component;
+        $inventory              = new inventory;
+        $inventory_used         = new inventory_used;
+        $inventory_count        = new inventory_count;
+        $inventory_category     = new inventory_category;
+
+        $patient                = new patient;
+        $billing                = new billing;
+        $billing_component      = new billing_component;
+
+        $appointments           = new appointments;
+        $appointments_history   = new appointments_history;
 
         $inventory->initialize_table();
         $inventory_used->initialize_table();
@@ -226,6 +230,8 @@ class main {
         $patient->initialize_table();
         $billing->initialize_table();
         $billing_component->initialize_table();
+        $appointments->initialize_table();
+        $appointments_history->initialize_table();
         //add user roles
         //add admin
 		add_role(
@@ -299,21 +305,25 @@ class main {
         self::remove_cap();
         self::remove_role();
 
-        $inventory          = new inventory;
-        $inventory_used     = new inventory_used;
-        $inventory_count    = new inventory_count;
-        $inventory_category = new inventory_category;
-        $patient            = new patient;
-        $billing            = new billing;
-        $billing_component  = new billing_component;
+        $inventory              = new inventory;
+        $inventory_used         = new inventory_used;
+        $inventory_count        = new inventory_count;
+        $inventory_category     = new inventory_category;
+        $patient                = new patient;
+        $billing                = new billing;
+        $billing_component      = new billing_component;
+        $appointments           = new appointments;
+        $appointments_history   = new appointments_history;
 
-        //$inventory->delete_table();
-        //$inventory_used->delete_table();
-        //$inventory_count->delete_table();
-        //$inventory_category->delete_table();
-        $patient->delete_table();
-        $billing->delete_table();
-        $billing_component->delete_table();
+        // $inventory->delete_table();
+        // $inventory_used->delete_table();
+        // $inventory_count->delete_table();
+        // $inventory_category->delete_table();
+        // $patient->delete_table();
+        // $billing->delete_table();
+        // $billing_component->delete_table();
+        // $appointments->delete_table();
+        // $appointments_history->delete_table();
     }
 
     public function lh_uninstall() {
@@ -321,9 +331,11 @@ class main {
         $inventory_used     = new inventory_used;
         $inventory_count    = new inventory_count;
         $inventory_category = new inventory_category;
-        $patient            = new patient;
-        $billing            = new billing;
-        $billing_component  = new billing_component;
+        $patient                = new patient;
+        $billing                = new billing;
+        $billing_component      = new billing_component;
+        $appointments           = new appointments;
+        $appointments_history   = new appointments_history;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
@@ -332,6 +344,8 @@ class main {
         $patient->delete_table();
         $billing->delete_table();
         $billing_component->delete_table();
+        $appointments->delete_table();
+        $appointments_history->delete_table();
     }
 
     // Remove the plugin-specific custom capability
@@ -385,8 +399,11 @@ class main {
 		wp_enqueue_script( 'load-select2-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js' );
 		wp_enqueue_style( 'load-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css' );
 		wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
-		wp_enqueue_script( 'load-datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js' );
-		wp_enqueue_style( 'load-datepicker-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' );
+		//wp_enqueue_script( 'load-datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js' );
+        //wp_enqueue_style( 'load-datepicker-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' );
+        
+		wp_enqueue_style( 'load-datepicker-css', plugins_url( 'css/jquery.datetimepicker.css' , __FILE__ ) );
+        wp_enqueue_script( 'load-datepicker-js', plugins_url( 'js/jquery.datetimepicker.js' , __FILE__ ));
 	}
 }
 ?>

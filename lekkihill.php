@@ -32,9 +32,13 @@ $db       = $database->connect();
 require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
-$patient    = new patient;
-$billing    = new billing;
-$inventory  = new inventory;
+require_once LH_PLUGIN_DIR . 'includes/controllers/appointments.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/appointments_history.php';
+$patient                = new patient;
+$billing                = new billing;
+$inventory              = new inventory;
+$appointment            = new appointments;
+$appointments_history   = new appointments_history;
 
 //main functions
 require_once LH_PLUGIN_DIR . 'includes/lh-functions.php';
@@ -76,9 +80,12 @@ class mainClass extends main {
         register_uninstall_hook( __FILE__, array( $this, 'lh_uninstall' ) );
     }
 }
+
 function app_output_buffer() {
 	ob_start();
 } // soi_output_buffer
+
 add_action('init', 'app_output_buffer');
+
 new mainClass;
 ?>
