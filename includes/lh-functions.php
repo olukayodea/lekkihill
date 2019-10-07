@@ -1,7 +1,15 @@
 <?php
 class main {
+    //create the API route
+    public function apiRoutes() {
+        register_rest_route( 'lekkihill', 'appointment/add',array(
+            'methods'  => 'POST',
+            'callback' => 'get_latest_posts_by_category'
+        ));
+    }
+
     //get all the  menus  and  submenu
-    function  lh_add_menu() {
+    public function  lh_add_menu() {
         add_menu_page(
             "Patients Record",
             "Patients Record",
