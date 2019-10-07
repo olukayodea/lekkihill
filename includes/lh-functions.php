@@ -2,17 +2,33 @@
 class main {
     //create the API route
     public function apiRoutes() {
-        register_rest_route( 'lekkihill', 'appointment/add',array(
+        //url = https://lekkihill.com/api/appointment/add;
+        register_rest_route( 'api', 'appointment/add',array(
             'methods'  => 'POST',
             'callback' => array("appointments",'createAPI')
+        ));
+        //url = https://lekkihill.com/api/users/login;
+        register_rest_route( 'api', 'users/login',array(
+            'methods'  => 'POST',
+            'callback' => array("users",'login')
+        ));
+        // //url = https://lekkihill.com/api/users/ID;
+        // register_rest_route( 'api', 'users/(?P<category_id>\d+)',array(
+        //     'methods'  => 'GET',
+        //     'callback' => array("users",'getDetails')
+        // ));
+        //url = https://lekkihill.com/api/users;
+        register_rest_route( 'api', 'users',array(
+            'methods'  => 'GET',
+            'callback' => array("users",'getDetails')
         ));
     }
 
     //get all the  menus  and  submenu
     public function  lh_add_menu() {
         add_menu_page(
-            "Patients Record",
-            "Patients Record",
+            "Patients",
+            "Patients",
             "manage_patient",
             "lh-manage-patient",
             array(__CLASS__,'cpc_create'),
@@ -21,8 +37,8 @@ class main {
 
         add_submenu_page(
             "lh-manage-patient",
-            "Search Patients",
-            "Search Patients",
+            "Search",
+            "Search",
             "manage_patient",
             "lh-manage-patient",
             array(__CLASS__,'cpc_create')
@@ -30,8 +46,8 @@ class main {
 
         add_submenu_page(
             "lh-manage-patient",
-            "Add Patients",
-            "Add Patients",
+            "Add",
+            "Add",
             "manage_patient",
             "lh-add-patient",
             array(__CLASS__,'cpc_create')
@@ -57,8 +73,8 @@ class main {
 
         add_submenu_page(
             "lh-manage-appointments",
-            "Search Patients",
-            "Search Patients",
+            "Search",
+            "Search",
             "manage_patient",
             "lh-manage-appointments",
             array("appointments",'manage')
@@ -140,7 +156,7 @@ class main {
             "lh-billing",
             "Reports",
             "Reports",
-            "mamange_accounts",
+            "mamange_accounts_report",
             "lh-billing-report",
             array("billing",'report')
         );
@@ -211,6 +227,7 @@ class main {
 
     function lh_install () {
         //setup tables
+        $users                  = new users;
         $inventory              = new inventory;
         $inventory_used         = new inventory_used;
         $inventory_count        = new inventory_count;
@@ -223,6 +240,7 @@ class main {
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
 
+        $users->initialize_table();
         $inventory->initialize_table();
         $inventory_used->initialize_table();
         $inventory_count->initialize_table();
@@ -305,6 +323,7 @@ class main {
         self::remove_cap();
         self::remove_role();
 
+        $users                  = new users;
         $inventory              = new inventory;
         $inventory_used         = new inventory_used;
         $inventory_count        = new inventory_count;
@@ -315,6 +334,7 @@ class main {
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
 
+        $users->clear_table();
         // $inventory->delete_table();
         // $inventory_used->delete_table();
         // $inventory_count->delete_table();

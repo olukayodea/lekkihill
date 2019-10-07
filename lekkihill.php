@@ -29,11 +29,13 @@ $database = new database;
 $db       = $database->connect();
 
 //classes and functions
+require_once LH_PLUGIN_DIR . 'includes/controllers/users.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments_history.php';
+$users                  = new users;
 $patient                = new patient;
 $billing                = new billing;
 $inventory              = new inventory;
@@ -42,6 +44,39 @@ $appointments_history   = new appointments_history;
 
 //main functions
 require_once LH_PLUGIN_DIR . 'includes/lh-functions.php';
+
+//list of capabilities and pages
+$capabilityArray = array();
+$capabilityArray['manage_patient'] = array(
+    "Patients"=> array("Search", "Add"),
+    "Appointments"=> array("Search", "Book Appointment","Today","Upcoming","Past")
+);
+
+$capabilityArray['manage_patient_report'] = array(
+    "Patients"=> array("Reports")
+);
+$capabilityArray['manage_inventory'] = array(
+    "Inventory"=> array("List Inventory","Add Inventory","List Inventory","Manage Inventory Item", "View Inventory Item")
+);
+$capabilityArray['manage_inventory_report'] = array(
+    "Inventory"=> array("Reports")
+);
+$capabilityArray['manage_inventory_category'] = array(
+    "Inventory"=> array("Categories")
+);
+
+$capabilityArray['mamange_accounts'] = array(
+    "Finance"=> array("Search", "Create New Invoice", "Components")
+);
+$capabilityArray['mamange_accounts_report'] = array(
+    "Finance"=> array("Reports")
+);
+$capabilityArray['administrator'] = array(
+    "Patients"=> array("Search", "Add", "Reports"),
+    "Appointments"=> array("Search", "Book Appointment","Today","Upcoming","Past"),
+    "Inventory"=> array("List Inventory","Add Inventory","List Inventory","Manage Inventory Item", "View Inventory Item", "Reports", "Categories"),
+    "Finance"=> array("Search", "Create New Invoice", "Components", "Reports")
+);
 
 class mainClass extends main {
     function __construct() {

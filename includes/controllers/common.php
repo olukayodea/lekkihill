@@ -22,11 +22,48 @@ class common {
 
         return '<i class="fas '.$faa.$size.'" title="'.$tag.'"'.$style.'></i>'.$tagTitle;
     }
+    
+    public function createRandomPassword($len = 7) { 
+        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; 
+        srand((double)microtime()*1000000); 
+        $i = 0; 
+        $pass = '' ; 
+        $count = strlen($chars);
+        while ($i <= $len) { 
+            $num = rand() % $count; 
+            $tmp = substr($chars, $num, 1); 
+            $pass = $pass . $tmp; 
+            $i++; 
+        } 
+        return $pass; 
+    }
 
     public function getuser($id, $return="user_nicename") {
         $data = get_user_by('id', $id);
 
         return $data->$return;
+    }
+    
+    private function authenticatedUser($authToken) {
+        global $users;
+        $split = explode("_", base64_decode($authToken));
+        $token = $split[1];
+
+        return $users->listOne($token, "token");
+    }
+
+    public function authenticate($header) {
+        $split = explode("_", base64_decode($header['x_api_token']));
+        $token = $split[1];
+        if ($header['x_api_key'] == $split[0]) {
+            if ($this->checkExixst("users", "token", $token) == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     function returnUrl($type=false, $message=false) {
