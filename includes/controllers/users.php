@@ -42,11 +42,11 @@ class users extends database {
     private function getToken ($id) {
         global $wpdb;
         $token = self::createRandomPassword(5).$id.self::createRandomPassword(5);
-        // $wpdb->update(
-        //     $wpdb->prefix."users",
-        //     array("user_token" => $token),
-        //     array("ID" => $id)
-        // );
+        $wpdb->update(
+            $wpdb->prefix."users",
+            array("user_token" => $token),
+            array("ID" => $id)
+        );
         return $token;
     }
 
