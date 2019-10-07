@@ -68,7 +68,9 @@ class mainClass extends main {
 
             inventory::print_view();
 			exit;
-		}
+        }
+        //add REST API
+        add_action('rest_api_init', array( "main", 'apiRoutes' ) );
         //add amin menu on initialization
         add_action( 'admin_menu', array( "main", 'lh_add_menu' ) );
 		//initialize the imported CDN based script

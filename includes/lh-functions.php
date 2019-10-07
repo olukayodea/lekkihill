@@ -4,7 +4,7 @@ class main {
     public function apiRoutes() {
         register_rest_route( 'lekkihill', 'appointment/add',array(
             'methods'  => 'POST',
-            'callback' => 'get_latest_posts_by_category'
+            'callback' => array("appointments",'createAPI')
         ));
     }
 
@@ -399,8 +399,6 @@ class main {
 		wp_enqueue_script( 'load-select2-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js' );
 		wp_enqueue_style( 'load-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css' );
 		wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
-		//wp_enqueue_script( 'load-datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js' );
-        //wp_enqueue_style( 'load-datepicker-css', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' );
         
 		wp_enqueue_style( 'load-datepicker-css', plugins_url( 'css/jquery.datetimepicker.css' , __FILE__ ) );
         wp_enqueue_script( 'load-datepicker-js', plugins_url( 'js/jquery.datetimepicker.js' , __FILE__ ));

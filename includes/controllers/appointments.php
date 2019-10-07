@@ -23,7 +23,21 @@ class appointments extends database {
             }
         }
         $list = self::getSortedList("NEW", "status");
-		include_once(LH_PLUGIN_DIR."includes\pages\appointments\manage.php");
+		include_once(LH_PLUGIN_DIR."includes/pages/appointments/manage.php");
+    }
+
+    public function createAPI($request) {
+        $parameters = $request->get_params();
+        $add = self::create($parameters);
+
+        if ($add) {
+            $return['status'] = "200";
+            $return['message'] = "OK";
+        } else {
+            $return['status'] = "500";
+            $return['message'] = "Internal Server Error";
+        }
+        return ($return);
     }
 
     private function create($array) {
