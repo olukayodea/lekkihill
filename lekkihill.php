@@ -10,6 +10,8 @@ License: GPLv2 or later
 Text Domain: akismet
 */
 global $wpdb;
+//$key = "1524849520";
+//$token = "MTUyNDg0OTUyMF8xMTI0MVJDTDhCMjk4QlcwTUhQ";
 
 define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );

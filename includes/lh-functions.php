@@ -2,22 +2,22 @@
 class main {
     //create the API route
     public function apiRoutes() {
-        //url = https://lekkihill.com/api/appointment/add;
+        //url = https://lekkihill.com/wp-json/api/appointment/add;
         register_rest_route( 'api', 'appointment/add',array(
             'methods'  => 'POST',
             'callback' => array("appointments",'createAPI')
         ));
-        //url = https://lekkihill.com/api/users/login;
+        //url = https://lekkihill.com/wp-json/api/users/login;
         register_rest_route( 'api', 'users/login',array(
             'methods'  => 'POST',
             'callback' => array("users",'login')
         ));
-        // //url = https://lekkihill.com/api/users/ID;
+        //url = https://lekkihill.com/wp-json/api/users/ID;
         // register_rest_route( 'api', 'users/(?P<category_id>\d+)',array(
         //     'methods'  => 'GET',
         //     'callback' => array("users",'getDetails')
         // ));
-        //url = https://lekkihill.com/api/users;
+        //url = https://lekkihill.com/wp-json/api/users;
         register_rest_route( 'api', 'users',array(
             'methods'  => 'GET',
             'callback' => array("users",'getDetails')

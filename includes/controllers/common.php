@@ -44,26 +44,22 @@ class common {
         return $data->$return;
     }
     
-    private function authenticatedUser($authToken) {
-        global $users;
-        $split = explode("_", base64_decode($authToken));
-        $token = $split[1];
-
-        return $users->listOne($token, "token");
+    private function authenticatedUser($token) {
+        $id = users::getSingle($token, "ID", "user_token");
+        return $id;
     }
 
     public function authenticate($header) {
-        $split = explode("_", base64_decode($header['x_api_token']));
+        $split = explode("_", base64_decode($header['api_token'][0]));
         $token = $split[1];
-        if ($header['x_api_key'] == $split[0]) {
-            if ($this->checkExixst("users", "token", $token) == 1) {
-                return true;
-            } else {
-                return false;
-            }
+        if ($header['api_key'][0] == $split[0]) {
+            $return = self::authenticatedUser($token);
         } else {
-            return false;
+            $return['status'] = "401";
+            $return['message'] = "Unauthorized";
         }
+
+        return $return;
     }
 
     function returnUrl($type=false, $message=false) {
