@@ -3,6 +3,10 @@
 use function PHPSTORM_META\type;
 
 class common {
+    public function validateSession($request) {
+        return users::getDetails($request);
+    }
+
     public function getLink($status, $title=false) {
         if ($status == "INACTIVE") {
             $tag = "Activate";
@@ -44,8 +48,9 @@ class common {
         return $data->$return;
     }
     
-    private function authenticatedUser($token) {
-        $id = users::getSingle($token, "ID", "user_token");
+    private static function authenticatedUser($token) {
+        global $users;
+        $id = $users->getSingle($token, "ID", "user_token");
         return $id;
     }
 
@@ -53,12 +58,19 @@ class common {
         $split = explode("_", base64_decode($header['api_token'][0]));
         $token = $split[1];
         if ($header['api_key'][0] == $split[0]) {
-            $return = self::authenticatedUser($token);
+            $id = self::authenticatedUser($token);
+            if ($id != false) {
+                $return['status'] = "200";
+                $return['message'] = "OK";
+                $return['ID'] = $id['ID'];
+            } else {
+                $return['status'] = "404";
+                $return['message'] = "User is not Authorized";
+            }
         } else {
             $return['status'] = "401";
             $return['message'] = "Unauthorized";
         }
-
         return $return;
     }
 

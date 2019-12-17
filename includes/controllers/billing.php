@@ -1,5 +1,6 @@
 <?php
 class billing extends database {
+    protected $userData = array();
     public function search() {
 
     }

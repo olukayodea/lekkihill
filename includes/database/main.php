@@ -91,7 +91,7 @@
             return self::run($query, $return, "getCol");
         }
         
-        public static function list($table, $start=false, $limit=false, $order='ref', $dir='ASC', $where=false, $type="list") {
+        public static function lists($table, $start=false, $limit=false, $order='ref', $dir='ASC', $where=false, $type="list") {
             $endTag = "";
             if ($where != false ) {
                 $endTag .= " WHERE ".$where;

@@ -1,7 +1,7 @@
 <?php
 class main {
     //create the API route
-    public function apiRoutes() {
+    public static function apiRoutes() {
         //url = https://lekkihill.com/wp-json/api/appointment/add;
         register_rest_route( 'api', 'appointment/add',array(
             'methods'  => 'POST',
@@ -13,14 +13,72 @@ class main {
             'callback' => array("users",'login')
         ));
         //url = https://lekkihill.com/wp-json/api/users/ID;
-        // register_rest_route( 'api', 'users/(?P<category_id>\d+)',array(
-        //     'methods'  => 'GET',
-        //     'callback' => array("users",'getDetails')
-        // ));
+        register_rest_route( 'api', 'users/(?P<user_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("users",'listAllUsers')
+        ));
         //url = https://lekkihill.com/wp-json/api/users;
         register_rest_route( 'api', 'users',array(
             'methods'  => 'GET',
-            'callback' => array("users",'getDetails')
+            'callback' => array("users",'listUsers')
+        ));
+
+        //GET inventory routes
+        //url = https://lekkihill.com/wp-json/api/inventory/category/ID;
+        register_rest_route( 'api', 'inventory/category/(?P<category_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("inventory",'apiListByCategory')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory/category;
+        register_rest_route( 'api', 'inventory/category',array(
+            'methods'  => 'GET',
+            'callback' => array("inventory",'apiGetCategoryList')
+        ));
+
+        //url = https://lekkihill.com/wp-json/api/inventory/ID;
+        register_rest_route( 'api', 'inventory/(?P<category_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("inventory",'apiGetOne')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory;
+        register_rest_route( 'api', 'inventory',array(
+            'methods'  => 'GET',
+            'callback' => array("inventory",'apiGetList')
+        ));
+        //POST inventory routes
+        //url = https://lekkihill.com/wp-json/api/inventory/search;
+        register_rest_route( 'api', 'inventory/search',array(
+            'methods'  => 'POST',
+            'callback' => array("inventory",'apiSearch')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory/category;
+        register_rest_route( 'api', 'inventory/category',array(
+            'methods'  => 'POST',
+            'callback' => array("inventory",'apiCreateCategory')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory;
+        register_rest_route( 'api', 'inventory',array(
+            'methods'  => 'POST',
+            'callback' => array("inventory",'apiCreateInventory')
+        ));
+
+        //PUT inventory routes
+        //url = https://lekkihill.com/wp-json/api/inventory/category;
+        register_rest_route( 'api', 'inventory/category',array(
+            'methods'  => 'PUT',
+            'callback' => array("inventory",'apiCreateCategory')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory;
+        register_rest_route( 'api', 'inventory',array(
+            'methods'  => 'PUT',
+            'callback' => array("inventory",'apiCreateInventory')
+        ));
+
+        //DELETE inventory route
+        //url = https://lekkihill.com/wp-json/api/inventory/category/ID;
+        register_rest_route( 'api', 'inventory/category/(?P<category_id>\d+)',array(
+            'methods'  => 'DELETE',
+            'callback' => array("inventory",'apiDeleteCategory')
         ));
     }
 

@@ -1,5 +1,252 @@
 <?php
 class inventory extends database {
+    public static $return = array();
+    public static $userData = array();
+    public static $successResponse = array("status" => "200", "message" => "OK");
+    public static $notFound = array("status" => "404", "message" => "Not Found");
+    public static $Unauthorized = array("status" => "401", "message" => "Unauthorized");
+    public static $BadReques = array("status" => "400", "message" => "Bad Reques");
+    public static $internalServerError = array("status" => "500", "message" => "Internal Server Error");
+
+    public function apiCreateCategory($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $parameters = $request->get_params();
+        $parameters['created_by'] = self::$userData['ID'];
+        $parameters['last_modified_by'] = self::$userData['ID'];
+        $add = inventory_category::create($parameters);
+        if ($add) {
+            self::$return = self::$successResponse;
+            self::$return['ID'] = $add;
+        } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+            self::$return = self::$BadReques;
+        }
+
+        return self::$return;
+    }
+
+    public function apiDeleteCategory($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $id = $request['category_id'];
+        if (intval($id) > 0) {
+            $update = self::updateOne(table_name_prefix."inventory_category", "status", "DELETED", $id);
+            if ($update) {
+                self::$successResponse['additional_message'] = "Category deleted successfully";
+                self::$return = self::$successResponse;
+            } else {
+                self::$internalServerError['additional_message'] = "there was an error performing this action";
+                self::$return = self::$internalServerError;
+            }
+        } else {
+            self::$BadReques['additional_message'] = "ID invalid";
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
+    }
+
+    public function apiCreateInventory($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $parameters = $request->get_params();
+        $parameters['created_by'] = self::$userData['ID'];
+        $parameters['last_modified_by'] = self::$userData['ID'];
+        $add = self::create($_POST);
+        if ($add) {
+            self::$return = self::$successResponse;
+            self::$return['ID'] = $add;
+        } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+            self::$return = self::$BadReques;
+        }
+
+        return self::$return;
+    }
+
+    public function apiSearch($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $parameters = $request->get_params();
+
+        if ((!isset($parameters['from']) || (strtotime($parameters['from']) > time()))) {
+            self::$BadReques['additional_message'] = "'from' field is missing or  contains a time in the future";
+            self::$return = self::$BadReques;
+        } else if (($parameters['view'] == "search") && (!isset($parameters['search']) || ($parameters['search'] == ""))) {
+            self::$BadReques['additional_message'] = "'search' field is missing or empty";
+            self::$return = self::$BadReques;
+        } else if (($parameters['view'] == "category") && (!isset($parameters['category']) || (intval($parameters['category']) < 1))) {
+            self::$BadReques['additional_message'] = "'category' field is missing or not a number";
+            self::$return = self::$BadReques;
+        } else if (($parameters['view'] == "user") && (!isset($parameters['user']) || (intval($parameters['user']) < 1))) {
+            self::$BadReques['additional_message'] = "'user' field is missing or not a number";
+            self::$return = self::$BadReques;
+        } else {
+            if (!isset($parameters['to'])) {
+                $parameters['to'] = date("Y-m-d", time());
+            }
+            self::$return = self::$successResponse;
+            self::$return['data'] = self::processReport($parameters);
+        }
+
+        return self::$return;
+    }
+
+    public function apiGetOne($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $id = $request['category_id'];
+        if (intval($id) > 0) {
+            self::$return = self::$successResponse;
+            self::$return['data'] = self::processView($id);
+        } else {
+            self::$BadReques['additional_message'] = "ID invalid";
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
+    }
+
+    public function apiListByCategory($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $id = $request['category_id'];
+        if (intval($id) > 0) {
+            self::$return = self::$successResponse;
+            self::$return['data'] = self::listByCategory($id);
+        } else {
+            self::$BadReques['additional_message'] = "ID invalid";
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
+    }
+
+    public function apiGetCategoryList($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $return = self::$successResponse;
+        $return['data'] = inventory_category::getList();
+
+        return $return;
+    }
+    
+    public function apiGetList($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        
+        $return = self::$successResponse;
+        $return['data'] = self::getList();
+
+        return $return;
+    }
+
+    public function apiAdd($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $return = self::$successResponse;
+        $return['data'] = self::getList();
+
+        return $return;
+    }
+
+    public function apiManage($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $return = self::$successResponse;
+        $return['data'] = self::getList();
+
+        return $return;
+    }
+
     public function manage() {
         if (isset($_REQUEST['done'])) {
             $message = $_REQUEST['done'];
@@ -146,6 +393,11 @@ class inventory extends database {
         }
     }
 
+    private function listByCategory($id) {
+        $data = self::getSortedList($id, "category_id");
+        return $data;
+    }
+
     public function categories() {
         if (isset($_REQUEST['done'])) {
             $message = $_REQUEST['done'];
@@ -163,6 +415,9 @@ class inventory extends database {
 
         if (isset($_POST['submit'])) {
             unset($_POST['submit']);
+
+            $_POST['created_by'] = get_current_user_id();
+            $_POST['last_modified_by'] = get_current_user_id();
             $add = inventory_category::create($_POST);
             if ($add) {
                 $message = "Category saved successfully";
@@ -204,7 +459,7 @@ class inventory extends database {
         
         $list = inventory_count::getSortedList($id, "inventory_id");
 
-        return array( "data" => $data, "list" => $list );
+        return array( "data" => $data, "inventory_activity" => $list );
     }
 
     public function view() {
@@ -219,7 +474,7 @@ class inventory extends database {
 
             $return = self::processView($id);
             $data = $return['data'];
-            $list = $return['list'];
+            $inventory_activity = $return['inventory_activity'];
 
             include_once(LH_PLUGIN_DIR."includes/pages/inventory/view.php");
         } else {
@@ -559,7 +814,7 @@ class inventory extends database {
     }
 
     function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
-        return self::list(table_name_prefix."inventory", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+        return self::lists(table_name_prefix."inventory", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
     function getSingle($name, $tag="title", $ref="ref") {

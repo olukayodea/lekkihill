@@ -1,5 +1,6 @@
 <?php
 class appointments extends database {
+    protected $userData = array();
     public function manage() {
         if (isset($_REQUEST['open'])) {
             if (isset($_REQUEST['id'])) {
@@ -45,7 +46,7 @@ class appointments extends database {
     }
     
     function getList($start=false, $limit=false, $order="names", $dir="ASC", $type="list") {
-        return self::list(table_name_prefix."appointments", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+        return self::lists(table_name_prefix."appointments", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
     function getSingle($name, $tag="names", $ref="ref") {

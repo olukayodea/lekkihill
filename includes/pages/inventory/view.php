@@ -92,14 +92,14 @@ if ($data['status'] == "INACTIVE") {
   </tfoot>
   <tbody>
     <?php $count = 1;
-    for ($i = 0;  $i < count($list); $i++) { ?>
+    for ($i = 0;  $i < count($inventory_activity); $i++) { ?>
     <tr>
       <th class="check-column" scope="row"><?php echo $count; ?></th>
-      <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
-      <td class="column-columnname"><?php echo number_format( $list[$i]['inventory_before_added'] ); ?></td>
-      <td class="column-columnname"><?php echo ($list[$i]['inventory_added'] < 0 ? "(".number_format( abs( $list[$i]['inventory_added'] ) ).")" : number_format( abs( $list[$i]['inventory_added'] ) ) ); ?></td>
-      <td class="column-columnname"><?php echo number_format( $list[$i]['inventory_before_added']+$list[$i]['inventory_added'] ); ?></td>
-      <td class="column-columnname"><?php echo self::getuser( $list[$i]['added_by'] ); ?></td>
+      <td class="column-columnname"><?php echo $inventory_activity[$i]['create_time']; ?></td>
+      <td class="column-columnname"><?php echo number_format( $inventory_activity[$i]['inventory_before_added'] ); ?></td>
+      <td class="column-columnname"><?php echo ($inventory_activity[$i]['inventory_added'] < 0 ? "(".number_format( abs( $inventory_activity[$i]['inventory_added'] ) ).")" : number_format( abs( $inventory_activity[$i]['inventory_added'] ) ) ); ?></td>
+      <td class="column-columnname"><?php echo number_format( $inventory_activity[$i]['inventory_before_added']+$inventory_activity[$i]['inventory_added'] ); ?></td>
+      <td class="column-columnname"><?php echo self::getuser( $inventory_activity[$i]['added_by'] ); ?></td>
     </tr>
     <?php $count++;
     } ?>

@@ -3,9 +3,6 @@ class inventory_category extends inventory {
     public function create($array) {
         $replace = array();
         
-        $array['created_by'] = get_current_user_id();
-        $array['last_modified_by'] = get_current_user_id();
-        
         $replace[] = "title";
         $replace[] = "last_modified_by";
         $replace[] = "status";
@@ -22,7 +19,7 @@ class inventory_category extends inventory {
     }
 
     function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
-        return self::list(table_name_prefix."inventory_category", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+        return self::lists(table_name_prefix."inventory_category", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
     function getSingle($name, $tag="title", $ref="ref") {

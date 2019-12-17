@@ -5,7 +5,7 @@ class inventory_count extends inventory {
     }
 
     function getList($start=false, $limit=false, $order="ref", $dir="ASC", $type="list") {
-        return self::list(table_name_prefix."inventory_count", $start, $limit, $order, $dir, false, $type);
+        return self::lists(table_name_prefix."inventory_count", $start, $limit, $order, $dir, false, $type);
     }
 
     function getSingle($name, $tag="title", $ref="ref") {

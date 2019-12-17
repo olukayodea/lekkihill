@@ -23,7 +23,7 @@ class billing_component extends billing {
     }
 
     function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
-        return self::list(table_name_prefix."billing_component", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
+        return self::lists(table_name_prefix."billing_component", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
     function getSingle($name, $tag="title", $ref="ref") {
