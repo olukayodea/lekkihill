@@ -6,7 +6,7 @@
     <div id="col-left">
       <div class="col-wrap">
         <div class="form-wrap">
-          <form id="form2" name="form2" method="post" action="<?php echo $url; ?>">
+          <form id="form2" name="form2" method="post" action="<?php echo $url; ?>" autocomplete="off">
             <div class="form-field form-required term-title-wrap">
               <label for="title"> Item Name</label>
               <input type="text" name="title" id="title" value="<?php echo $data['title']; ?>" required />

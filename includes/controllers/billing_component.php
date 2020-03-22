@@ -3,9 +3,6 @@ class billing_component extends billing {
     public function create($array) {
         $replace = array();
         
-        $array['created_by'] = get_current_user_id();
-        $array['last_modified_by'] = get_current_user_id();
-        
         $replace[] = "title";
         $replace[] = "cost";
         $replace[] = "last_modified_by";

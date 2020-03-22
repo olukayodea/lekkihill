@@ -14,7 +14,7 @@
           <h2>Manage Inventory Category</h2>
           <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
           <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
-          <form id="form2" name="form2" method="post" action="">
+          <form id="form2" name="form2" method="post" action="" autocomplete="off">
             <div class="form-field form-required term-title-wrap">
               <label for="title"> Category Name</label>
               <input type="text" name="title" id="title" value="<?php echo $data['title']; ?>" required />

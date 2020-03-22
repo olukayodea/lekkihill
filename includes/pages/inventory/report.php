@@ -6,7 +6,7 @@
     <div id="col-left">
       <div class="col-wrap">
         <div class="form-wrap">
-          <form id="form2" name="form2" method="post" action="<?php echo $url; ?>">
+          <form id="form2" name="form2" method="post" action="<?php echo $url; ?>" autocomplete="off">
             <div class="form-field form-required term-category-wrap">  
               <label for="from"> From</label>
               <input type="date" name="from" id="from" max="<?php echo date("Y-m-d"); ?>" value="<?php echo $_POST['from']; ?>" required />

@@ -42,7 +42,7 @@ class common {
         return $pass; 
     }
 
-    public function getuser($id, $return="user_nicename") {
+    public static function getuser($id, $return="user_nicename") {
         $data = get_user_by('id', $id);
 
         return $data->$return;

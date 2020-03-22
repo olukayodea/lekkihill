@@ -2,13 +2,15 @@
 class users extends database {
     public static $return = array();
     public static $userData = array();
-    public static $successResponse = array("status" => "200", "message" => "OK");
-    public static $notFound = array("status" => "404", "message" => "Not Found");
-    public static $Unauthorized = array("status" => "401", "message" => "Unauthorized");
-    public static $BadReques = array("status" => "400", "message" => "Bad Reques");
-    public static $internalServerError = array("status" => "500", "message" => "Internal Server Error");
+    public static $successResponse = array("status" => 200, "message" => "OK");
+    public static $notFound = array("status" => 404, "message" => "Not Found");
+    public static $NotModified = array("status" => 304, "message" => "Not Modified");
+    public static $Unauthorized = array("status" => 401, "message" => "Unauthorized");
+    public static $NotAcceptable = array("status" => 406, "message" => "Not Acceptable");
+    public static $BadReques = array("status" => 400, "message" => "Bad Reques");
+    public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
     
-    public function login($request) {
+    public static function login($request) {
         global $capabilityArray;
         $parameters = $request->get_params();
 
@@ -18,8 +20,8 @@ class users extends database {
         $user = wp_signon( $creds, false );
 
         if ( is_wp_error($user) ) {
-            $return[] = $this->notFound;
-            $return['additional_message'] = $user->get_error_message();
+            self::$return = self::$notFound;
+            self::$return['additional_message'] = $user->get_error_message();
         } else {
             $roles = $user->roles[0];
             unset($user->data->user_pass);
@@ -33,7 +35,7 @@ class users extends database {
             $data->token = self::getToken($user->ID);
 
             $data->permission = $capabilityArray[$roles];
-            self::$return[] = $this->successResponse;
+            self::$return = self::$successResponse;
             self::$return['ID'] = $data->ID;
             self::$return['data'] = $data->data;
             self::$return['roles'] = $data->roles;
@@ -42,7 +44,7 @@ class users extends database {
         return self::$return;
     }
 
-    public function listUsers($request) {
+    public static function listUsers($request) {
         /**
          * API authentication
          */
@@ -61,7 +63,7 @@ class users extends database {
         return self::$return;
     }
 
-    public function listAllUsers($request) {
+    public static function listAllUsers($request) {
         global $capabilityArray;
         /**
          * API authentication
@@ -104,7 +106,7 @@ class users extends database {
         return $return;
     }
 
-    public function getDetails($request) {
+    public static function getDetails($request) {
         global $capabilityArray;
         $headers = $request->get_headers();
         $id = self::authenticate($headers);
@@ -137,7 +139,7 @@ class users extends database {
         }
     }
 
-    private function getToken ($id, $login=TRUE) {
+    private static function getToken ($id, $login=TRUE) {
         if ($login === TRUE) {
             global $wpdb;
             $token = self::createRandomPassword(5).$id.self::createRandomPassword(5);

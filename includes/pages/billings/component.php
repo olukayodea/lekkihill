@@ -1,3 +1,6 @@
+<?php
+$list = self::$list;
+$data = self::$viewData; ?>
 <div class="wrap">
 <h1 class="wp-heading-inline">Components</h1>
   <form class="search-form wp-clearfix" method="get">
@@ -12,8 +15,8 @@
       <div class="col-wrap">
         <div class="form-wrap">
           <h2>Manage Bill Component</h2>
-          <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
-          <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
+          <?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
+          <?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
           <form id="form2" name="form2" method="post" action="">
             <div class="form-field form-required term-title-wrap">
               <label for="title"> Title</label>
@@ -54,7 +57,6 @@
               <th class="manage-column column-columnname" scope="col">Cost</th>
               <th class="manage-column column-columnname" scope="col">Status</th>
               <th class="manage-column column-columnname" scope="col">Created By</th>
-              <th class="manage-column column-columnname" scope="col">Time</th>
               <th class="manage-column column-columnname" scope="col">Last Modified</th>
               <th class="manage-column column-columnname" scope="col">Time</th>
               <th class="manage-column column-columnname" scope="col">Action</th>
@@ -69,7 +71,6 @@
               <td class="column-columnname"><?php echo $list[$i]['cost']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
-              <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>
               <td class="column-columnname"><?php echo $list[$i]['modify_time']; ?></td>
               <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-billing-component&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a> <a href="<?php echo admin_url('admin.php?page=lh-billing-component&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a>
@@ -85,7 +86,6 @@
               <th class="manage-column column-columnname" scope="col">Cost</th>
               <th class="manage-column column-columnname" scope="col">Status</th>
               <th class="manage-column column-columnname" scope="col">Created By</th>
-              <th class="manage-column column-columnname" scope="col">Time</th>
               <th class="manage-column column-columnname" scope="col">Last Modified</th>
               <th class="manage-column column-columnname" scope="col">Time</th>
               <th class="manage-column column-columnname" scope="col">Action</th>

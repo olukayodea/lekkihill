@@ -23,12 +23,20 @@ class inventory extends database {
         $parameters = $request->get_params();
         $parameters['created_by'] = self::$userData['ID'];
         $parameters['last_modified_by'] = self::$userData['ID'];
-        $add = inventory_category::create($parameters);
-        if ($add) {
-            self::$return = self::$successResponse;
-            self::$return['ID'] = $add;
-        } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+        if ((!isset($parameters['title'])) || ($parameters['title'] == "")) {
+            self::$BadReques['additional_message'] = "'title' field is missing or empty";
             self::$return = self::$BadReques;
+        } else if ((!isset($parameters['status'])) && ($parameters['status'] != "ACTIVE") || ($parameters['status'] != "INACTIVE")) {
+            self::$BadReques['additional_message'] = "'status' field is missing not containing the right option";
+            self::$return = self::$BadReques;
+        } else {
+            $add = inventory_category::create($parameters);
+            if ($add) {
+                self::$return = self::$successResponse;
+                self::$return['ID'] = $add;
+            } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+                self::$return = self::$BadReques;
+            }
         }
 
         return self::$return;
@@ -79,12 +87,35 @@ class inventory extends database {
         $parameters = $request->get_params();
         $parameters['created_by'] = self::$userData['ID'];
         $parameters['last_modified_by'] = self::$userData['ID'];
-        $add = self::create($_POST);
-        if ($add) {
-            self::$return = self::$successResponse;
-            self::$return['ID'] = $add;
-        } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+
+        if ((!isset($parameters['title'])) || ($parameters['title'] == "")) {
+            self::$BadReques['additional_message'] = "'title' field is missing or empty";
             self::$return = self::$BadReques;
+        } else if ((!isset($parameters['cost'])) || (floatval($parameters['cost']) < 1)) {
+            self::$BadReques['additional_message'] = "'cost' field is missing not a valid number";
+            self::$return = self::$BadReques;
+        } else if ((!isset($parameters['inventory_added'])) || (intval($parameters['inventory_added']) < 1)) {
+            self::$BadReques['additional_message'] = "'inventory_added' field is missing not a valid number";
+            self::$return = self::$BadReques;
+        } else if ((!isset($parameters['category_id'])) || (intval($parameters['category_id']) < 1)) {
+            self::$BadReques['additional_message'] = "'category_id' field is missing not a valid number";
+            self::$return = self::$BadReques;
+        } else if (!isset($parameters['status'])) {
+            if (($parameters['status'] != "ACTIVE") || ($parameters['status'] != "INACTIVE")) {
+                self::$BadReques['additional_message'] = "'status' field is not containing the right option";
+                self::$return = self::$BadReques;
+            } else {
+                self::$BadReques['additional_message'] = "'status' field is missing";
+                self::$return = self::$BadReques;
+            }
+        } else {
+           $add = self::create($parameters);
+            if ($add) {
+                self::$return = self::$successResponse;
+                self::$return['ID'] = $add;
+            } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+                self::$return = self::$BadReques;
+            }
         }
 
         return self::$return;
@@ -205,24 +236,6 @@ class inventory extends database {
             return $auth;
         }
         
-        $return = self::$successResponse;
-        $return['data'] = self::getList();
-
-        return $return;
-    }
-
-    public function apiAdd($request) {
-        /**
-         * API authentication
-         */
-        $auth = self::validateSession($request);
-        if ($auth['status'] == 200) {
-            unset($auth['status']);
-            unset($auth['message']);
-            self::$userData = $auth;
-        } else {
-            return $auth;
-        }
         $return = self::$successResponse;
         $return['data'] = self::getList();
 

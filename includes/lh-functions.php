@@ -2,11 +2,6 @@
 class main {
     //create the API route
     public static function apiRoutes() {
-        //url = https://lekkihill.com/wp-json/api/appointment/add;
-        register_rest_route( 'api', 'appointment/add',array(
-            'methods'  => 'POST',
-            'callback' => array("appointments",'createAPI')
-        ));
         //url = https://lekkihill.com/wp-json/api/users/login;
         register_rest_route( 'api', 'users/login',array(
             'methods'  => 'POST',
@@ -34,7 +29,6 @@ class main {
             'methods'  => 'GET',
             'callback' => array("inventory",'apiGetCategoryList')
         ));
-
         //url = https://lekkihill.com/wp-json/api/inventory/ID;
         register_rest_route( 'api', 'inventory/(?P<category_id>\d+)',array(
             'methods'  => 'GET',
@@ -80,6 +74,125 @@ class main {
             'methods'  => 'DELETE',
             'callback' => array("inventory",'apiDeleteCategory')
         ));
+        
+        //POST appointment routes
+        //url = https://lekkihill.com/wp-json/api/appointment/add;
+        register_rest_route( 'api', 'appointment/add',array(
+            'methods'  => 'POST',
+            'callback' => array("appointments",'createAPI')
+        ));
+
+        //GET appointment routes
+        //url = https://lekkihill.com/wp-json/api/appointment/new;
+        register_rest_route( 'api', 'appointment/new',array(
+            'methods'  => 'GET',
+            'callback' => array("appointments",'manage_new_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/appointment/today;
+        register_rest_route( 'api', 'appointment/today',array(
+            'methods'  => 'GET',
+            'callback' => array("appointments",'manage_today_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/appointment/upcoming;
+        register_rest_route( 'api', 'appointment/upcoming',array(
+            'methods'  => 'GET',
+            'callback' => array("appointments",'manage_upcoming_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/appointment/past;
+        register_rest_route( 'api', 'appointment/past',array(
+            'methods'  => 'GET',
+            'callback' => array("appointments",'manage_past_api')
+        ));
+
+        //PUT appointment routes
+        //url = https://lekkihill.com/wp-json/api/appointment/update;
+        register_rest_route( 'api', 'appointment/update',array(
+            'methods'  => 'PUT',
+            'callback' => array("appointments",'updateAppointmentAPI')
+        ));
+
+        //DELETE appointment route
+        //url = https://lekkihill.com/wp-json/api/appointment/removeNew/ID;
+        register_rest_route( 'api', 'appointment/removeNew/(?P<appointment_id>\d+)',array(
+            'methods'  => 'DELETE',
+            'callback' => array("appointments",'removeNewAPI')
+        ));
+
+
+        //POST billing route
+        //add new component
+        //url = https://lekkihill.com/wp-json/api/billing;
+        register_rest_route( 'api', 'billing',array(
+            'methods'  => 'POST',
+            'callback' => array("billing",'create_api_component')
+        ));
+
+        //PUT billing route
+        //update component
+        //url = https://lekkihill.com/wp-json/api/billing;
+        register_rest_route( 'api', 'billing',array(
+            'methods'  => 'PUT',
+            'callback' => array("billing",'create_api_component')
+        ));
+        //change component status
+        //url = https://lekkihill.com/wp-json/api/billing/status;
+        register_rest_route( 'api', 'billing/status',array(
+            'methods'  => 'PUT',
+            'callback' => array("billing",'change_api_component_status')
+        ));
+
+        //GET billing route
+        //list all component
+        //url = https://lekkihill.com/wp-json/api/billing/list;
+        register_rest_route( 'api', 'billing/list',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'list_api_component')
+        ));
+        //get one component
+        //url = https://lekkihill.com/wp-json/api/billing/ID;
+        register_rest_route( 'api', 'billing/(?P<component_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'read_api_component')
+        ));
+
+        //DELETE billing route
+        //delete component
+        //url = https://lekkihill.com/wp-json/api/billing/ID;
+        register_rest_route( 'api', 'billing/(?P<component_id>\d+)',array(
+            'methods'  => 'DELETE',
+            'callback' => array("billing",'delete_api_component')
+        ));
+
+
+        //GET Patient route
+        //search component
+        //url = https://lekkihill.com/wp-json/api/patient/search;
+        register_rest_route( 'api', 'patient/search',array(
+            'methods'  => 'GET',
+            'callback' => array("patient",'get_patient_suggest_api')
+        ));
+        //get patient data
+        //url = https://lekkihill.com/wp-json/api/patient/search/1;
+        register_rest_route( 'api', 'patient/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("patient",'read_api_component')
+        ));
+
+
+        //POST settings route
+        //add/update component
+        //url = https://lekkihill.com/wp-json/api/settings;
+        register_rest_route( 'api', 'settings',array(
+            'methods'  => 'POST',
+            'callback' => array("settings",'create_api')
+        ));
+        //GET settings route
+        //get settings
+        //url = https://lekkihill.com/wp-json/api/settings;
+        register_rest_route( 'api', 'settings',array(
+            'methods'  => 'GET',
+            'callback' => array("settings",'get_settings_api')
+        ));
     }
 
     //get all the  menus  and  submenu
@@ -89,26 +202,18 @@ class main {
             "Patients",
             "manage_patient",
             "lh-manage-patient",
-            array(__CLASS__,'cpc_create'),
-            "dashicons-admin-home",'2.2.9'
+            array('patient','manage'),
+            "dashicons-admin-home",'2.2.9',
+            2
         );
 
         add_submenu_page(
             "lh-manage-patient",
-            "Search",
-            "Search",
+            "Manage",
+            "Manage",
             "manage_patient",
             "lh-manage-patient",
-            array(__CLASS__,'cpc_create')
-        );
-
-        add_submenu_page(
-            "lh-manage-patient",
-            "Add",
-            "Add",
-            "manage_patient",
-            "lh-add-patient",
-            array(__CLASS__,'cpc_create')
+            array('patient','manage')
         );
 
         add_submenu_page(
@@ -121,30 +226,41 @@ class main {
         );
 
         add_menu_page(
+            "Clinic",
+            "Clinic",
+            "manage_clinic",
+            "lh-manage-clinic",
+            array('clinic','manage'),
+            "dashicons-id",'2.2.9',
+            1
+        );
+
+        add_submenu_page(
+            "lh-manage-clinic",
+            "Retrieve Records",
+            "Retrieve Records",
+            "manage_clinic",
+            "lh-manage-clinic",
+            array('clinic','manage')
+        );
+
+        add_menu_page(
             "Appointments",
             "Appointments",
             "manage_patient",
             "lh-manage-appointments",
             array("appointments",'manage'),
-            "dashicons-schedule",'2.2.9'
+            "dashicons-schedule",'2.2.9',
+            3
         );
 
         add_submenu_page(
             "lh-manage-appointments",
-            "Search",
-            "Search",
+            "Book Appointment",
+            "Book Appointment",
             "manage_patient",
             "lh-manage-appointments",
             array("appointments",'manage')
-        );
-
-        add_submenu_page(
-            "lh-manage-appointments",
-            "Book Appointment",
-            "Book Appointment",
-            "manage_patient",
-            "lh-book-appointments",
-            array("appointments",'cpc_create')
         );
 
         add_submenu_page(
@@ -153,7 +269,7 @@ class main {
             "Today",
             "manage_patient",
             "lh-today-appointments",
-            array("appointments",'cpc_create')
+            array("appointments",'manage_today')
         );
 
         add_submenu_page(
@@ -162,7 +278,7 @@ class main {
             "Upcoming",
             "manage_patient",
             "lh-comming-appointments",
-            array("appointments",'cpc_create')
+            array("appointments",'manage_upcoming')
         );
 
         add_submenu_page(
@@ -171,7 +287,7 @@ class main {
             "Past",
             "manage_patient",
             "lh-past-appointments",
-            array("appointmentsk",'cpc_create')
+            array("appointments",'manage_past')
         );
 
         add_menu_page(
@@ -180,7 +296,8 @@ class main {
             "mamange_accounts",
             "lh-billing",
             array("billing",'search'),
-            "dashicons-money",'2.2.9'
+            "dashicons-money",'2.2.9',
+            4
         );
 
         add_submenu_page(
@@ -225,7 +342,8 @@ class main {
             "manage_inventory",
             "lh-inventory",
             array("inventory",'manage'),
-            "dashicons-media-spreadsheet",'2.2.9'
+            "dashicons-media-spreadsheet",'2.2.9',
+            5
         );
 
         add_submenu_page(
@@ -281,6 +399,16 @@ class main {
             "lh-report-inventory",
             array("inventory",'report')
         );
+
+        add_menu_page(
+            "LH-HMS Settings",
+            "LH-HMS Settings",
+            "manage_settings",
+            "lh-settings",
+            array("settings",'manage'),
+            "dashicons-admin-tools",'2.2.9',
+            6
+        );
     }
 
     function lh_install () {
@@ -298,7 +426,7 @@ class main {
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
 
-        $users->initialize_table();
+        // $users->initialize_table();
         $inventory->initialize_table();
         $inventory_used->initialize_table();
         $inventory_count->initialize_table();
@@ -320,12 +448,30 @@ class main {
         
         $lekkihill_admin = get_role( "lekki_hill_admin" );
         $lekkihill_admin->add_cap( 'manage_patient' );
+        $lekkihill_admin->add_cap( 'manage_clinic' );
         $lekkihill_admin->add_cap( 'manage_inventory' );
         $lekkihill_admin->add_cap( 'mamange_accounts' );
+        $lekkihill_admin->add_cap( 'manage_settings' );
         $lekkihill_admin->add_cap( 'manage_patient_report' );
         $lekkihill_admin->add_cap( 'mamange_accounts_report' );
         $lekkihill_admin->add_cap( 'manage_inventory_report' );
         $lekkihill_admin->add_cap( 'manage_inventory_category' );
+
+        //add doctors
+		add_role(
+			'lekki_hill_doctor',
+			__( 'LekkiHill Doctor' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekkihill_admin = get_role( "lekki_hill_doctor" );
+        $lekkihill_admin->add_cap( 'manage_patient' );
+        $lekkihill_admin->add_cap( 'manage_clinic' );
+        $lekkihill_admin->add_cap( 'manage_inventory' );
+        $lekkihill_admin->add_cap( 'mamange_accounts' );
+        $lekkihill_admin->add_cap( 'manage_patient_report' );
 
         //add front desk
 		add_role(
@@ -338,6 +484,7 @@ class main {
         
         $lekki_hill_front_desk = get_role( "lekki_hill_front_desk" );
         $lekki_hill_front_desk->add_cap( 'manage_patient' );
+        $lekki_hill_front_desk->add_cap( 'manage_clinic' );
 
         //add accounts
 		add_role(
@@ -369,8 +516,10 @@ class main {
 		//add roles to admin
 		$administrator		= get_role('administrator');
         $administrator->add_cap( 'manage_patient' );
+        $administrator->add_cap( 'manage_clinic' );
         $administrator->add_cap( 'manage_inventory' );
         $administrator->add_cap( 'mamange_accounts' );
+        $administrator->add_cap( 'manage_settings' );
         $administrator->add_cap( 'manage_patient_report' );
         $administrator->add_cap( 'mamange_accounts_report' );
         $administrator->add_cap( 'manage_inventory_report' );
@@ -392,7 +541,7 @@ class main {
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
 
-        $users->clear_table();
+        //$users->clear_table();
         // $inventory->delete_table();
         // $inventory_used->delete_table();
         // $inventory_count->delete_table();
@@ -476,10 +625,29 @@ class main {
 		wp_enqueue_style( 'load-select2-css', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css' );
 		wp_enqueue_script( 'load-select2-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js' );
 		wp_enqueue_style( 'load-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css' );
-		wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
+        wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
+        wp_enqueue_script( 'editable-select-js', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.js' );
+		wp_enqueue_style( 'editable-select-css', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.css' );
         
 		wp_enqueue_style( 'load-datepicker-css', plugins_url( 'css/jquery.datetimepicker.css' , __FILE__ ) );
         wp_enqueue_script( 'load-datepicker-js', plugins_url( 'js/jquery.datetimepicker.js' , __FILE__ ));
+        wp_enqueue_script('suggest');
+
+        wp_enqueue_script( 'jquery-ui-core' );
+        wp_enqueue_script( 'jquery-ui-autocomplete' );
+    }
+    
+	//add settings link to the pluginPage
+	function lh_plugin_link( $actions, $plugin_file ) {
+		static $plugin;
+		if (!isset($plugin))
+		$plugin		=	plugin_basename(__FILE__);
+		if ($plugin == $plugin_file) {
+			$settings	=	array('settings' => '<a href="'. esc_url( get_admin_url(null, 'admin.php?page=lh-settings') ) .'">Settings</a>');
+			$actions	=	array_merge($settings, $actions);
+		}
+		
+		return $actions;
 	}
 }
 ?>

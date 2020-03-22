@@ -1,6 +1,6 @@
 <div class="wrap">
 <h2>List Inventory</h2>
-<form class="search-form wp-clearfix" method="get">
+<form class="search-form wp-clearfix" method="get" autocomplete="off">
   <p class="search-box">
     <label class="screen-reader-text" for="tag-search-input">Search Inventory:</label>
     <input type="search" id="tag-search-input" name="s" value="" />

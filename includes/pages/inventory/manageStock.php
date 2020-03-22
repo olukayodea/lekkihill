@@ -3,7 +3,7 @@
 <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
 <?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
 <?php if ($error != true) { ?>
-<form id="form2" name="form2" method="post" action="">
+<form id="form2" name="form2" method="post" action="" autocomplete="off">
   <table width="50%" border="0">
     <tr>
       <td width="25%"><label for="title"> Inventory Item</label></td>

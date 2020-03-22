@@ -14,7 +14,7 @@ global $wpdb;
 //$token = "MTUyNDg0OTUyMF8xMTI0MVJDTDhCMjk4QlcwTUhQ";
 
 define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define(  "table_name_prefix", $wpdb->prefix."lekkihill_", true );
+define(  "table_name_prefix", $wpdb->prefix."lekkihill_" );
 if (defined('WP_CONTENT_DIR') && !defined('WP_INCLUDE_DIR')){
     define('WP_INCLUDE_DIR', str_replace('wp-content', 'wp-includes', WP_CONTENT_DIR));
  }
@@ -31,14 +31,18 @@ $database = new database;
 $db       = $database->connect();
 
 //classes and functions
+require_once LH_PLUGIN_DIR . 'includes/controllers/settings.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/users.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/clinic.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments_history.php';
+$settings               = new settings;
 $users                  = new users;
 $patient                = new patient;
+$clinic                 = new clinic;
 $billing                = new billing;
 $inventory              = new inventory;
 $appointment            = new appointments;
@@ -111,7 +115,9 @@ class mainClass extends main {
         //add amin menu on initialization
         add_action( 'admin_menu', array( "main", 'lh_add_menu' ) );
 		//initialize the imported CDN based script
-		add_action( 'admin_enqueue_scripts', array( "main", 'admin_styles_and_script' ));
+        add_action( 'admin_enqueue_scripts', array( "main", 'admin_styles_and_script' ));
+        //create additional links in plugin menu 
+		add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( "main", 'lh_plugin_link'), 10, 5 );
         
         //registration hooks
         register_activation_hook( __FILE__, array( $this, 'lh_install' ) );
