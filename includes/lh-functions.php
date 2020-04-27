@@ -121,49 +121,97 @@ class main {
 
         //POST billing route
         //add new component
-        //url = https://lekkihill.com/wp-json/api/billing;
-        register_rest_route( 'api', 'billing',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component;
+        register_rest_route( 'api', 'billing/component',array(
             'methods'  => 'POST',
             'callback' => array("billing",'create_api_component')
+        ));
+        //add new invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice;
+        register_rest_route( 'api', 'billing/invoice',array(
+            'methods'  => 'POST',
+            'callback' => array("billing",'create_api_invoice')
         ));
 
         //PUT billing route
         //update component
-        //url = https://lekkihill.com/wp-json/api/billing;
-        register_rest_route( 'api', 'billing',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component;
+        register_rest_route( 'api', 'billing/component',array(
             'methods'  => 'PUT',
             'callback' => array("billing",'create_api_component')
         ));
         //change component status
-        //url = https://lekkihill.com/wp-json/api/billing/status;
-        register_rest_route( 'api', 'billing/status',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component/status;
+        register_rest_route( 'api', 'billing/component/status',array(
             'methods'  => 'PUT',
             'callback' => array("billing",'change_api_component_status')
         ));
 
         //GET billing route
+        //list all pending invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/pending;
+        register_rest_route( 'api', 'billing/invoice/pending',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'list_api_invoice_pending')
+        ));
+        //list all paid invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/paid;
+        register_rest_route( 'api', 'billing/invoice/paid',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'list_api_invoice_paid')
+        ));
         //list all component
-        //url = https://lekkihill.com/wp-json/api/billing/list;
-        register_rest_route( 'api', 'billing/list',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component/list;
+        register_rest_route( 'api', 'billing/component/list',array(
             'methods'  => 'GET',
             'callback' => array("billing",'list_api_component')
         ));
         //get one component
-        //url = https://lekkihill.com/wp-json/api/billing/ID;
-        register_rest_route( 'api', 'billing/(?P<component_id>\d+)',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component/ID;
+        register_rest_route( 'api', 'billing/component/(?P<component_id>\d+)',array(
             'methods'  => 'GET',
             'callback' => array("billing",'read_api_component')
+        ));
+        //get one invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/ID;
+        register_rest_route( 'api', 'billing/invoice/(?P<invoice_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'read_api_invoice')
+        ));
+        //get one outstanding
+        //url = https://lekkihill.com/wp-json/api/billing/outstanding/id/ID;
+        register_rest_route( 'api', 'billing/outstanding/id/(?P<user_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'get_api_due_invoice')
+        ));
+        //get one outstanding
+        //url = https://lekkihill.com/wp-json/api/billing/outstanding/email/EMAIL;
+        register_rest_route( 'api', 'billing/outstanding/email/(?P<email>\S+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'get_api_due_invoice')
         ));
 
         //DELETE billing route
         //delete component
-        //url = https://lekkihill.com/wp-json/api/billing/ID;
-        register_rest_route( 'api', 'billing/(?P<component_id>\d+)',array(
+        //url = https://lekkihill.com/wp-json/api/billing/component/ID;
+        register_rest_route( 'api', 'billing/component/(?P<component_id>\d+)',array(
             'methods'  => 'DELETE',
             'callback' => array("billing",'delete_api_component')
         ));
 
-
+        //POST Patient route
+        //add new patient
+        //url = https://lekkihill.com/wp-json/api/patient;
+        register_rest_route( 'api', 'patient',array(
+            'methods'  => 'POST',
+            'callback' => array("patient",'create_api_component')
+        ));
+        //add new patient vitals
+        //url = https://lekkihill.com/wp-json/api/patient/vitals;
+        register_rest_route( 'api', 'patient/vitals',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_vitals')
+        ));
         //GET Patient route
         //search component
         //url = https://lekkihill.com/wp-json/api/patient/search;
@@ -172,10 +220,22 @@ class main {
             'callback' => array("patient",'get_patient_suggest_api')
         ));
         //get patient data
-        //url = https://lekkihill.com/wp-json/api/patient/search/1;
+        //url = https://lekkihill.com/wp-json/api/patient/1;
         register_rest_route( 'api', 'patient/(?P<patient_id>\d+)',array(
             'methods'  => 'GET',
             'callback' => array("patient",'read_api_component')
+        ));
+        //get patient vitals
+        //url = https://lekkihill.com/wp-json/api/patient/vitals/1;
+        register_rest_route( 'api', 'patient/vitals/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_vital')
+        ));
+        //get patient most recent vitals
+        //url = https://lekkihill.com/wp-json/api/patient/vitals/1;
+        register_rest_route( 'api', 'patient/vitals/recent/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_recent_vital')
         ));
 
 
@@ -311,11 +371,11 @@ class main {
 
         add_submenu_page(
             "lh-billing",
-            "Create New Invoice",
-            "Create Invoice",
+            "Manage Invoice",
+            "Manage Invoice",
             "mamange_accounts",
-            "lh-billing-create",
-            array("billing",'create')
+            "lh-billing-invoice",
+            array("billing",'invoice')
         );
 
         add_submenu_page(
@@ -422,9 +482,14 @@ class main {
         $patient                = new patient;
         $billing                = new billing;
         $billing_component      = new billing_component;
+        $invoice                = new invoice;
 
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
+        $vitals                 = new vitals;
+        
+        $clinic_post_op         = new clinic_post_op;
+        $clinic_fluid_balance   = new clinic_fluid_balance;
 
         // $users->initialize_table();
         $inventory->initialize_table();
@@ -434,8 +499,13 @@ class main {
         $patient->initialize_table();
         $billing->initialize_table();
         $billing_component->initialize_table();
+        $invoice->initialize_table();
         $appointments->initialize_table();
         $appointments_history->initialize_table();
+        $vitals->initialize_table();
+        $clinic_post_op->initialize_table();
+        $clinic_fluid_balance->initialize_table();
+
         //add user roles
         //add admin
 		add_role(
@@ -538,8 +608,12 @@ class main {
         $patient                = new patient;
         $billing                = new billing;
         $billing_component      = new billing_component;
+        $invoice                = new invoice;
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
+        $vitals                 = new vitals;
+        $clinic_post_op         = new clinic_post_op;
+        $clinic_fluid_balance   = new clinic_fluid_balance;
 
         //$users->clear_table();
         // $inventory->delete_table();
@@ -549,8 +623,12 @@ class main {
         // $patient->delete_table();
         // $billing->delete_table();
         // $billing_component->delete_table();
+        // $invoice->delete_table();
         // $appointments->delete_table();
         // $appointments_history->delete_table();
+        // $vitals->delete_table();
+        // $clinic_post_op->delete_table();
+        // $clinic_fluid_balance->delete_table();
     }
 
     public function lh_uninstall() {
@@ -561,8 +639,12 @@ class main {
         $patient                = new patient;
         $billing                = new billing;
         $billing_component      = new billing_component;
+        $invoice                = new invoice;
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
+        $vitals                 = new vitals;
+        $clinic_post_op         = new clinic_post_op;
+        $clinic_fluid_balance   = new clinic_fluid_balance;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
@@ -571,8 +653,12 @@ class main {
         $patient->delete_table();
         $billing->delete_table();
         $billing_component->delete_table();
+        $invoice->delete_table();
         $appointments->delete_table();
         $appointments_history->delete_table();
+        $vitals->delete_table();
+        $clinic_post_op->delete_table();
+        $clinic_fluid_balance->delete_table();
     }
 
     // Remove the plugin-specific custom capability
@@ -629,6 +715,7 @@ class main {
         wp_enqueue_script( 'editable-select-js', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.js' );
 		wp_enqueue_style( 'editable-select-css', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.css' );
         
+		wp_enqueue_style( 'load-main-css', plugins_url( 'css/main.css' , __FILE__ ) );
 		wp_enqueue_style( 'load-datepicker-css', plugins_url( 'css/jquery.datetimepicker.css' , __FILE__ ) );
         wp_enqueue_script( 'load-datepicker-js', plugins_url( 'js/jquery.datetimepicker.js' , __FILE__ ));
         wp_enqueue_script('suggest');

@@ -94,8 +94,8 @@ $patientList = patient::$patientList; ?>
               <label for="next_appointment"> Appointment Date</label>
               <input type="text" name="next_appointment" id="next_appointment" value="<?php echo $data['next_appointment']; ?>" required />
             </div>
-            <?php if (isset($_REQUEST['new'])) { ?>
-            <input type="text" name="patient_id" id="patient_id" value="<?php echo $data['patient_id']; ?>" />
+            <?php if (!isset($_REQUEST['new'])) { ?>
+            <input type="hidden" name="patient_id" id="patient_id" value="<?php echo $data['patient_id']; ?>" />
             <?php } ?>
             <input type="hidden" name="status" id="status" value="SCHEDULED" />
             <button name="submit" id="submit" type="submit" class="button button-primary"><i class="fa fa-calendar-check fa-lg"></i>&nbsp;Book Appointment</button>
@@ -187,6 +187,7 @@ function getData(val) {
           }
   });
   jQuery.get( se_ajax_url, function( data ) {
+    document.getElementById('patient_id').value = data.data.ref;
     document.getElementById('email').value = data.data.email;
     document.getElementById('phone').value = data.data.phone_number;
     console.log(data.data);

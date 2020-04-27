@@ -1,5 +1,6 @@
 <?php
-$list = self::$list;
+$tag = self::$tag;
+$list = self::$list_component;
 $data = self::$viewData; ?>
 <div class="wrap">
 <h1 class="wp-heading-inline">Components</h1>
@@ -68,7 +69,7 @@ $data = self::$viewData; ?>
             <tr <?php echo $alt; ?>>
               <th class="check-column" scope="row"><?php echo $count; ?></th>
               <td class="column-columnname"><?php echo $list[$i]['title']; ?></td>
-              <td class="column-columnname"><?php echo $list[$i]['cost']; ?></td>
+              <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['cost'], 2 ); ?></td>
               <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>
@@ -95,6 +96,8 @@ $data = self::$viewData; ?>
 
       </div>
     </div>
+  </div>
+  <div id="col-left">
     <h3>Legend</h3>
     <i class="fas fa-play" title="Activate" style="color:green"></i>&nbsp;&nbsp;Activate Component<br>
     <i class="fas fa-stop" title="Deactivate" style="color:red"></i>&nbsp;&nbsp;Deactivate Component<br>

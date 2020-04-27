@@ -113,7 +113,7 @@ class appointments extends database {
             return $auth;
         }
         self::$return = self::$successResponse;
-        self::$return['data'] = self::$list;
+        self::$return['data'] = self::formatResult( self::$list );
 
         return self::$return;
     }
@@ -143,7 +143,7 @@ class appointments extends database {
             return $auth;
         }
         self::$return = self::$successResponse;
-        self::$return['data'] = self::$list;
+        self::$return['data'] = self::formatResult( self::$list );
 
         return self::$return;
     }
@@ -172,7 +172,7 @@ class appointments extends database {
             return $auth;
         }
         self::$return = self::$successResponse;
-        self::$return['data'] = self::$list;
+        self::$return['data'] = self::formatResult( self::$list );
 
         return self::$return;
     }
@@ -201,13 +201,18 @@ class appointments extends database {
             return $auth;
         }
         self::$return = self::$successResponse;
-        self::$return['data'] = self::$list;
+        self::$return['data'] = self::formatResult( self::$list );
 
         return self::$return;
     }
 
     public static function createAPI( WP_REST_Request $request) {
         $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
         $add = self::create($parameters);
 
         if ($add) {
@@ -237,6 +242,11 @@ class appointments extends database {
         }
 
         $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
         $add = self::updateAppointment($parameters);
         if ($add) {
             self::$return = self::$successResponse;
@@ -342,6 +352,35 @@ class appointments extends database {
         return self::sortAll(table_name_prefix."appointments", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
+    public function formatResult($data, $single=false) {
+        if ($single == false) {
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i] = self::clean($data[$i]);
+            }
+        } else {
+            $data = self::clean($data);
+        }
+        return $data;
+    }
+
+    public function clean($data) {
+        $user['id'] = $data['last_modify'];
+        $user['user_login'] = users::getSingle( $data['last_modify'] );
+        $user['user_nicename'] = users::getSingle( $data['last_modify'], "user_nicename" );
+        $user['user_email'] = users::getSingle( $data['last_modify'], "user_email" );
+        $data['last_modify'] = $user;
+
+        $patient_id['id'] = $data['patient_id'];
+        $patient_id['first_name'] = patient::getSingle( $data['patient_id'], "first_name" );
+        $patient_id['last_name'] = patient::getSingle( $data['patient_id'], "last_name" );
+        $patient_id['email'] = patient::getSingle( $data['patient_id'], "email" );
+        $patient_id['phone_number'] = patient::getSingle( $data['patient_id'], "phone_number" );
+        $patient_id['age'] = patient::getSingle( $data['patient_id'], "age" );
+        $patient_id['sex'] = patient::getSingle( $data['patient_id'], "sex" );
+        $data['patient_id'] = $patient_id;
+        
+        return $data;
+    }
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."appointments` (

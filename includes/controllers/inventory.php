@@ -21,6 +21,11 @@ class inventory extends database {
             return $auth;
         }
         $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
         $parameters['created_by'] = self::$userData['ID'];
         $parameters['last_modified_by'] = self::$userData['ID'];
         if ((!isset($parameters['title'])) || ($parameters['title'] == "")) {
@@ -85,6 +90,11 @@ class inventory extends database {
             return $auth;
         }
         $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
         $parameters['created_by'] = self::$userData['ID'];
         $parameters['last_modified_by'] = self::$userData['ID'];
 
@@ -134,6 +144,11 @@ class inventory extends database {
             return $auth;
         }
         $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
 
         if ((!isset($parameters['from']) || (strtotime($parameters['from']) > time()))) {
             self::$BadReques['additional_message'] = "'from' field is missing or  contains a time in the future";

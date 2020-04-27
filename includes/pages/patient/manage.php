@@ -14,45 +14,11 @@ $data = self::$viewData; ?>
     <div id="col-left">
       <div class="col-wrap">
         <div class="form-wrap">
-        <?php if (isset($_REQUEST['open'])) { ?>
-          <h2>Review Appointment</h2>
-          <?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
-          <?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
-          <form id="form2" name="form2" method="post" action="" autocomplete="off">
-            <div class="form-field form-required term-names-wrap">
-              <label for="names"> Patient's Name</label>
-              <strong><?php echo $data['names']; ?></strong>
-            </div>
-            <div class="form-field form-required term-names-wrap">
-              <label for="email"> Patient's Email</label>
-              <strong><?php echo $data['email']; ?></strong>
-            </div>
-            <div class="form-field form-required term-names-wrap">
-              <label for="email"> Patient's Phone Number</label>
-              <strong><?php echo $data['phone']; ?></strong>
-            </div>
-            <div class="form-field form-required term-names-wrap">
-              <label for="procedure">Procedure</label>
-              <strong><?php echo $data['procedure']; ?></strong>
-            </div>
-            <div class="form-field form-required term-names-wrap">
-              <label for="message">Message</label>
-              <strong><?php echo $data['message']; ?></strong>
-            </div>
-            <div class="form-field form-required term-next_appointment-wrap">
-              <label for="next_appointment"> Appointment Date</label>
-              <input type="text" name="next_appointment" id="next_appointment" value="<?php echo $data['next_appointment']; ?>" required />
-            </div>
-            <input type="hidden" name="status" id="status" value="SCHEDULED" />
-            <button name="submit" id="submit" type="submit" class="button button-primary"><i class="fa fa-calendar-check fa-lg"></i>&nbsp;Book Appointment</button>
-            <button name="cancel" id="submit" type="submit" class="button button-cancel"><i class="fa fa-trash-alt fa-lg"></i>&nbsp;Cancel Appointment</button>
-          </form>
-        <?php } else { ?>
-            <?php if (isset($_REQUEST['edit'])) { ?>
-                <h2><?php echo "Modify ".$data['last_name']."'s Record"; ?></h2>
-            <?php } else { ?>
-                <h2>Add New Patient</h2>
-            <?php } ?>
+          <?php if (isset($_REQUEST['edit'])) { ?>
+              <h2><?php echo "Modify ".$data['last_name']."'s Record"; ?></h2>
+          <?php } else { ?>
+              <h2>Add New Patient</h2>
+          <?php } ?>
           <?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
           <?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
           <form id="form2" name="form2" method="post" action="<?php echo admin_url('admin.php?page=lh-manage-patient'); ?>">
@@ -73,7 +39,7 @@ $data = self::$viewData; ?>
               <input type="tel" name="phone_number" id="phone_number" value="<?php echo $data['phone_number']; ?>" required />
             </div>
             <div class="form-field form-required term-sex-wrap">
-              <label for="sex">Procedure</label></td>
+              <label for="sex">Sex</label></td>
               <select id="sex" name="sex" required>
                 <option value="">Select One</option>
                 <option <?php if ($data['sex'] == "Female") { ?>selected <?php } ?>value="Female">Female</option>
@@ -93,7 +59,6 @@ $data = self::$viewData; ?>
                 <button name="reset" id="reset" type="reset" class="button"><i class="fa fa-undo fa-lg"></i>&nbsp;Reset</button>
             <?php } ?>
           </form>
-        <?php } ?>
         </div>
       </div>
     </div>
@@ -136,7 +101,7 @@ $data = self::$viewData; ?>
               <td class="column-columnname">
                 <a href="<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&id='.$list[$i]['ref']); ?>" title="Go to Clinic"><i class="fas fa-clinic-medical"></i></a>&nbsp;
                 <a href="<?php echo admin_url('admin.php?page=lh-manage-patient&edit&id='.$list[$i]['ref']); ?>" title="Edit <?php echo $list[$i]['last_name']." ".$list[$i]['first_name']; ?>"><i class="far fa-edit"></i></a>&nbsp;
-                <a href="<?php echo admin_url('admin.php?page=lh-manage-appointments&new&id='.$list[$i]['ref']); ?>" title="Schedule <?php echo $list[$i]['last_name']." ".$list[$i]['first_name']; ?>"><i class="far fa-clock"></i></a>
+                <a href="<?php echo admin_url('admin.php?page=lh-manage-appointments&new&id='.$list[$i]['ref']); ?>" title="Schedule Appointment <?php echo $list[$i]['last_name']." ".$list[$i]['first_name']; ?>"><i class="far fa-clock"></i></a>
               </td>
             </tr>
             <?php $count++;

@@ -20,6 +20,29 @@ class appointments_history extends appointments {
         return self::sortAll(table_name_prefix."appointments_history", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
+    public function formatResult($data, $single=false) {
+        if ($single == false) {
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i] = self::clean($data[$i]);
+            }
+        } else {
+            $data = self::clean($data);
+        }
+        return $data;
+    }
+
+    public function clean($data) {
+        $user['user_login'] = users::getSingle( $data['last_modify'] );
+        $user['user_nicename'] = users::getSingle( $data['last_modify'], "user_nicename" );
+        $user['user_email'] = users::getSingle( $data['last_modify'], "user_email" );
+        $data['last_modify'] = $user;
+        
+        unset( $data['patient_id'] );
+        unset( $data['added_by'] );
+        unset( $data['billing_component_id'] );
+        return $data;
+    }
+
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."appointments_history` (

@@ -23,7 +23,8 @@ class patient extends database {
             }
         } else if (isset($_POST['submit'])) {
             unset($_POST['submit']);
-            $add = self::create($_POST);
+            $_POST['p_type'] = "regular";
+            $add = self::create($_POST, get_current_user_id());
 
             if ($add) {
                 //send email
@@ -86,7 +87,7 @@ class patient extends database {
         }
 
         $return = array();
-        $search = $request['search'];
+        $search = $request['term'];
 
         $data = self::query("SELECT * FROM ".table_name_prefix."patient WHERE `last_name` LIKE '%".$search."%' OR `first_name` LIKE '%".$search."%' OR `phone_number` LIKE '%".$search."%' OR `email` LIKE '%".$search."%'", false, "list");
 
@@ -98,13 +99,69 @@ class patient extends database {
         return $return;
     }
 
-    private function create($array) {
+    public function create_api_component($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+        $parameters['p_type'] = "regular";
+
+        $add = self::create($parameters, self::$userData['ID']);
+        if ($add) {
+            self::$successResponse['additional_message'] = "Patient saved successfully";
+            self::$return = self::$successResponse;
+            self::$return['ID'] = $add;
+        } else {
+            self::$BadReques['additional_message'] = "there was an error performing this action";
+            self::$return = self::$BadReques;
+        }
+
+        return self::$return;
+    }
+
+    private function create($array, $user) {
         $replace[] = "last_name";
         $replace[] = "first_name";
         $replace[] = "age";
         $replace[] = "sex";
         $replace[] = "phone_number";
-        return self::replace(table_name_prefix."patient", $array, $replace);
+        $id = self::replace(table_name_prefix."patient", $array, $replace);
+
+        if ($id) {
+            $consultationFee_cost = get_option("lh-consultationFee-cost");
+            $consultationFee_component_id = get_option("lh-consultationFee-component-id");
+            $registrationFee_cost = get_option("lh-registrationFee-cost");
+            $registrationFee_component_id = get_option("lh-registrationFee-component-id");
+            $data['patient_id'] = $id;
+            $data['added_by'] = $user;
+            $data['amount'] = $registrationFee_cost+$consultationFee_cost;
+
+            $data['billing_component'][0]['id'] = $consultationFee_component_id;
+            $data['billing_component'][0]['cost'] = $consultationFee_cost;
+            $data['billing_component'][0]['quantity'] = 1;
+            $data['billing_component'][0]['description'] = NULL;
+            $data['billing_component'][1]['id'] = $registrationFee_component_id;
+            $data['billing_component'][1]['cost'] = $registrationFee_cost;
+            $data['billing_component'][1]['quantity'] = 1;
+            $data['billing_component'][1]['description'] = NULL;
+
+            invoice::create($data);
+        }
+
+        return $id;
     }
 
     private function edit($array, $where) {
@@ -142,6 +199,7 @@ class patient extends database {
             `phone_number` VARCHAR(15) NOT NULL,
             `email` VARCHAR(255) NOT NULL,
             `p_type` VARCHAR(20) NOT NULL,
+            `allergies` TEXT NOT NULL,
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`),

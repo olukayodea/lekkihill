@@ -35,6 +35,33 @@ class billing_component extends billing {
         return self::sortAll(table_name_prefix."billing_component", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
+    public function formatResult($data, $single=false) {
+        if ($single == false) {
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i] = self::clean($data[$i]);
+            }
+        } else {
+            $data = self::clean($data);
+        }
+        return $data;
+    }
+
+    public function clean($data) {
+        $created_by['id'] = $data['created_by'];
+        $created_by['user_login'] = users::getSingle( $data['created_by'] );
+        $created_by['user_nicename'] = users::getSingle( $data['created_by'], "user_nicename" );
+        $created_by['user_email'] = users::getSingle( $data['created_by'], "user_email" );
+        $data['created_by'] = $created_by;
+
+        $last_modified_by['id'] = $data['last_modified_by'];
+        $last_modified_by['user_login'] = users::getSingle( $data['last_modified_by'] );
+        $last_modified_by['user_nicename'] = users::getSingle( $data['last_modified_by'], "user_nicename" );
+        $last_modified_by['user_email'] = users::getSingle( $data['last_modified_by'], "user_email" );
+        $data['last_modified_by'] = $last_modified_by;
+        
+        return $data;
+    }
+
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."billing_component` (

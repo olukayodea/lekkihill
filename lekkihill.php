@@ -7,7 +7,7 @@ Version: 1.0.0
 Author: Linnkstec
 Author URI: https://linnkstec.com/
 License: GPLv2 or later
-Text Domain: akismet
+Text Domain: lekkihill.com
 */
 global $wpdb;
 //$key = "1524849520";
@@ -36,17 +36,21 @@ require_once LH_PLUGIN_DIR . 'includes/controllers/users.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/invoice.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments_history.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/vitals.php';
 $settings               = new settings;
 $users                  = new users;
 $patient                = new patient;
 $clinic                 = new clinic;
 $billing                = new billing;
+$invoice                = new invoice;
 $inventory              = new inventory;
 $appointment            = new appointments;
 $appointments_history   = new appointments_history;
+$vitals                 = new vitals;
 
 //main functions
 require_once LH_PLUGIN_DIR . 'includes/lh-functions.php';

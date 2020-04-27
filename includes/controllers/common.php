@@ -107,6 +107,32 @@ class common {
             return $word;
         }
     }
+		
+    function get_time_stamp($post_time) {
+        if (($post_time == "") || ($post_time <1)) {
+            return false;
+        } else {
+            $difference = time() - $post_time;
+            $periods = array("sec", "min", "hour", "day", "week",
+            "month", "years", "decade","century","millenium");
+            $lengths = array("60","60","24","7","4.35","12","10","100","1000");
+            
+            if ($difference >= 0) { // this was in the past
+                $ending = "ago";
+            } else { // this was in the future
+                $difference = -$difference;
+                $ending = "time";
+            }
+            
+            for($j = 0; $difference >= $lengths[$j]; $j++)
+            $difference = $difference/$lengths[$j];
+            $difference = round($difference);
+            
+            if($difference != 1) $periods[$j].= "s";
+            $text = "$difference $periods[$j] $ending";
+            return $text;
+        }
+    }
 
     function cleanData(&$str) {
         if($str == 't') $str = 'TRUE';

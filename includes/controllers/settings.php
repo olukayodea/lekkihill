@@ -2,7 +2,10 @@
 class settings extends database {
     public static $return = array();
     public static $userData = array();
-    public static $consultationFee;
+    public static $consultationFee_cost;
+    public static $consultationFee_component_id;
+    public static $registrationFee_cost;
+    public static $registrationFee_component_id;
     public static $message;
     public static $error_message;
     public static $successResponse = array("status" => 200, "message" => "OK");
@@ -18,13 +21,24 @@ class settings extends database {
             unset($_POST['submit']);
 
             foreach($_POST as $key => $value) {
-                self::setSettings("lh-".$key, $value);
+                if ($key == "consultationFee") {
+                    $valData = explode("_", $value);
+                    self::setSettings("lh-consultationFee-cost", $valData[1]);
+                    self::setSettings("lh-consultationFee-component-id", $valData[0]);
+                } else if ($key == "registrationFee") {
+                    $valData = explode("_", $value);
+                    self::setSettings("lh-registrationFee-cost", $valData[1]);
+                    self::setSettings("lh-registrationFee-component-id", $valData[0]);
+                } else {
+                    self::setSettings("lh-".$key, $value);
+                }
             }
 
             self::$message = "Settings Saved successfully";
         }
         self::getSettings();
         billing::list_component();
+
         include_once(LH_PLUGIN_DIR."includes/pages/settings/manage.php");
     }
 
@@ -41,13 +55,19 @@ class settings extends database {
         self::getSettings();
 
         self::$return = self::$successResponse;
-        self::$return['data']['consultationFee'] = self::$consultationFee;
+        self::$return['data']['consultationFee_cost'] = self::$consultationFee_cost;
+        self::$return['data']['consultationFee_component_id'] = self::$consultationFee_component_id;
+        self::$return['data']['registrationFee_cost'] = self::$registrationFee_cost;
+        self::$return['data']['registrationFee_component_id'] = self::$registrationFee_component_id;
 
         return self::$return;
     }
 
     private function getSettings() {
-        self::$consultationFee = get_option("lh-consultationFee");
+        self::$consultationFee_cost = get_option("lh-consultationFee-cost");
+        self::$consultationFee_component_id = get_option("lh-consultationFee-component-id");
+        self::$registrationFee_cost = get_option("lh-registrationFee-cost");
+        self::$registrationFee_component_id = get_option("lh-registrationFee-component-id");
     }
 
     private function setSettings($field, $value) {
@@ -58,7 +78,16 @@ class settings extends database {
         $parameters = $request->get_params();
 
         foreach($parameters as $key => $value) {
-            self::setSettings("lh-".$key, $value);
+            $costData = billing_component::listOne($value);
+            if ($key == "consultationFee_component") {
+                self::setSettings("lh-consultationFee-cost", $costData['cost']);
+                self::setSettings("lh-consultationFee-component-id", $costData['ref']);
+            } else if ($key == "registrationFee_component") {
+                self::setSettings("lh-registrationFee-cost", $costData['cost']);
+                self::setSettings("lh-registrationFee-component-id", $costData['ref']);
+            } else {
+                self::setSettings("lh-".$key, $value);
+            }
         }
 
         self::$return = self::$successResponse;
