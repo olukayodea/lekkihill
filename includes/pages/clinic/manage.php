@@ -7,17 +7,21 @@
   $balance = billing::$balance;
   
   $managePatient = false;
-  if ( mktime(0, 0, 0, date("m"), date("d"), date("Y")) < strtotime( $vitalsData['create_time'] ) ) {
+  
+  if ( mktime(0, 0, 0, date("m"), date("d"), date("Y")) < strtotime( $vitalsData['create_time'], time() ) ) {
     $managePatient = true;
   }
 ?>
+<input type="hidden" name="patient_id" id="patient_id" value="<?php echo $_REQUEST['id']; ?>">
 <div class="wrap">
   <h1 class="wp-heading-inline">Clinic</h1>
   <div id="col-container" class="wp-clearfix">
     <div id="col-left">
       <div class="col-wrap">
         <div class="form-wrap">
-            <h2>Search Patient</h2>
+          <h2>Search Patient</h2>
+          <div class="updated" id="updatedMessage" style="display: none"></div>
+          <div class="error" id="errorMessage" style="display: none"></div>
           <?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
           <?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
           <?php if ($balance > 0): ?><div class="notice"><p><?php echo "A pending payment of &#8358; ".number_format($balance)." is due"; ?></p></div><?php endif; ?>
@@ -135,248 +139,691 @@
             <button type="button" id="control_fb_bt" data-id="0" class="button button-primary"><i class="fas fa-balance-scale-right fa-lg"></i>&nbsp;Fluid Balance</button>
             <button type="button" id="control_fo_bt" data-id="0" class="button button-primary"><i class="fab fa-wpforms fa-lg"></i>&nbsp;Forms</button>
           </div>
-          <div class="col-wrap control_bt" id="control_sm_bt_div" style="display: none">
+          <div class="col-wrap control_bt" id="control_sm_bt_div" style="display: none">  
+            <span id="sm_notice"></span>
+            <h2>Vitals</h2>
+            <table class='widefat striped fixed'>
+              <tbody>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Weight (Kg)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_weight"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Height (cm)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_height"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>BMI</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_bmi"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>SPO2</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_spo2"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm))</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_respiratory"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Temprature (C)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_temprature"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Pulse Rate (bpm)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_pulse"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Blood Pressure-SYS (mmHg)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_bp_sys"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Blood Pressure-DIA (mmHg)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_bp_dia"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_added_by"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_v_create_time"><i>fetching data...</i></td>
+                </tr>
+              </tbody>
+            </table> 
+            <h2>Clinic Continuation</h2>
+            <p id="summary_c"><i>fetching data...</i></p>
+            <small id="summary_added_by"><i>fetching data...</i></small>
+            <small id="summary_c_create_time"><i>fetching data...</i></small><br>
+            <a href="Javascript:void(0)" id="control_cs_bt_l">Add New</a>
+            <h2>Post Operative Note</h2>
+            <table class='widefat striped fixed'>
+              <tbody>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Surgery</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_surgery"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Category</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_surgery_category"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Indication</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_indication"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Surgeon</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_surgeon"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Assistant Surgeon</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_asst_surgeon"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Peri Op Nurse</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_per_op_nurse"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Circulating Nurse</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_circulating_nurse"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Anaestdesia</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_anaesthesia"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Anaestdesia Time</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_anaesthesia_time"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Knife on Skin</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_knife_on_skin"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Infiltration Time</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_infiltration_time"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Liposuction Time</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_liposuction_time"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>End of Surgery</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_end_of_surgery"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Procedure</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_procedure"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Right Buttock)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_amt_of_fat_right"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Right Buttock)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_amt_of_fat_left"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Otder Areas)</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_amt_of_fat_other"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>EBL</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_ebl"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Plan</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_plan"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_added_by"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_p_create_time"><i>fetching data...</i></td>
+                </tr>
+              </tbody>
+            </table> 
+            <a href="Javascript:void(0)" id="control_po_bt_l">Add New</a>
+            <h2>Medication</h2>
+            <table class='widefat striped fixed'>
+              <tbody>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Route</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_route"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Medication</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_medication"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Dose</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_dose"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Frequency</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_frequency"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_added_by"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></th>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_create_time"><i>fetching data...</i></td>
+                </tr>
+              </tbody>
+            </table> 
+            <a href="Javascript:void(0)" id="control_m_bt_l">Add New</a>
+            <h2>Massage Register</h2>
+            <a href="Javascript:void(0)" id="control_mg_bt_l">Add New</a>
+            <h2>Fluid Balance</h2>
+            <table class='widefat striped fixed'>
+              <tbody>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col" colspan="2"><strong>Intake (ML)</strong></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong> of IV Fluid</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Amount</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_amount"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Oral Fluid</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_oral_fluid"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>NG Tube Feeding</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_ng_tube_feeding"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col" colspan="2"><strong>Output (ML)</strong></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Vomit</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_vomit"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Urine</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_urine"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Drains</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_drains"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>NG Tube Drainage</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_ng_tube_drainage"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Report Date</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_report_date"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_added_by"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_fb_create_time"><i>fetching data...</i></td>
+                </tr>
+              </tbody>
+            </table> 
+            <a href="Javascript:void(0)" id="control_fb_bt_l">Add New</a>
           </div>
           <div class="col-wrap control_bt" id="control_cs_bt_div" style="display: none">
+            <h2>Clinic Continuation</h2>
+            <button type="button" id="cs_add_record" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Record</button>
+            <button type="button" id="cs_show_record" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;History</button>
+            <div class="form-wrap" id="cs_add_record_div">
+              <form name="continuation_sheet" id="continuation_sheet" onsubmit="continuationSheet();return false">
+                <table width="100%">
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-cs_notes-wrap">
+                        <label for="cs_notes"> Notes</label>
+                        <textarea name="cs_notes" id="cs_notes" rows="20" required></textarea>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+                <button type="submit" id="continuation_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
+              </form>
+            </div>
+            <div class="form-wrap" id="cs_show_record_div" style="display: none">
+              <span id="cs_notice"></span>
+              <ol class='widefat striped fixed' id="cs_list"></ol>
+            </div>
           </div>
           <div class="col-wrap control_bt" id="control_po_bt_div" style="display: none">
             <h2>Post Operative Note</h2>
             <button type="button" id="po_add_record" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Record</button>
             <button type="button" id="po_show_record" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;History</button>
-            <form name="post_op" id="post_op" onsubmit="alert('submit!');return false">
-              <table width="100%">
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-surgery-wrap">
-                      <label for="surgery">Surgery</label>
-                      <input type="text" name="surgery" id="surgery" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-surgery_category-wrap">
-                      <label for="surgery_category"> Surgery Category</label>
-                      <select name="surgery_category" id="surgery_category" required>
-                        <option>Select One</option>
-                        <option value="Major">Major</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Minor">Minor</option>
-                      </select>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2">
-                    <div class="form-field form-required term-names-wrap">
-                      <label for="indication"> Indication</label>
-                      <textarea name="indication" id="indication" required></textarea>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-surgeon-wrap">
-                      <label for="surgeon"> Surgeon</label>
-                      <input type="text" name="surgeon" id="surgeon" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-asst_surgeon-wrap">
-                      <label for="asst_surgeon"> Assistant Surgeon</label>
-                      <input type="text" name="asst_surgeon" id="asst_surgeon" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-per_op_nurse-wrap">
-                      <label for="per_op_nurse"> Peri Op Nurse</label>
-                      <input type="text" name="per_op_nurse" id="per_op_nurse" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-circulating_nurse-wrap">
-                      <label for="circulating_nurse"> Circulating Nurse</label>
-                      <input type="text" name="circulating_nurse" id="circulating_nurse" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-anaesthesia-wrap">
-                      <label for="anaesthesia"> Anaesthesia</label>
-                      <input type="text" name="anaesthesia" id="anaesthesia" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-names-wrap">
-                      <label for="anaesthesia_time"> Anaesthesia Time</label>
-                      <input type="time" name="anaesthesia_time" id="anaesthesia_time" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-knife_on_skin-wrap">
-                      <label for="knife_on_skin"> Knife on Skin</label>
-                      <input type="time" name="knife_on_skin" id="knife_on_skin" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-infiltration_time-wrap">
-                      <label for="infiltration_time"> Infiltration Time</label>
-                      <input type="time" name="infiltration_time" id="infiltration_time" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-liposuction_time-wrap">
-                      <label for="liposuction_time"> Liposuction Time</label>
-                      <input type="time" name="liposuction_time" id="liposuction_time" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-end_of_surgery-wrap">
-                      <label for="end_of_surgery"> End of Surgery</label>
-                      <input type="time" name="end_of_surgery" id="end_of_surgery" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2">
-                    <div class="form-field form-required term-procedure-wrap">
-                      <label for="procedure"> Procedure</label>
-                      <textarea name="procedure" id="procedure" required></textarea>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-amt_of_fat_right-wrap">
-                      <label for="amt_of_fat_right"> Amount of Fat transfered to Right Buttock</label>
-                      <input type="text" name="amt_of_fat_right" id="amt_of_fat_right" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-amt_of_fat_left-wrap">
-                      <label for="amt_of_fat_left"> Amount of Fat transfered to Right Buttock</label>
-                      <input type="text" name="amt_of_fat_left" id="amt_of_fat_left" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-amt_of_fat_other-wrap">
-                      <label for="amt_of_fat_other">Amount of Fat transfered to Other Areas</label>
-                      <input type="text" name="amt_of_fat_other" id="amt_of_fat_other" value="" required />
-                    </div>
-                  </td>
-                  <td>&nbsp;</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-ebl-wrap">
-                      <label for="ebl">EBL</label>
-                      <textarea name="ebl" id="ebl" required></textarea>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-plan-wrap">
-                      <label for="plan">Plan</label>
-                      <textarea name="plan" id="plan" required></textarea>
-                    </div>
-                  </td>
-                </tr>
-              </table>
+            <div class="form-wrap" id="po_add_record_div">
+              <form name="post_op" id="post_op" onsubmit="postOp();return false">
+                <table width="100%">
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-surgery-wrap">
+                        <label for="surgery">Surgery</label>
+                        <input type="text" name="surgery" id="surgery" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-surgery_category-wrap">
+                        <label for="surgery_category"> Surgery Category</label>
+                        <select name="surgery_category" id="surgery_category" required>
+                          <option>Select One</option>
+                          <option value="Major">Major</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Minor">Minor</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <div class="form-field form-required term-names-wrap">
+                        <label for="indication"> Indication</label>
+                        <textarea name="indication" id="indication" required></textarea>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-surgeon-wrap">
+                        <label for="surgeon"> Surgeon</label>
+                        <input type="text" name="surgeon" id="surgeon" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-asst_surgeon-wrap">
+                        <label for="asst_surgeon"> Assistant Surgeon</label>
+                        <input type="text" name="asst_surgeon" id="asst_surgeon" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-per_op_nurse-wrap">
+                        <label for="per_op_nurse"> Peri Op Nurse</label>
+                        <input type="text" name="per_op_nurse" id="per_op_nurse" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-circulating_nurse-wrap">
+                        <label for="circulating_nurse"> Circulating Nurse</label>
+                        <input type="text" name="circulating_nurse" id="circulating_nurse" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-anaesthesia-wrap">
+                        <label for="anaesthesia"> Anaesthesia</label>
+                        <input type="text" name="anaesthesia" id="anaesthesia" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-names-wrap">
+                        <label for="anaesthesia_time"> Anaesthesia Time</label>
+                        <input type="datetime-local" name="anaesthesia_time" id="anaesthesia_time" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-knife_on_skin-wrap">
+                        <label for="knife_on_skin"> Knife on Skin</label>
+                        <input type="datetime-local" name="knife_on_skin" id="knife_on_skin" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-infiltration_time-wrap">
+                        <label for="infiltration_time"> Infiltration Time</label>
+                        <input type="datetime-local" name="infiltration_time" id="infiltration_time" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-liposuction_time-wrap">
+                        <label for="liposuction_time"> Liposuction Time</label>
+                        <input type="datetime-local" name="liposuction_time" id="liposuction_time" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-end_of_surgery-wrap">
+                        <label for="end_of_surgery"> End of Surgery</label>
+                        <input type="datetime-local" name="end_of_surgery" id="end_of_surgery" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2">
+                      <div class="form-field form-required term-procedure-wrap">
+                        <label for="procedure"> Procedure</label>
+                        <textarea name="procedure" id="procedure2" required></textarea>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-amt_of_fat_right-wrap">
+                        <label for="amt_of_fat_right"> Amount of Fat transfered to Right Buttock</label>
+                        <input type="text" name="amt_of_fat_right" id="amt_of_fat_right" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-amt_of_fat_left-wrap">
+                        <label for="amt_of_fat_left"> Amount of Fat transfered to Left Buttock</label>
+                        <input type="text" name="amt_of_fat_left" id="amt_of_fat_left" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-amt_of_fat_other-wrap">
+                        <label for="amt_of_fat_other">Amount of Fat transfered to Other Areas</label>
+                        <input type="text" name="amt_of_fat_other" id="amt_of_fat_other" value="" required />
+                      </div>
+                    </td>
+                    <td>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-ebl-wrap">
+                        <label for="ebl">EBL</label>
+                        <textarea name="ebl" id="ebl" required></textarea>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-plan-wrap">
+                        <label for="plan">Plan</label>
+                        <textarea name="plan" id="plan" required></textarea>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
 
-              <button type="submit" id="post_op_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Close</button>
-            </form>
+                <button type="submit" id="post_op_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
+              </form>
+            </div>
+            <div class="form-wrap" id="po_show_record_div" style="display: none">
+              <span id="po_notice"></span>
+              <table class='widefat striped fixed'>
+                  <thead>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Surgery</th>
+                      <th class="manage-column column-columnname" scope="col">Indication</th>
+                      <th class="manage-column column-columnname" scope="col">Surgeon</th>
+                      <th class="manage-column column-columnname" scope="col">Assistant Surgeon</th>
+                      <th class="manage-column column-columnname" scope="col">Peri Op Nurse</th>
+                      <th class="manage-column column-columnname" scope="col">Circulating Nurse</th>
+                      <th class="manage-column column-columnname" scope="col">Anaesthesia</th>
+                      <th class="manage-column column-columnname" scope="col">Anaesthesia Time</th>
+                      <th class="manage-column column-columnname" scope="col">Knife on Skin</th>
+                      <th class="manage-column column-columnname" scope="col">Infiltration Time</th>
+                      <th class="manage-column column-columnname" scope="col">Liposuction Time</th>
+                      <th class="manage-column column-columnname" scope="col">End of Surgery</th>
+                      <th class="manage-column column-columnname" scope="col">Procedure</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Right Buttock)</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Right Buttock)</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Other Areas)</th>
+                      <th class="manage-column column-columnname" scope="col">EBL</th>
+                      <th class="manage-column column-columnname" scope="col">Plan</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Surgery</th>
+                      <th class="manage-column column-columnname" scope="col">Indication</th>
+                      <th class="manage-column column-columnname" scope="col">Surgeon</th>
+                      <th class="manage-column column-columnname" scope="col">Assistant Surgeon</th>
+                      <th class="manage-column column-columnname" scope="col">Peri Op Nurse</th>
+                      <th class="manage-column column-columnname" scope="col">Circulating Nurse</th>
+                      <th class="manage-column column-columnname" scope="col">Anaesthesia</th>
+                      <th class="manage-column column-columnname" scope="col">Anaesthesia Time</th>
+                      <th class="manage-column column-columnname" scope="col">Knife on Skin</th>
+                      <th class="manage-column column-columnname" scope="col">Infiltration Time</th>
+                      <th class="manage-column column-columnname" scope="col">Liposuction Time</th>
+                      <th class="manage-column column-columnname" scope="col">End of Surgery</th>
+                      <th class="manage-column column-columnname" scope="col">Procedure</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Right Buttock)</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Right Buttock)</th>
+                      <th class="manage-column column-columnname" scope="col">Transfered Fat (Other Areas)</th>
+                      <th class="manage-column column-columnname" scope="col">EBL</th>
+                      <th class="manage-column column-columnname" scope="col">Plan</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                  </tr>
+                  </tfoot>
+                  <tbody id="po_list">
+                  </tbody>
+              </table> 
+            </div>
           </div>
           <div class="col-wrap control_bt" id="control_m_bt_div" style="display: none">
+            <h2>Medication</h2>
+            <button type="button" id="m_add_record" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Record</button>
+            <button type="button" id="m_show_record" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;History</button>
+            <div class="form-wrap" id="m_add_record_div">
+              <form name="medication" id="medication" onsubmit="addMedication();return false">
+                <table width="100%">
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-m_route-wrap">
+                        <label for="m_route">Route of Administration</label>
+                        <input type="text" name="m_route" id="m_route" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-m_medication-wrap">
+                        <label for="m_medication"> Medication</label>
+                        <input type="text" name="m_medication" id="m_medication" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-m_dose-wrap">
+                        <label for="m_dose"> Dose</label>
+                        <input type="text" name="m_dose" id="m_dose" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-m_frequency-wrap">
+                        <label for="m_frequency"> Frequency</label>
+                        <input type="text" name="m_frequency" id="m_frequency" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+
+                <button type="submit" id="medication_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
+              </form>
+            </div>
+            <div class="form-wrap" id="m_show_record_div" style="display: none">
+              <span id="m_notice"></span>
+              <table class='widefat striped fixed'>
+                  <thead>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Route</th>
+                      <th class="manage-column column-columnname" scope="col">Medication</th>
+                      <th class="manage-column column-columnname" scope="col">Dose</th>
+                      <th class="manage-column column-columnname" scope="col">Frequency</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                      <th class="manage-column column-columnname" scope="col">Added On</th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Route</th>
+                      <th class="manage-column column-columnname" scope="col">Medication</th>
+                      <th class="manage-column column-columnname" scope="col">Dose</th>
+                      <th class="manage-column column-columnname" scope="col">Frequency</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                      <th class="manage-column column-columnname" scope="col">Added On</th>
+                  </tr>
+                  </tfoot>
+                  <tbody id="m_list">
+                  </tbody>
+              </table> 
+            </div>
           </div>
           <div class="col-wrap control_bt" id="control_mg_bt_div" style="display: none">
+            <h2>Massage Register</h2>
+            <button type="button" id="mg_add_record" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Record</button>
+            <button type="button" id="mg_show_record" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;History</button>
+            <div class="form-wrap" id="mg_add_record_div">
+            </div>
+            <div class="form-wrap" id="mg_show_record_div" style="display: none">
+            </div>
           </div>
           <div class="col-wrap control_bt" id="control_fb_bt_div" style="display: none">
             <h2>Fluid Balance Chart</h2>
             <button type="button" id="fb_add_record" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Add Record</button>
             <button type="button" id="fb_show_record" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;History</button>
-            <form name="fluid_balance" id="fluid_balance" onsubmit="alert('submit!');return false">
-              <table width="100%">
-                <tr>
-                  <td colspan="2"><h2>Intake (ML)</h2></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-iv_fluid-wrap">
-                      <label for="iv_fluid">Type of IV Fluid</label>
-                      <input type="text" name="iv_fluid" id="iv_fluid" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-amount-wrap">
-                      <label for="amount"> Amount</label>
-                      <input type="number" name="amount" id="amount" step="0.01" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-oral_fluid-wrap">
-                      <label for="oral_fluid"> Oral Fluid</label>
-                      <input type="number" name="oral_fluid" id="oral_fluid" step="0.01" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-ng_tube_feeding-wrap">
-                      <label for="ng_tube_feeding"> NG Tube Feeding</label>
-                      <input type="number" name="ng_tube_feeding" id="ng_tube_feeding" step="0.01" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="2"><h2>Output (ML)</h2></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-vomit-wrap">
-                      <label for="vomit"> Vomit</label>
-                      <input type="number" name="vomit" id="vomit" step="0.01" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-urine-wrap">
-                      <label for="urine"> Urine</label>
-                      <input type="number" name="urine" id="urine" step="0.01" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-drains-wrap">
-                      <label for="drains"> Drains</label>
-                      <input type="number" name="drains" id="drains" step="0.01" value="" required />
-                    </div>
-                  </td>
-                  <td>
-                    <div class="form-field form-required term-ng_tube_drainage-wrap">
-                      <label for="ng_tube_drainage"> NG Tube Drainage</label>
-                      <input type="number" name="ng_tube_drainage" id="ng_tube_drainage" step="0.01" value="" required />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="form-field form-required term-report_date-wrap">
-                      <label for="report_date"> Report Date</label>
-                      <input type="date" name="report_date" id="report_date" value="" required />
-                    </div>
-                  </td>
-                  <td>&nbsp;</td>
-                </tr>
-              </table>
 
-              <button type="submit" id="fluid_balance_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Close</button>
-            </form>
+            <div class="form-wrap" id="fb_add_record_div">
+              <form name="fluid_balance" id="fluid_balance" onsubmit="fluidBalance();return false">
+                <table width="100%">
+                  <tr>
+                    <td colspan="2"><h2>Intake (ML)</h2></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-iv_fluid-wrap">
+                        <label for="iv_fluid">Type of IV Fluid</label>
+                        <input type="text" name="iv_fluid" id="iv_fluid" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-amount-wrap">
+                        <label for="amount"> Amount</label>
+                        <input type="number" name="amount" id="amount" step="0.01" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-oral_fluid-wrap">
+                        <label for="oral_fluid"> Oral Fluid</label>
+                        <input type="number" name="oral_fluid" id="oral_fluid" step="0.01" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-ng_tube_feeding-wrap">
+                        <label for="ng_tube_feeding"> NG Tube Feeding</label>
+                        <input type="number" name="ng_tube_feeding" id="ng_tube_feeding" step="0.01" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2"><h2>Output (ML)</h2></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-vomit-wrap">
+                        <label for="vomit"> Vomit</label>
+                        <input type="number" name="vomit" id="vomit" step="0.01" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-urine-wrap">
+                        <label for="urine"> Urine</label>
+                        <input type="number" name="urine" id="urine" step="0.01" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-drains-wrap">
+                        <label for="drains"> Drains</label>
+                        <input type="number" name="drains" id="drains" step="0.01" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-ng_tube_drainage-wrap">
+                        <label for="ng_tube_drainage"> NG Tube Drainage</label>
+                        <input type="number" name="ng_tube_drainage" id="ng_tube_drainage" step="0.01" value="" required />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-report_date-wrap">
+                        <label for="report_date"> Report Date</label>
+                        <input type="date" name="report_date" id="report_date" value="" required />
+                      </div>
+                    </td>
+                    <td>&nbsp;</td>
+                  </tr>
+                </table>
+
+                <button type="submit" id="fluid_balance_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
+              </form>
+            </div>
+            <div class="form-wrap" id="fb_show_record_div" style="display: none">
+              <span id="fb_notice"></span>
+              <table class='widefat striped fixed'>
+                  <thead>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" colspan="4" scope="col">Intake (ML)</th>
+                      <th class="manage-column column-columnname" colspan="5" scope="col">Output (ML)</th>
+                      <th class="manage-column column-columnname" scope="col"></th>
+                      <th class="manage-column column-columnname" scope="col"></th>
+                  </tr>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Type of IV Fluid</th>
+                      <th class="manage-column column-columnname" scope="col">Amount</th>
+                      <th class="manage-column column-columnname" scope="col">Oral Fluid</th>
+                      <th class="manage-column column-columnname" scope="col">NG Tube Feeding</th>
+                      <th class="manage-column column-columnname" scope="col">Vomit</th>
+                      <th class="manage-column column-columnname" scope="col">Urine</th>
+                      <th class="manage-column column-columnname" scope="col">Drains</th>
+                      <th class="manage-column column-columnname" scope="col">NG Tube Drainage</th>
+                      <th class="manage-column column-columnname" scope="col">Report Date</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                      <th class="manage-column column-columnname" scope="col">Added On</th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" scope="col">Type of IV Fluid</th>
+                      <th class="manage-column column-columnname" scope="col">Amount</th>
+                      <th class="manage-column column-columnname" scope="col">Oral Fluid</th>
+                      <th class="manage-column column-columnname" scope="col">NG Tube Feeding</th>
+                      <th class="manage-column column-columnname" scope="col">Vomit</th>
+                      <th class="manage-column column-columnname" scope="col">Urine</th>
+                      <th class="manage-column column-columnname" scope="col">Drains</th>
+                      <th class="manage-column column-columnname" scope="col">NG Tube Drainage</th>
+                      <th class="manage-column column-columnname" scope="col">Report Date</th>
+                      <th class="manage-column column-columnname" scope="col">Added By</th>
+                      <th class="manage-column column-columnname" scope="col">Added On</th>
+                  </tr>
+                  <tr>
+                      <th class="manage-column column-cb check-column"></th>
+                      <th class="manage-column column-columnname" colspan="4" scope="col">Intake (ML)</th>
+                      <th class="manage-column column-columnname" colspan="5" scope="col">Output (ML)</th>
+                      <th class="manage-column column-columnname" scope="col"></th>
+                      <th class="manage-column column-columnname" scope="col"></th>
+                  </tr>
+                  </tfoot>
+                  <tbody id="fb_list">
+                  </tbody>
+              </table> 
+            </div>
           </div>
           <div class="col-wrap control_bt" id="control_fo_bt_div" style="display: none">
           </div>
@@ -558,9 +1005,12 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').hide();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
-    $( "#control_cs_bt" ).click(function() {
+    $( "#control_cs_bt, #control_cs_bt_l" ).click(function() {
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').show();
       $('#control_po_bt_div').hide();
@@ -568,9 +1018,14 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').hide();
+
+      $('#cs_notes').focus();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
-    $( "#control_po_bt" ).click(function() {
+    $( "#control_po_bt, #control_po_bt_l" ).click(function() {
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').show();
@@ -578,9 +1033,14 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').hide();
+
+      $('#surgery').focus();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
     
-    $( "#control_m_bt" ).click(function() {
+    $( "#control_m_bt, #control_m_bt_l" ).click(function() {
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -588,9 +1048,14 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').hide();
+
+      $('#m_route').focus();
+      
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
-    $( "#control_mg_bt" ).click(function() {
+    $( "#control_mg_bt, #control_mg_bt_l" ).click(function() {
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -598,9 +1063,14 @@ jQuery(function ($) {
       $('#control_mg_bt_div').show();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').hide();
+
+      $('#surgery').focus();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
-    $( "#control_fb_bt" ).click(function() {
+    $( "#control_fb_bt, #control_fb_bt_l" ).click(function() {
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -608,6 +1078,11 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').show();
       $('#control_fo_bt_div').hide();
+
+      $('#iv_fluid').focus();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
     $( "#control_fo_bt" ).click(function() {
@@ -618,6 +1093,9 @@ jQuery(function ($) {
       $('#control_mg_bt_div').hide();
       $('#control_fb_bt_div').hide();
       $('#control_fo_bt_div').show();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
     });
 
     $( "#add_button_4" ).click(function() {
@@ -645,6 +1123,8 @@ jQuery(function ($) {
       $('#appointment_div').hide();
       $('#vital_signs').hide();
       $('#add_button_3').hide();
+
+      summary();
     });
 
     // close patient button
@@ -675,26 +1155,82 @@ jQuery(function ($) {
       $('#vital_list').DataTable();
     });
 
+    // medication show and hide buttons
+    $( "#m_add_record" ).click(function() {
+      $('#m_add_record').hide();
+      $('#m_show_record').show();
+      $('#m_show_record_div').hide();
+      $('#m_add_record_div').show();
+    });
+
+    $( "#m_show_record" ).click(function() {
+      $('#m_add_record').show();
+      $('#m_show_record').hide();
+      $('#m_show_record_div').show();
+      $('#m_add_record_div').hide();
+      medicationRecord();
+    });
+
+    // massage show and hide buttons
+    $( "#mg_add_record" ).click(function() {
+      $('#mg_add_record').hide();
+      $('#mg_show_record').show();
+    });
+
+    $( "#mg_show_record" ).click(function() {
+      $('#mg_add_record').show();
+      $('#mg_show_record').hide();
+    });
+
+    // continuation sheet show and hide buttons
+    $( "#cs_add_record" ).click(function() {
+      $('#cs_add_record').hide();
+      $('#cs_show_record').show();
+      $('#cs_show_record_div').hide();
+      $('#cs_add_record_div').show();
+    });
+
+    $( "#cs_show_record" ).click(function() {
+      $('#cs_add_record').show();
+      $('#cs_show_record').hide();
+      $('#cs_show_record_div').show();
+      $('#cs_add_record_div').hide();
+
+      continuationSheetRecords();
+    });
+
     // post op show and hide buttons
     $( "#po_add_record" ).click(function() {
       $('#po_add_record').hide();
       $('#po_show_record').show();
+      $('#po_show_record_div').hide();
+      $('#po_add_record_div').show();
     });
 
     $( "#po_show_record" ).click(function() {
       $('#po_add_record').show();
       $('#po_show_record').hide();
+      $('#po_show_record_div').show();
+      $('#po_add_record_div').hide();
+
+      postOpRecord();
     });
 
     // fluid balance show and hide buttons
     $( "#fb_add_record" ).click(function() {
       $('#fb_add_record').hide();
       $('#fb_show_record').show();
+      $('#fb_show_record_div').hide();
+      $('#fb_add_record_div').show();
     });
 
     $( "#fb_show_record" ).click(function() {
       $('#fb_add_record').show();
       $('#fb_show_record').hide();
+      $('#fb_show_record_div').show();
+      $('#fb_add_record_div').hide();
+
+      fluidBalanceRecord();
     });
     
     $('#weight, #height').keyup(function() {
@@ -713,4 +1249,512 @@ jQuery(function ($) {
     });
    
 } );
+
+function continuationSheet() {
+  jQuery(function ($) {
+    var patient_id = $("#patient_id").val();
+    var notes = $("#cs_notes").val();
+
+    var sendInfo = {
+      patient_id: patient_id,
+      notes: notes
+    };
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+    var url = '<?php echo get_rest_url()."api/patient/continuation"; ?>';
+
+    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      if (data.status == "200") {
+        $('#cs_show_record_div').show();
+        $('#cs_add_record_div').hide();
+
+        $('#cs_add_record').hide();
+        $('#cs_show_record').show();
+
+        $('#updatedMessage').show();
+        $('#updatedMessage').html('<p>Record Added!</p>');
+
+        continuationSheetRecords();
+      } else {
+        $('#errorMessage').show();
+        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      }
+    });
+  });
+}
+
+function continuationSheetRecords() {
+  jQuery(function ($) {
+    $('#cs_notice').html('loading data...');
+    var patient_id = document.getElementById('patient_id').value;
+    var se_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': api_key,
+            'api-token': api_token
+            }
+    });
+    jQuery.get( se_ajax_url, function( data ) {
+
+      $('#cs_notice').html('');
+      $("#cs_list").html('');
+      for (var key in data.data) {
+        $("#cs_list").append('<li><h2>'+data.data[key].notes+'</h2><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small></li>');
+      }
+    });
+
+  });
+}
+
+function postOp() {
+  jQuery(function ($) {
+    var patient_id = $("#patient_id").val();
+    var notes = $("#notes").val();
+    var surgery = $("#surgery").val();
+    var surgery_category = $("#surgery_category").val();
+    var Indication = $("#Indication").val();
+    var surgeon = $("#surgeon").val();
+    var asst_surgeon = $("#asst_surgeon").val();
+    var per_op_nurse = $("#per_op_nurse").val();
+    var circulating_nurse = $("#circulating_nurse").val();
+    var anaesthesia = $("#patient_anaesthesiaid").val();
+    var anaesthesia_time = $("#anaesthesia_time").val();
+    var knife_on_skin = $("#knife_on_skin").val();
+    var infiltration_time = $("#infiltration_time").val();
+    var liposuction_time = $("#liposuction_time").val();
+    var procedure = $("#procedure2").val();
+    var amt_of_fat_right = $("#amt_of_fat_right").val();
+    var amt_of_fat_left = $("#amt_of_fat_left").val();
+    var amt_of_fat_other = $("#amt_of_fat_other").val();
+    var ebl = $("#ebl").val();
+    var plan = $("#patient_id").val();
+
+    var sendInfo = {
+      patient_id: patient_id,
+      notes: notes,
+      surgery: surgery,
+      surgery_category: surgery_category,
+      Indication: Indication,
+      surgeon: surgeon,
+      asst_surgeon: asst_surgeon,
+      per_op_nurse: per_op_nurse,
+      circulating_nurse: circulating_nurse,
+      anaesthesia: anaesthesia,
+      anaesthesia_time: anaesthesia_time,
+      knife_on_skin: knife_on_skin,
+      infiltration_time: infiltration_time,
+      liposuction_time: liposuction_time,
+      procedure: procedure,
+      amt_of_fat_right: amt_of_fat_right,
+      amt_of_fat_left: amt_of_fat_left,
+      amt_of_fat_other: amt_of_fat_other,
+      ebl: ebl,
+      plan: plan
+    };
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+    var url = '<?php echo get_rest_url()."api/patient/postOp"; ?>';
+
+    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      if (data.status == "200") {
+        $('#po_show_record_div').show();
+        $('#po_add_record_div').hide();
+        
+        $('#po_add_record').hide();
+        $('#po_show_record').show();
+
+        $('#updatedMessage').show();
+        $('#updatedMessage').html('<p>Record Added!</p>');
+
+        postOpRecord();
+      } else {
+        $('#errorMessage').show();
+        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      }
+    });
+  });
+}
+
+function postOpRecord() {
+  jQuery(function ($) {
+    $('#po_notice').html('loading data...');
+    var patient_id = document.getElementById('patient_id').value;
+    var se_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': api_key,
+            'api-token': api_token
+            }
+    });
+
+    var tabledata = '';
+    var count = 1;
+    jQuery.get( se_ajax_url, function( data ) {
+
+      $('#po_notice').html('');
+      $("#po_list").html('');
+      for (var key in data.data) {
+        tabledata = '';
+
+        tabledata = '<tr>'+
+        '<th class="check-column" scope="row">'+count+'</th>'+
+        '<td class="column-columnname">'+data.data[key].surgery+' ('+data.data[key].surgery_category+'}</td>'+
+        '<td class="column-columnname">'+data.data[key].indication+'</td>'+
+        '<td class="column-columnname">'+data.data[key].surgeon+'</td>'+
+        '<td class="column-columnname">'+data.data[key].asst_surgeon+'</td>'+
+        '<td class="column-columnname">'+data.data[key].per_op_nurse+'</td>'+
+        '<td class="column-columnname">'+data.data[key].circulating_nurse+'</td>'+
+        '<td class="column-columnname">'+data.data[key].anaesthesia+'</td>'+
+        '<td class="column-columnname">'+data.data[key].anaesthesia_time+'</td>'+
+        '<td class="column-columnname">'+data.data[key].knife_on_skin+'</td>'+
+        '<td class="column-columnname">'+data.data[key].infiltration_time+'</td>'+
+        '<td class="column-columnname">'+data.data[key].liposuction_time+'</td>'+
+        '<td class="column-columnname">'+data.data[key].end_of_surgery+'</td>'+
+        '<td class="column-columnname">'+data.data[key].procedure+'</td>'+
+        '<td class="column-columnname">'+data.data[key].amt_of_fat_right+'</td>'+
+        '<td class="column-columnname">'+data.data[key].amt_of_fat_left+'</td>'+
+        '<td class="column-columnname">'+data.data[key].amt_of_fat_other+'</td>'+
+        '<td class="column-columnname">'+data.data[key].ebl+'</td>'+
+        '<td class="column-columnname">'+data.data[key].plan+'</td>'+
+        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+        '</tr>';
+        count++;
+
+        $("#po_list").append(tabledata);
+      }
+    });
+
+  });
+}
+
+function addMedication() {
+  jQuery(function ($) {
+    var patient_id = $("#patient_id").val();
+    var route = $("#m_route").val();
+    var medication = $("#m_medication").val();
+    var dose = $("#m_dose").val();
+    var frequency = $("#m_frequency").val();
+
+    var sendInfo = {
+      patient_id: patient_id,
+      route: route,
+      medication: medication,
+      dose: dose,
+      frequency: frequency
+    };
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+    var url = '<?php echo get_rest_url()."api/patient/medication"; ?>';
+
+    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      if (data.status == "200") {
+        $('#m_show_record_div').show();
+        $('#m_add_record_div').hide();
+        
+        $('#m_add_record').hide();
+        $('#m_show_record').show();
+
+        $('#updatedMessage').show();
+        $('#updatedMessage').html('<p>Record Added!</p>');
+
+        medicationRecord();
+      } else {
+        $('#errorMessage').show();
+        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      }
+    });
+  });
+}
+
+function medicationRecord() {
+  jQuery(function ($) {
+    $('#m_notice').html('loading data...');
+    var patient_id = document.getElementById('patient_id').value;
+    var se_ajax_url = '<?php echo get_rest_url().'api/patient/medication/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': api_key,
+            'api-token': api_token
+            }
+    });
+
+    var tabledata = '';
+    var count = 1;
+    jQuery.get( se_ajax_url, function( data ) {
+
+      $('#m_notice').html('');
+      $("#m_list").html('');
+      for (var key in data.data) {
+        tabledata = '';
+
+        tabledata = '<tr>'+
+        '<th class="check-column" scope="row">'+count+'</th>'+
+        '<td class="column-columnname">'+data.data[key].route+'</td>'+
+        '<td class="column-columnname">'+data.data[key].medication+'</td>'+
+        '<td class="column-columnname">'+data.data[key].dose+'</td>'+
+        '<td class="column-columnname">'+data.data[key].frequency+'</td>'+
+        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+        '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
+        '</tr>';
+        count++;
+
+        $("#m_list").append(tabledata);
+      }
+    });
+
+  });
+}
+
+function fluidBalance() {
+  jQuery(function ($) {
+    var patient_id = $("#patient_id").val();
+    var iv_fluid = $("#iv_fluid").val();
+    var amount = $("#amount").val();
+    var oral_fluid = $("#oral_fluid").val();
+    var ng_tube_feeding = $("#ng_tube_feeding").val();
+    var vomit = $("#vomit").val();
+    var urine = $("#urine").val();
+    var drains = $("#drains").val();
+    var ng_tube_drainage = $("#ng_tube_drainage").val();
+    var report_date = $("#report_date").val();
+
+    var sendInfo = {
+      patient_id: patient_id,
+      iv_fluid: iv_fluid,
+      amount: amount,
+      oral_fluid: oral_fluid,
+      ng_tube_feeding: ng_tube_feeding,
+      vomit: vomit,
+      urine: urine,
+      drains: drains,
+      ng_tube_drainage: ng_tube_drainage,
+      report_date: report_date
+    };
+
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+    var url = '<?php echo get_rest_url()."api/patient/fluidBalance"; ?>';
+
+    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      if (data.status == "200") {
+        $('#fb_show_record_div').show();
+        $('#fb_add_record_div').hide();
+        
+        $('#fb_add_record').hide();
+        $('#fb_show_record').show();
+
+        $('#updatedMessage').show();
+        $('#updatedMessage').html('<p>Record Added!</p>');
+
+        fluidBalanceRecord();
+      } else {
+        $('#errorMessage').show();
+        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      }
+    });
+  });
+}
+
+function fluidBalanceRecord() {
+  jQuery(function ($) {
+    $('#fb_notice').html('loading data...');
+    var patient_id = document.getElementById('patient_id').value;
+    var se_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': api_key,
+            'api-token': api_token
+            }
+    });
+
+    var tabledata = '';
+
+    $("#fb_list").html('');
+    var count = 1;
+    jQuery.get( se_ajax_url, function( data ) {
+
+      $('#fb_notice').html('');
+      for (var key in data.data) {
+        tabledata = '';
+
+        tabledata = '<tr>'+
+        '<th class="check-column" scope="row">'+count+'</th>'+
+        '<td class="column-columnname">'+data.data[key].iv_fluid+'</td>'+
+        '<td class="column-columnname">'+data.data[key].amount+'</td>'+
+        '<td class="column-columnname">'+data.data[key].oral_fluid+'</td>'+
+        '<td class="column-columnname">'+data.data[key].ng_tube_feeding+'</td>'+
+        '<td class="column-columnname">'+data.data[key].vomit+'</td>'+
+        '<td class="column-columnname">'+data.data[key].urine+'</td>'+
+        '<td class="column-columnname">'+data.data[key].drains+'</td>'+
+        '<td class="column-columnname">'+data.data[key].ng_tube_drainage+'</td>'+
+        '<td class="column-columnname">'+data.data[key].report_date+'</td>'+
+        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+        '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
+        '</tr>';
+        count++;
+
+        $("#fb_list").append(tabledata);
+      }
+    });
+
+  });
+}
+
+function summary() {
+  jQuery(function ($) {
+    $("#control_sm_bt_div").show();
+    $('#sm_notice').html('loading data...');
+
+    var patient_id = document.getElementById('patient_id').value;
+    var vitals_ajax_url = '<?php echo get_rest_url().'api/patient/vitals/recent/'; ?>'+patient_id;
+    var continuation_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/recent/'; ?>'+patient_id;
+    var postOp_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/recent/'; ?>'+patient_id;
+    var medication_ajax_url = '<?php echo get_rest_url().'api/patient/medication/recent/'; ?>'+patient_id;
+    var fluidBalance_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/recent/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+
+    jQuery.get( vitals_ajax_url, function( data ) {
+      $('#summary_v_weight').html(data.data.weight);
+      $('#summary_v_height').html(data.data.height);
+      $('#summary_v_bmi').html(data.data.bmi);
+      $('#summary_v_spo2').html(data.data.spo2);
+      $('#summary_v_respiratory').html(data.data.respiratory);
+      $('#summary_v_temprature').html(data.data.temprature);
+      $('#summary_v_pulse').html(data.data.pulse);
+      $('#summary_v_bp_sys').html(data.data.bp_sys);
+      $('#summary_v_bp_dia').html(data.data.bp_dia);
+      $('#summary_v_added_by').html(data.data.added_by.user_nicename);
+      $('#summary_v_create_time').html(data.data.create_time);
+    });
+    jQuery.get( continuation_ajax_url, function( data ) {
+      $('#summary_c').html(data.data.notes);
+      $('#summary_c_create_time').html("Added On: "+data.data.create_time);
+      $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
+    });
+    jQuery.get( postOp_ajax_url, function( data ) {
+      $('#summary_p_surgery').html(data.data.surgery);
+      $('#summary_p_surgery_category').html(data.data.surgery_category);
+      $('#summary_p_indication').html(data.data.indication);
+      $('#summary_p_surgeon').html(data.data.surgeon);
+      $('#summary_p_asst_surgeon').html(data.data.asst_surgeon);
+      $('#summary_p_per_op_nurse').html(data.data.per_op_nurse);
+      $('#summary_p_circulating_nurse').html(data.data.circulating_nurse);
+      $('#summary_p_anaesthesia').html(data.data.anaesthesia);
+      $('#summary_p_anaesthesia_time').html(data.data.anaesthesia_time);
+      $('#summary_p_knife_on_skin').html(data.data.knife_on_skin);
+      $('#summary_p_infiltration_time').html(data.data.infiltration_time);
+      $('#summary_p_liposuction_time').html(data.data.liposuction_time);
+      $('#summary_p_end_of_surgery').html(data.data.end_of_surgery);
+      $('#summary_p_procedure').html(data.data.procedure);
+      $('#summary_p_amt_of_fat_right').html(data.data.amt_of_fat_right);
+      $('#summary_p_amt_of_fat_left').html(data.data.amt_of_fat_left);
+      $('#summary_p_amt_of_fat_other').html(data.data.amt_of_fat_other);
+      $('#summary_p_ebl').html(data.data.ebl);
+      $('#summary_p_plan').html(data.data.plan);
+      $('#summary_p_added_by').html(data.data.added_by.user_nicename);
+      $('#summary_p_create_time').html(data.data.create_time);
+    });
+    jQuery.get( medication_ajax_url, function( data ) {
+      $('#summary_m_route').html(data.data.route);
+      $('#summary_m_medication').html(data.data.medication);
+      $('#summary_m_dose').html(data.data.dose);
+      $('#summary_m_frequency').html(data.data.frequency);
+      $('#summary_m_added_by').html(data.data.added_by.user_nicename);
+      $('#summary_m_create_time').html(data.data.create_time);
+    });
+    jQuery.get( fluidBalance_ajax_url, function( data ) {
+      $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
+      $('#summary_fb_amount').html(data.data.amount);
+      $('#summary_fb_oral_fluid').html(data.data.oral_fluid);
+      $('#summary_fb_ng_tube_feeding').html(data.data.ng_tube_feeding);
+      $('#summary_fb_vomit').html(data.data.vomit);
+      $('#summary_fb_urine').html(data.data.urine);
+      $('#summary_fb_drains').html(data.data.drains);
+      $('#summary_fb_ng_tube_drainage').html(data.data.ng_tube_drainage);
+      $('#summary_fb_report_date').html(data.data.report_date);
+      $('#summary_fb_added_by').html(data.data.added_by.user_nicename);
+      $('#summary_fb_create_time').html(data.data.create_time);
+    });
+  });  
+}
 </script>

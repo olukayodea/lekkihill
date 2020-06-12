@@ -3,11 +3,11 @@
 use function PHPSTORM_META\type;
 
 class common {
-    public function validateSession($request) {
+    public static function validateSession($request) {
         return users::getDetails($request);
     }
 
-    public function getLink($status, $title=false) {
+    public static function getLink($status, $title=false) {
         if ($status == "INACTIVE") {
             $tag = "Activate";
             $style = ' style="color:green"';

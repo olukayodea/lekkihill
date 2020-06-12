@@ -212,6 +212,31 @@ class main {
             'methods'  => 'POST',
             'callback' => array("clinic",'api_add_vitals')
         ));
+        //add new patient continuation
+        //url = https://lekkihill.com/wp-json/api/patient/continuation;
+        register_rest_route( 'api', 'patient/continuation',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_continuation')
+        ));
+        //add new patient postOp
+        //url = https://lekkihill.com/wp-json/api/patient/postOp;
+        register_rest_route( 'api', 'patient/postOp',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_post_op')
+        ));
+        //add new patient medication
+        //url = https://lekkihill.com/wp-json/api/patient/medication;
+        register_rest_route( 'api', 'patient/medication',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_medication')
+        ));
+        //add new patient fluid balance
+        //url = https://lekkihill.com/wp-json/api/patient/fluidBalance;
+        register_rest_route( 'api', 'patient/fluidBalance',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_fluid_balance')
+        ));
+        
         //GET Patient route
         //search component
         //url = https://lekkihill.com/wp-json/api/patient/search;
@@ -231,11 +256,59 @@ class main {
             'methods'  => 'GET',
             'callback' => array("clinic",'api_get_vital')
         ));
+        //get patient continuation
+        //url = https://lekkihill.com/wp-json/api/patient/continuation/1;
+        register_rest_route( 'api', 'patient/continuation/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_continuation')
+        ));
+        //get patient post op
+        //url = https://lekkihill.com/wp-json/api/patient/postOp/1;
+        register_rest_route( 'api', 'patient/postOp/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_post_op')
+        ));
+        //get patient medications
+        //url = https://lekkihill.com/wp-json/api/patient/medication/1;
+        register_rest_route( 'api', 'patient/medication/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_medication')
+        ));
+        //get patient fluid balance
+        //url = https://lekkihill.com/wp-json/api/patient/fluidBalance/1;
+        register_rest_route( 'api', 'patient/fluidBalance/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_fluid_balance')
+        ));
         //get patient most recent vitals
-        //url = https://lekkihill.com/wp-json/api/patient/vitals/1;
+        //url = https://lekkihill.com/wp-json/api/patient/vitals/recent/1;
         register_rest_route( 'api', 'patient/vitals/recent/(?P<patient_id>\d+)',array(
             'methods'  => 'GET',
             'callback' => array("clinic",'api_recent_vital')
+        ));
+        //get patient most recent continuation
+        //url = https://lekkihill.com/wp-json/api/patient/continuation/recent/1;
+        register_rest_route( 'api', 'patient/continuation/recent/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_recent_continuation')
+        ));
+        //get patient most recent post op
+        //url = https://lekkihill.com/wp-json/api/patient/postOp/recent/1;
+        register_rest_route( 'api', 'patient/postOp/recent/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_recent_post_op')
+        ));
+        //get patient most recent medications
+        //url = https://lekkihill.com/wp-json/api/patient/medication/recent/1;
+        register_rest_route( 'api', 'patient/medication/recent/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_recent_medication')
+        ));
+        //get patient most recent fluid balance
+        //url = https://lekkihill.com/wp-json/api/patient/fluidBalance/recent/1;
+        register_rest_route( 'api', 'patient/fluidBalance/recent/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_recent_fluid_balance')
         ));
 
 
@@ -490,6 +563,8 @@ class main {
         
         $clinic_post_op         = new clinic_post_op;
         $clinic_fluid_balance   = new clinic_fluid_balance;
+        $clinic_continuation_sheet  = new clinic_continuation_sheet;
+        $clinic_medication      =  new clinic_medication;
 
         // $users->initialize_table();
         $inventory->initialize_table();
@@ -505,6 +580,8 @@ class main {
         $vitals->initialize_table();
         $clinic_post_op->initialize_table();
         $clinic_fluid_balance->initialize_table();
+        $clinic_continuation_sheet->initialize_table();
+        $clinic_medication->initialize_table();
 
         //add user roles
         //add admin
@@ -614,6 +691,8 @@ class main {
         $vitals                 = new vitals;
         $clinic_post_op         = new clinic_post_op;
         $clinic_fluid_balance   = new clinic_fluid_balance;
+        $clinic_continuation_sheet  = new clinic_continuation_sheet;
+        $clinic_medication      = new clinic_medication;
 
         //$users->clear_table();
         // $inventory->delete_table();
@@ -629,6 +708,8 @@ class main {
         // $vitals->delete_table();
         // $clinic_post_op->delete_table();
         // $clinic_fluid_balance->delete_table();
+        // $clinic_continuation_sheet->delete_table();
+        // $clinic_medication->delete_table();
     }
 
     public function lh_uninstall() {
@@ -645,6 +726,8 @@ class main {
         $vitals                 = new vitals;
         $clinic_post_op         = new clinic_post_op;
         $clinic_fluid_balance   = new clinic_fluid_balance;
+        $clinic_continuation_sheet = new clinic_continuation_sheet;
+        $clinic_medication      = new clinic_medication;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
@@ -659,6 +742,8 @@ class main {
         $vitals->delete_table();
         $clinic_post_op->delete_table();
         $clinic_fluid_balance->delete_table();
+        $clinic_continuation_sheet->delete_table();
+        $clinic_medication->delete_table();
     }
 
     // Remove the plugin-specific custom capability

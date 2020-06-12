@@ -14,32 +14,31 @@ class vitals extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
 
-    function create($array) {
+    static function create($array) {
         return self::insert(table_name_prefix."vitals", $array);
     }
 
-
-    function modifyOne($tag, $value, $id, $ref="ref") {
+    static function modifyOne($tag, $value, $id, $ref="ref") {
         return self::updateOne(table_name_prefix."vitals", $tag, $value, $id, $ref);
     }
     
-    function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
+    static function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
         return self::lists(table_name_prefix."vitals", $start, $limit, $order, $dir, false, $type);
     }
 
-    function getSingle($name, $tag="patient_id", $ref="ref") {
+    static function getSingle($name, $tag="patient_id", $ref="ref") {
         return self::getOneField(table_name_prefix."vitals", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    static function listOne($id) {
         return self::getOne(table_name_prefix."vitals", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."vitals", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function formatResult($data, $single=false) {
+    public static function formatResult($data, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
                 $data[$i] = self::clean($data[$i]);
@@ -50,7 +49,7 @@ class vitals extends database {
         return $data;
     }
 
-    public function clean($data) {
+    public static function clean($data) {
         $added_by['id'] = $data['added_by'];
         $added_by['user_login'] = users::getSingle( $data['added_by'] );
         $added_by['user_nicename'] = users::getSingle( $data['added_by'], "user_nicename" );
@@ -66,6 +65,7 @@ class vitals extends database {
         
         return $data;
     }
+
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."vitals` (

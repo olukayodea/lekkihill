@@ -1,27 +1,27 @@
 <?php
-class clinic_fluid_balance extends clinic {
+class clinic_medication extends clinic {
     static function create($array) {
-        return self::insert(table_name_prefix."clinic_fluid_balance", $array);
+        return self::insert(table_name_prefix."clinic_medication", $array);
     }
 
     static function modifyOne($tag, $value, $id, $ref="ref") {
-        return self::updateOne(table_name_prefix."clinic_fluid_balance", $tag, $value, $id, $ref);
+        return self::updateOne(table_name_prefix."clinic_medication", $tag, $value, $id, $ref);
     }
     
     static function getList($start=false, $limit=false, $order="ref", $dir="DESC", $type="list") {
-        return self::lists(table_name_prefix."clinic_fluid_balance", $start, $limit, $order, $dir, false, $type);
+        return self::lists(table_name_prefix."clinic_medication", $start, $limit, $order, $dir, false, $type);
     }
 
     static function getSingle($name, $tag="patient_id", $ref="ref") {
-        return self::getOneField(table_name_prefix."clinic_fluid_balance", $name, $ref, $tag);
+        return self::getOneField(table_name_prefix."clinic_medication", $name, $ref, $tag);
     }
 
     static function listOne($id) {
-        return self::getOne(table_name_prefix."clinic_fluid_balance", $id, "ref");
+        return self::getOne(table_name_prefix."clinic_medication", $id, "ref");
     }
 
     static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
-        return self::sortAll(table_name_prefix."clinic_fluid_balance", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+        return self::sortAll(table_name_prefix."clinic_medication", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
     public static function formatResult($data, $single=false) {
@@ -51,20 +51,16 @@ class clinic_fluid_balance extends clinic {
         
         return $data;
     }
+
     public function initialize_table() {
         //create database
-        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."clinic_fluid_balance` (
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."clinic_medication` (
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `patient_id` INT NOT NULL, 
-            `iv_fluid` varchar(500) NULL,
-            `amount` DOUBLE NOT NULL, 
-            `oral_fluid` DOUBLE NOT NULL, 
-            `ng_tube_feeding` DOUBLE NOT NULL, 
-            `vomit` DOUBLE NOT NULL, 
-            `urine` DOUBLE NOT NULL, 
-            `drains` DOUBLE NOT NULL, 
-            `ng_tube_drainage` DOUBLE NOT NULL, 
-            `report_date` varchar(500) NULL,
+            `route` varchar(500) NULL,
+            `medication` varchar(500) NULL,
+            `dose` varchar(500) NULL,
+            `frequency` varchar(500) NULL,
             `added_by` INT NOT NULL, 
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -76,14 +72,14 @@ class clinic_fluid_balance extends clinic {
 
     public function clear_table() {
         //clear database
-        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."clinic_fluid_balance`";
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."clinic_medication`";
 
         $this->query($query);
     }
 
     public function delete_table() {
         //clear database
-        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."clinic_fluid_balance`";
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."clinic_medication`";
 
         $this->query($query);
     }

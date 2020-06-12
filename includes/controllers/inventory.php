@@ -2,10 +2,10 @@
 class inventory extends database {
     public static $return = array();
     public static $userData = array();
-    public static $successResponse = array("status" => "200", "message" => "OK");
-    public static $notFound = array("status" => "404", "message" => "Not Found");
-    public static $Unauthorized = array("status" => "401", "message" => "Unauthorized");
-    public static $BadReques = array("status" => "400", "message" => "Bad Reques");
+    public static $successResponse = array("status" => 200, "message" => "OK");
+    public static $notFound = array("status" => 404, "message" => "Not Found");
+    public static $Unauthorized = array("status" => 401, "message" => "Unauthorized");
+    public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => "500", "message" => "Internal Server Error");
 
     public function apiCreateCategory($request) {

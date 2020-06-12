@@ -15,7 +15,7 @@ class patient extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
 
-    public function manage() {
+    public static function manage() {
         if ((isset($_REQUEST['open'])) || (isset($_REQUEST['edit']))) {
             if (isset($_REQUEST['id'])) {
                 $id = $_REQUEST['id'];
@@ -43,15 +43,15 @@ class patient extends database {
 		include_once(LH_PLUGIN_DIR."includes/pages/patient/manage.php");
     }
 
-    public function getPatientList() {
+    public static function getPatientList() {
         self::$patientList = self::getList();
     }
 
-    public function patienrNumber($id) {
+    public static function patienrNumber($id) {
         return "LH".(100000+$id);
     }
 
-    public function read_api_component($request) {
+    public static function read_api_component($request) {
         $auth = self::validateSession($request);
         if ($auth['status'] == 200) {
             unset($auth['status']);
@@ -72,11 +72,11 @@ class patient extends database {
         return self::$return;
     }
 
-    private function read_component($id) {
+    private static function read_component($id) {
         self::$viewData = self::listOne($id);
     }
 
-    public function get_patient_suggest_api($request) {
+    public static function get_patient_suggest_api($request) {
         $auth = self::validateSession($request);
         if ($auth['status'] == 200) {
             unset($auth['status']);
@@ -99,7 +99,7 @@ class patient extends database {
         return $return;
     }
 
-    public function create_api_component($request) {
+    public static function create_api_component($request) {
         /**
          * API authentication
          */
@@ -132,7 +132,7 @@ class patient extends database {
         return self::$return;
     }
 
-    private function create($array, $user) {
+    private static function create($array, $user) {
         $replace[] = "last_name";
         $replace[] = "first_name";
         $replace[] = "age";
@@ -168,23 +168,23 @@ class patient extends database {
         return self::update(table_name_prefix."patient", $array, $where);
     }
 
-    function modifyOne($tag, $value, $id, $ref="ref") {
+    static function modifyOne($tag, $value, $id, $ref="ref") {
         return self::updateOne(table_name_prefix."patient", $tag, $value, $id, $ref);
     }
     
-    function getList($start=false, $limit=false, $order="last_name", $dir="ASC", $type="list") {
+    static function getList($start=false, $limit=false, $order="last_name", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."patient", $start, $limit, $order, $dir, false, $type);
     }
 
-    function getSingle($name, $tag="last_name", $ref="ref") {
+    static function getSingle($name, $tag="last_name", $ref="ref") {
         return self::getOneField(table_name_prefix."patient", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    static function listOne($id) {
         return self::getOne(table_name_prefix."patient", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."patient", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 

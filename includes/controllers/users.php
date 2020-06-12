@@ -91,7 +91,7 @@ class users extends database {
             $data = $auth;
 
             $data->permission = $capabilityArray[$roles];
-            $return['status'] = "200";
+            $return['status'] = 200;
             $return['message'] = "OK";
             $return['ID'] = $data->ID;
             $return['data'] = $data->data;
@@ -101,9 +101,9 @@ class users extends database {
         } else {
             self::$BadReques['additional_message'] = "ID invalid";
             self::$return = self::$BadReques;
-        }
 
-        return $return;
+            return self::$return;
+        }
     }
 
     public static function getDetails($request) {
@@ -113,7 +113,7 @@ class users extends database {
 
         //print_r($headers);
         //print_r($get_params);
-        if ($id['status'] != "200") {
+        if ($id['status'] != 200) {
             return $id;
         } else {
             $auth = get_user_by("ID", $id['ID']);
@@ -129,7 +129,7 @@ class users extends database {
             $data->token = self::getToken($auth->ID, FALSE);
 
             $data->permission = $capabilityArray[$roles];
-            $return['status'] = "200";
+            $return['status'] = 200;
             $return['message'] = "OK";
             $return['ID'] = $data->ID;
             $return['data'] = $data->data;
@@ -154,21 +154,21 @@ class users extends database {
         return $token;
     }
 
-    function getSingle($name, $tag="user_login", $ref="ID") {
+    static function getSingle($name, $tag="user_login", $ref="ID") {
         global $wpdb;
         return self::getOneField($wpdb->prefix."users", $name, $ref, $tag);
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."users", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    function getList($type="list") {
+    static function getList($type="list") {
         global $wpdb;
         return self::query("SELECT `user_login`, `user_nicename`, `user_email`, `user_url`, `user_registered`, `user_activation_key`, `user_status`, `display_name` FROM `".$wpdb->prefix."users`", false, $type);
     }
 
-    function listOne($id, $ref="ID") {
+    static function listOne($id, $ref="ID") {
         global $wpdb;
         return self::getOne($wpdb->prefix."users", $id, $ref);
     }
