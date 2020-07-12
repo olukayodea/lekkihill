@@ -2,6 +2,7 @@
 class users extends database {
     public static $return = array();
     public static $userData = array();
+    public static $userToken;
     public static $successResponse = array("status" => 200, "message" => "OK");
     public static $notFound = array("status" => 404, "message" => "Not Found");
     public static $NotModified = array("status" => 304, "message" => "Not Modified");
@@ -106,6 +107,11 @@ class users extends database {
         }
     }
 
+    public static function getLoggedInUser() {
+        get_userdata( get_current_user_id() );
+
+    }
+
     public static function getDetails($request) {
         global $capabilityArray;
         $headers = $request->get_headers();
@@ -139,17 +145,26 @@ class users extends database {
         }
     }
 
-    private static function getToken ($id, $login=TRUE) {
+    private static function generateToken($id) {
+        global $wpdb;
+        $token = self::createRandomPassword(5).$id.self::createRandomPassword(5);
+        $wpdb->update(
+            $wpdb->prefix."users",
+            array("user_token" => $token),
+            array("ID" => $id)
+        );
+        return $token;
+    }
+
+    public static function getToken ($id, $login=TRUE) {
         if ($login === TRUE) {
-            global $wpdb;
-            $token = self::createRandomPassword(5).$id.self::createRandomPassword(5);
-            $wpdb->update(
-                $wpdb->prefix."users",
-                array("user_token" => $token),
-                array("ID" => $id)
-            );
+            $token = self::generateToken($id);
         } else {
             $token = self::getSingle($id, "user_token", "ID");
+            if ($token == "") {
+                self::generateToken($id);
+                return self::generateToken($id);
+            }
         }
         return $token;
     }

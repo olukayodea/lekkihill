@@ -19,8 +19,10 @@ class clinic extends database {
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
 
     public static $showPatient = false;
+    public static $userToken;
 
     public static function manage() {
+        self::$userToken = users::getToken( get_current_user_id(), FALSE );
         self::$logged_in_user = get_userdata( get_current_user_id() );
         appointments::today();
 

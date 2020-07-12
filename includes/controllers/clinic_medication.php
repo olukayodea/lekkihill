@@ -61,6 +61,8 @@ class clinic_medication extends clinic {
             `medication` varchar(500) NULL,
             `dose` varchar(500) NULL,
             `frequency` varchar(500) NULL,
+            `report_date` varchar(20) NULL,
+            `report_time` varchar(10) NULL,
             `added_by` INT NOT NULL, 
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

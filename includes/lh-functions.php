@@ -544,7 +544,7 @@ class main {
         );
     }
 
-    function lh_install () {
+    public static function lh_install () {
         //setup tables
         $users                  = new users;
         $inventory              = new inventory;
@@ -566,7 +566,7 @@ class main {
         $clinic_continuation_sheet  = new clinic_continuation_sheet;
         $clinic_medication      =  new clinic_medication;
 
-        // $users->initialize_table();
+        $users->initialize_table();
         $inventory->initialize_table();
         $inventory_used->initialize_table();
         $inventory_count->initialize_table();
@@ -673,7 +673,7 @@ class main {
         $administrator->add_cap( 'manage_inventory_category' );
     }
 
-    public function lh_deactivate() {
+    public static function lh_deactivate() {
         self::remove_cap();
         self::remove_role();
 
@@ -694,7 +694,7 @@ class main {
         $clinic_continuation_sheet  = new clinic_continuation_sheet;
         $clinic_medication      = new clinic_medication;
 
-        //$users->clear_table();
+        $users->clear_table();
         // $inventory->delete_table();
         // $inventory_used->delete_table();
         // $inventory_count->delete_table();
@@ -707,12 +707,12 @@ class main {
         // $appointments_history->delete_table();
         // $vitals->delete_table();
         // $clinic_post_op->delete_table();
-        // $clinic_fluid_balance->delete_table();
+        $clinic_fluid_balance->delete_table();
         // $clinic_continuation_sheet->delete_table();
-        // $clinic_medication->delete_table();
+        $clinic_medication->delete_table();
     }
 
-    public function lh_uninstall() {
+    public static function lh_uninstall() {
         $inventory          = new inventory;
         $inventory_used     = new inventory_used;
         $inventory_count    = new inventory_count;

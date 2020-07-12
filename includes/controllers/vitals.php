@@ -39,14 +39,18 @@ class vitals extends database {
     }
 
     public static function formatResult($data, $single=false) {
-        if ($single == false) {
-            for ($i = 0; $i < count($data); $i++) {
-                $data[$i] = self::clean($data[$i]);
+        if ( $data ) {
+            if ($single == false) {
+                for ($i = 0; $i < count($data); $i++) {
+                    $data[$i] = self::clean($data[$i]);
+                }
+            } else {
+                $data = self::clean($data);
             }
+            return $data;
         } else {
-            $data = self::clean($data);
+            return false;
         }
-        return $data;
     }
 
     public static function clean($data) {

@@ -55,6 +55,26 @@
                 <label for="sex">Gender</label>
                 <strong><?php echo $data['sex']; ?></strong>
               </div>
+              <div class="form-field form-required term-address-wrap">
+                <label for="address">Address</label>
+                <strong><?php echo $data['address']; ?></strong>
+              </div>
+              <div class="form-field form-required term-next_of_Kin-wrap">
+                <label for="next_of_Kin">Next of Kin</label>
+                <strong><?php echo $data['next_of_Kin']; ?></strong>
+              </div>
+              <div class="form-field form-required term-next_of_contact-wrap">
+                <label for="next_of_contact">Next of Kin Contact</label>
+                <strong><?php echo $data['next_of_contact']; ?></strong>
+              </div>
+              <div class="form-field form-required term-next_of_address-wrap">
+                <label for="next_of_address">Next of Kin Address</label>
+                <strong><?php echo $data['next_of_address']; ?></strong>
+              </div>
+              <div class="form-field form-required term-allergies-wrap">
+                <label for="allergies">Allergies</label>
+                <strong><?php echo $data['allergies']; ?></strong>
+              </div>
             <?php } ?>
             <?php if (isset($_REQUEST['appointment'])) { ?>
               <input type="hidden" name="names" id="names" value="<?php echo $appointmentData['names']; ?>" required />
@@ -303,6 +323,10 @@
                 <tr>
                   <td class="manage-column column-columnname" scope="col"><strong>Frequency</strong></td>
                   <td class="manage-column column-columnname" scope="col" id="summary_m_frequency"><i>fetching data...</i></td>
+                </tr>
+                <tr>
+                  <td class="manage-column column-columnname" scope="col"><strong>Report Date</strong></td>
+                  <td class="manage-column column-columnname" scope="col" id="summary_m_report_date"><i>fetching data...</i></td>
                 </tr>
                 <tr>
                   <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
@@ -643,6 +667,20 @@
                       </div>
                     </td>
                   </tr>
+                  <tr>
+                    <td>
+                      <div class="form-field form-required term-m_report_date-wrap">
+                        <label for="m_report_date"> Report Date</label>
+                        <input type="date" name="m_report_date" id="m_report_date" value="" required />
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-field form-required term-m_report_time-wrap">
+                        <label for="m_report_time"> Report Time</label>
+                        <input type="time" name="m_report_time" id="m_report_time" value="" required />
+                      </div>
+                    </td>
+                  </tr>
                 </table>
 
                 <button type="submit" id="medication_button" data-id="0" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
@@ -656,8 +694,9 @@
                       <th class="manage-column column-cb check-column"></th>
                       <th class="manage-column column-columnname" scope="col">Route</th>
                       <th class="manage-column column-columnname" scope="col">Medication</th>
-                      <th class="manage-column column-columnname" scope="col">Dose</th>
+                      <th class="manage-column column-columnname" scope="col">Dose</th>	
                       <th class="manage-column column-columnname" scope="col">Frequency</th>
+                      <th class="manage-column column-columnname" scope="col">Report Date</th>
                       <th class="manage-column column-columnname" scope="col">Added By</th>
                       <th class="manage-column column-columnname" scope="col">Added On</th>
                   </tr>
@@ -669,6 +708,7 @@
                       <th class="manage-column column-columnname" scope="col">Medication</th>
                       <th class="manage-column column-columnname" scope="col">Dose</th>
                       <th class="manage-column column-columnname" scope="col">Frequency</th>
+                      <th class="manage-column column-columnname" scope="col">Report Date</th>
                       <th class="manage-column column-columnname" scope="col">Added By</th>
                       <th class="manage-column column-columnname" scope="col">Added On</th>
                   </tr>
@@ -764,7 +804,12 @@
                         <input type="date" name="report_date" id="report_date" value="" required />
                       </div>
                     </td>
-                    <td>&nbsp;</td>
+                    <td>
+                      <div class="form-field form-required term-report_time-wrap">
+                        <label for="report_time"> Report Time</label>
+                        <input type="time" name="report_time" id="report_time" value="" required />
+                      </div>
+                    </td>
                   </tr>
                 </table>
 
@@ -986,7 +1031,7 @@ jQuery(function ($) {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     $.ajaxSetup({
@@ -1261,7 +1306,7 @@ function continuationSheet() {
     };
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1301,7 +1346,7 @@ function continuationSheetRecords() {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/'; ?>'+patient_id;
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1370,7 +1415,7 @@ function postOp() {
     };
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1410,7 +1455,7 @@ function postOpRecord() {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/'; ?>'+patient_id;
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1468,17 +1513,21 @@ function addMedication() {
     var medication = $("#m_medication").val();
     var dose = $("#m_dose").val();
     var frequency = $("#m_frequency").val();
+    var report_date = $("#m_report_date").val();
+    var report_time = $("#m_report_time").val();
 
     var sendInfo = {
       patient_id: patient_id,
       route: route,
       medication: medication,
       dose: dose,
+      report_date: report_date,
+      report_time: report_time,
       frequency: frequency
     };
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1518,7 +1567,7 @@ function medicationRecord() {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/medication/'; ?>'+patient_id;
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1544,6 +1593,7 @@ function medicationRecord() {
         '<td class="column-columnname">'+data.data[key].medication+'</td>'+
         '<td class="column-columnname">'+data.data[key].dose+'</td>'+
         '<td class="column-columnname">'+data.data[key].frequency+'</td>'+
+        '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
         '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
         '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
         '</tr>';
@@ -1568,6 +1618,8 @@ function fluidBalance() {
     var drains = $("#drains").val();
     var ng_tube_drainage = $("#ng_tube_drainage").val();
     var report_date = $("#report_date").val();
+    var report_time = $("#report_time").val();
+    
 
     var sendInfo = {
       patient_id: patient_id,
@@ -1579,12 +1631,13 @@ function fluidBalance() {
       urine: urine,
       drains: drains,
       ng_tube_drainage: ng_tube_drainage,
-      report_date: report_date
+      report_date: report_date,
+      report_time: report_time
     };
 
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1624,7 +1677,7 @@ function fluidBalanceRecord() {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/'; ?>'+patient_id;
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1655,7 +1708,7 @@ function fluidBalanceRecord() {
         '<td class="column-columnname">'+data.data[key].urine+'</td>'+
         '<td class="column-columnname">'+data.data[key].drains+'</td>'+
         '<td class="column-columnname">'+data.data[key].ng_tube_drainage+'</td>'+
-        '<td class="column-columnname">'+data.data[key].report_date+'</td>'+
+        '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
         '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
         '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
         '</tr>';
@@ -1681,7 +1734,7 @@ function summary() {
     var fluidBalance_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/recent/'; ?>'+patient_id;
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     jQuery.ajaxSetup({
@@ -1706,55 +1759,77 @@ function summary() {
       $('#summary_v_added_by').html(data.data.added_by.user_nicename);
       $('#summary_v_create_time').html(data.data.create_time);
     });
+
     jQuery.get( continuation_ajax_url, function( data ) {
-      $('#summary_c').html(data.data.notes);
-      $('#summary_c_create_time').html("Added On: "+data.data.create_time);
-      $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
+      if (data.data === false ) {
+        $('#summary_c').html("Not Available");
+        $('#summary_c_create_time,#summary_added_by').html("");
+      } else {
+        $('#summary_c').html(data.data.notes);
+        $('#summary_c_create_time').html("Added On: "+data.data.create_time);
+        $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
+      }
     });
+
     jQuery.get( postOp_ajax_url, function( data ) {
-      $('#summary_p_surgery').html(data.data.surgery);
-      $('#summary_p_surgery_category').html(data.data.surgery_category);
-      $('#summary_p_indication').html(data.data.indication);
-      $('#summary_p_surgeon').html(data.data.surgeon);
-      $('#summary_p_asst_surgeon').html(data.data.asst_surgeon);
-      $('#summary_p_per_op_nurse').html(data.data.per_op_nurse);
-      $('#summary_p_circulating_nurse').html(data.data.circulating_nurse);
-      $('#summary_p_anaesthesia').html(data.data.anaesthesia);
-      $('#summary_p_anaesthesia_time').html(data.data.anaesthesia_time);
-      $('#summary_p_knife_on_skin').html(data.data.knife_on_skin);
-      $('#summary_p_infiltration_time').html(data.data.infiltration_time);
-      $('#summary_p_liposuction_time').html(data.data.liposuction_time);
-      $('#summary_p_end_of_surgery').html(data.data.end_of_surgery);
-      $('#summary_p_procedure').html(data.data.procedure);
-      $('#summary_p_amt_of_fat_right').html(data.data.amt_of_fat_right);
-      $('#summary_p_amt_of_fat_left').html(data.data.amt_of_fat_left);
-      $('#summary_p_amt_of_fat_other').html(data.data.amt_of_fat_other);
-      $('#summary_p_ebl').html(data.data.ebl);
-      $('#summary_p_plan').html(data.data.plan);
-      $('#summary_p_added_by').html(data.data.added_by.user_nicename);
-      $('#summary_p_create_time').html(data.data.create_time);
+      if (data.data === false ) {
+        $('#summary_p_surgery,#summary_p_surgery_category,#summary_p_indication,#summary_p_surgeon,#summary_p_asst_surgeon,#summary_p_per_op_nurse,#summary_p_circulating_nurse,#summary_p_anaesthesia,#summary_p_anaesthesia_time,#summary_p_knife_on_skin,#summary_p_infiltration_time,#summary_p_liposuction_time,#summary_p_end_of_surgery,#summary_p_procedure,#summary_p_amt_of_fat_right,#summary_p_amt_of_fat_left,#summary_p_amt_of_fat_other,#summary_p_ebl,#summary_p_plan,#summary_p_added_by,#summary_p_create_time').html("Not Available");
+      } else {
+        $('#summary_p_surgery').html(data.data.surgery);
+        $('#summary_p_surgery_category').html(data.data.surgery_category);
+        $('#summary_p_indication').html(data.data.indication);
+        $('#summary_p_surgeon').html(data.data.surgeon);
+        $('#summary_p_asst_surgeon').html(data.data.asst_surgeon);
+        $('#summary_p_per_op_nurse').html(data.data.per_op_nurse);
+        $('#summary_p_circulating_nurse').html(data.data.circulating_nurse);
+        $('#summary_p_anaesthesia').html(data.data.anaesthesia);
+        $('#summary_p_anaesthesia_time').html(data.data.anaesthesia_time);
+        $('#summary_p_knife_on_skin').html(data.data.knife_on_skin);
+        $('#summary_p_infiltration_time').html(data.data.infiltration_time);
+        $('#summary_p_liposuction_time').html(data.data.liposuction_time);
+        $('#summary_p_end_of_surgery').html(data.data.end_of_surgery);
+        $('#summary_p_procedure').html(data.data.procedure);
+        $('#summary_p_amt_of_fat_right').html(data.data.amt_of_fat_right);
+        $('#summary_p_amt_of_fat_left').html(data.data.amt_of_fat_left);
+        $('#summary_p_amt_of_fat_other').html(data.data.amt_of_fat_other);
+        $('#summary_p_ebl').html(data.data.ebl);
+        $('#summary_p_plan').html(data.data.plan);
+        $('#summary_p_added_by').html(data.data.added_by.user_nicename);
+        $('#summary_p_create_time').html(data.data.create_time);
+      }
     });
     jQuery.get( medication_ajax_url, function( data ) {
-      $('#summary_m_route').html(data.data.route);
-      $('#summary_m_medication').html(data.data.medication);
-      $('#summary_m_dose').html(data.data.dose);
-      $('#summary_m_frequency').html(data.data.frequency);
-      $('#summary_m_added_by').html(data.data.added_by.user_nicename);
-      $('#summary_m_create_time').html(data.data.create_time);
+      if (data.data === false ) {
+        $('#summary_m_route,#summary_m_medication,#summary_m_dose,#summary_m_frequency,#summary_m_report_date,#summary_m_added_by,#summary_m_create_time').html("Not Available");
+      } else {
+        $('#summary_m_route').html(data.data.route);
+        $('#summary_m_medication').html(data.data.medication);
+        $('#summary_m_dose').html(data.data.dose);
+        $('#summary_m_frequency').html(data.data.frequency);
+        $('#summary_m_report_date').html(data.data.report_date+ " "+data.data.report_time);
+        $('#summary_m_added_by').html(data.data.added_by.user_nicename);
+        $('#summary_m_create_time').html(data.data.create_time);
+      }
     });
     jQuery.get( fluidBalance_ajax_url, function( data ) {
-      $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
-      $('#summary_fb_amount').html(data.data.amount);
-      $('#summary_fb_oral_fluid').html(data.data.oral_fluid);
-      $('#summary_fb_ng_tube_feeding').html(data.data.ng_tube_feeding);
-      $('#summary_fb_vomit').html(data.data.vomit);
-      $('#summary_fb_urine').html(data.data.urine);
-      $('#summary_fb_drains').html(data.data.drains);
-      $('#summary_fb_ng_tube_drainage').html(data.data.ng_tube_drainage);
-      $('#summary_fb_report_date').html(data.data.report_date);
-      $('#summary_fb_added_by').html(data.data.added_by.user_nicename);
-      $('#summary_fb_create_time').html(data.data.create_time);
+      if (data.data === false ) {
+        $('#summary_fb_iv_fluid,#summary_fb_amount,#summary_fb_oral_fluid,#summary_fb_ng_tube_feeding,#summary_fb_vomit,#summary_fb_urine,#summary_fb_drains,#summary_fb_ng_tube_drainage,#summary_fb_report_date,#summary_fb_added_by,#summary_fb_create_time').html("Not Available");
+      } else {
+        $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
+        $('#summary_fb_amount').html(data.data.amount);
+        $('#summary_fb_oral_fluid').html(data.data.oral_fluid);
+        $('#summary_fb_ng_tube_feeding').html(data.data.ng_tube_feeding);
+        $('#summary_fb_vomit').html(data.data.vomit);
+        $('#summary_fb_urine').html(data.data.urine);
+        $('#summary_fb_drains').html(data.data.drains);
+        $('#summary_fb_ng_tube_drainage').html(data.data.ng_tube_drainage);
+        $('#summary_fb_report_date').html(data.data.report_date+ " "+data.data.report_time);
+        $('#summary_fb_added_by').html(data.data.added_by.user_nicename);
+        $('#summary_fb_create_time').html(data.data.create_time);
+      }
     });
+
+    $('#sm_notice').html('');
   });  
 }
 </script>

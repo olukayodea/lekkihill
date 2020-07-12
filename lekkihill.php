@@ -121,12 +121,13 @@ class mainClass extends main {
 		//initialize the imported CDN based script
         add_action( 'admin_enqueue_scripts', array( "main", 'admin_styles_and_script' ));
         //create additional links in plugin menu 
-		add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( "main", 'lh_plugin_link'), 10, 5 );
+        add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( "main", 'lh_plugin_link'), 10, 5 );
+        
         
         //registration hooks
-        register_activation_hook( __FILE__, array( $this, 'lh_install' ) );
-        register_deactivation_hook( __FILE__, array( $this, 'lh_deactivate' ) );
-        register_uninstall_hook( __FILE__, array( $this, 'lh_uninstall' ) );
+        register_activation_hook( __FILE__, 'main::lh_install' );
+        register_deactivation_hook( __FILE__, 'main::lh_deactivate' );
+        register_uninstall_hook( __FILE__, 'main::lh_install' );
     }
 }
 
@@ -135,6 +136,5 @@ function app_output_buffer() {
 } // soi_output_buffer
 
 add_action('init', 'app_output_buffer');
-
 new mainClass;
 ?>

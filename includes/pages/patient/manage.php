@@ -46,9 +46,25 @@ $data = self::$viewData; ?>
                 <option <?php if ($data['sex'] == "Male") { ?>selected <?php } ?> value="Male">Male</option>
               </select>
             </div>
+            <div class="form-field form-required term-address-wrap">
+              <label for="address"> Address</label>
+              <textarea name="address" id="address" required><?php echo $data['address']; ?></textarea>
+            </div>
             <div class="form-field form-required term-age-wrap">
               <label for="next_appointment"> Date of Birth</label>
               <input type="date" name="age" id="age" value="<?php echo $data['age']; ?>" max="<?php echo (date("Y")-18)."-".date("m")."-".date("d"); ?>" required value="<?php echo $data['age']; ?>" />
+            </div>
+            <div class="form-field form-required term-next_of_Kin-wrap">
+              <label for="next_of_Kin"> Next of Kin</label>
+              <input type="text" name="next_of_Kin" id="next_of_Kin" value="<?php echo $data['next_of_Kin']; ?>" required />
+            </div>
+            <div class="form-field form-required term-next_of_contact-wrap">
+              <label for="phone"> Next of Kin Contact</label>
+              <input type="tel" name="next_of_contact" id="next_of_contact" value="<?php echo $data['next_of_contact']; ?>" required />
+            </div>
+            <div class="form-field form-required term-next_of_address-wrap">
+              <label for="next_of_address"> Next of Kin Address</label>
+              <textarea name="next_of_address" id="next_of_address" required><?php echo $data['next_of_address']; ?></textarea>
             </div>
             <?php if (isset($_REQUEST['edit'])) { ?>
                 <input type="hidden" name="ref" value="<?php echo $data['ref']; ?>" required />

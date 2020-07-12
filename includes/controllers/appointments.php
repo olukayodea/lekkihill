@@ -15,7 +15,10 @@ class appointments extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
 
+    public static $userToken;
+    
     public function manage() {
+        self::$userToken = users::getToken( get_current_user_id(), FALSE );
         self::$logged_in_user = get_userdata( get_current_user_id() );
         if (isset($_REQUEST['new'])) {
             if (isset($_REQUEST['id'])) {
@@ -289,6 +292,14 @@ class appointments extends database {
     }
 
     private function create($array) {
+        if (isset($array['next_appointment_date'])) {
+            $array['next_appointment'] = $array['next_appointment_date'];
+            unset($array['next_appointment_date']);
+        } else {
+            $array['next_appointment'] = $array['appointment_date']." ".$array['appointment_time'];
+            unset($array['appointment_date']);
+            unset($array['appointment_time']);
+        }
         $return = self::insert(table_name_prefix."appointments", $array);
         $checkExist = patient::listOne($array['email'], "email");
 
@@ -363,7 +374,7 @@ class appointments extends database {
         return $data;
     }
 
-    public function clean($data) {
+    public static function clean($data) {
         $user['id'] = $data['last_modify'];
         $user['user_login'] = users::getSingle( $data['last_modify'] );
         $user['user_nicename'] = users::getSingle( $data['last_modify'], "user_nicename" );
@@ -388,6 +399,7 @@ class appointments extends database {
             `names` VARCHAR(255) NOT NULL,
             `email` VARCHAR(255) NOT NULL,
             `phone` VARCHAR(20) NOT NULL,
+            `location` VARCHAR(20) NOT NULL,
             `procedure` VARCHAR(50) NOT NULL,
             `message` VARCHAR(1000) NOT NULL,
             `next_appointment` datetime NOT NULL,

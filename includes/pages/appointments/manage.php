@@ -90,9 +90,9 @@ $patientList = patient::$patientList; ?>
                 <option value="Liposuction">Liposuction</option>
               </select>
             </div>
-            <div class="form-field form-required term-next_appointment-wrap">
+            <div class="form-field form-required term-next_appointment_date-wrap">
               <label for="next_appointment"> Appointment Date</label>
-              <input type="text" name="next_appointment" id="next_appointment" value="<?php echo $data['next_appointment']; ?>" required />
+              <input type="text" name="next_appointment_date" id="next_appointment_date" value="<?php echo $data['next_appointment']; ?>" required />
             </div>
             <?php if (!isset($_REQUEST['new'])) { ?>
             <input type="hidden" name="patient_id" id="patient_id" value="<?php echo $data['patient_id']; ?>" />
@@ -153,7 +153,7 @@ $patientList = patient::$patientList; ?>
 
 jQuery(function ($) {
     $('#procedure').select2();
-    $('#next_appointment').datetimepicker({
+    $('#next_appointment_date').datetimepicker({
         minDate:'<?php echo date("Y-m-d"); ?>',
         minTime:'9:00',
         maxTime:'16:30'
@@ -176,7 +176,7 @@ function getData(val) {
   var se_ajax_url = '<?php echo get_rest_url().'api/patient/'; ?>'+val;
 
   var api_key = Math.floor(Math.random() * 100001);
-  var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+  var user_token = '<?php echo self::$userToken; ?>';
   var api_token = btoa(api_key+"_"+user_token)
 
   jQuery.ajaxSetup({

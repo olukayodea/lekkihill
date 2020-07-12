@@ -19,10 +19,13 @@ class billing extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
     
+    public static $userToken;
+    
     public function search() {
     }
 
     public function invoice() {
+        self::$userToken = users::getToken( get_current_user_id(), FALSE );
         billing::list_component();
         self::$logged_in_user = get_userdata( get_current_user_id() );
         if (isset($_REQUEST['done'])) {

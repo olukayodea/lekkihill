@@ -4,15 +4,15 @@ class appointments_history extends appointments {
         return self::insert(table_name_prefix."appointments_history", $array);
     }
 
-    function getList($start=false, $limit=false, $order="appointment_id", $dir="ASC", $type="list") {
+    function getListHistory($start=false, $limit=false, $order="appointment_id", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."appointments_history", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingle($name, $tag="appointment_id", $ref="ref") {
+    function getSingleHistory($name, $tag="appointment_id", $ref="ref") {
         return self::getOneField(table_name_prefix."appointments_history", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    function listOneHistory($id) {
         return self::getOne(table_name_prefix."appointments_history", $id, "ref");
     }
 
@@ -31,7 +31,7 @@ class appointments_history extends appointments {
         return $data;
     }
 
-    public function clean($data) {
+    public static function clean($data) {
         $user['user_login'] = users::getSingle( $data['last_modify'] );
         $user['user_nicename'] = users::getSingle( $data['last_modify'], "user_nicename" );
         $user['user_email'] = users::getSingle( $data['last_modify'], "user_email" );

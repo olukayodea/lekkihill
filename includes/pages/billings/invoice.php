@@ -150,7 +150,7 @@ jQuery(function ($) {
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
 
     var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$logged_in_user->user_token; ?>';
+    var user_token = '<?php echo self::$userToken; ?>';
     var api_token = btoa(api_key+"_"+user_token)
 
     $.ajaxSetup({
