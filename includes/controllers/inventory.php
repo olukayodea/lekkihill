@@ -863,6 +863,7 @@ class inventory extends database {
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `title` VARCHAR(255) NOT NULL,
             `sku` VARCHAR(50) NOT NULL,
+            `qty_desc` VARCHAR(50) NOT NULL,
             `cost` DOUBLE NOT NULL, 
             `category_id` INT NOT NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',

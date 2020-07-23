@@ -15,6 +15,10 @@
               <label for="cost"> Item Cost</label></td>
               <input type="number" name="cost" id="cost" value="<?php echo $data['cost']; ?>" required step='0.01' placeholder='&#8358; 0.00' />
             </div>
+            <div class="form-field form-required term-title-wrap">
+              <label for="cost"> Item Quantity Description</label></td>
+              <input type="text" name="qty_desc" id="qty_desc" value="<?php echo $data['qty_desc']; ?>" required placeholder='1 Tab' />
+            </div>
             <?php if (!isset($_REQUEST['id'])) { ?>
               <div class="form-field form-required term-title-wrap">
                 <label for="inventory_added">Opening Stock</label>

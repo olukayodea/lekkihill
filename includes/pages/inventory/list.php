@@ -15,6 +15,7 @@
       <th class="manage-column column-cb check-column"></th>
       <th class="manage-column column-columnname" scope="col">SKU</th>
       <th class="manage-column column-columnname" scope="col">Item</th>
+      <th class="manage-column column-columnname" scope="col">Desc</th>
       <th class="manage-column column-columnname" scope="col">Quantity</th>
       <th class="manage-column column-columnname" scope="col">Cost</th>
       <th class="manage-column column-columnname" scope="col">Status</th>
@@ -30,6 +31,7 @@
       <th class="manage-column column-cb check-column"></th>
       <th class="manage-column column-columnname" scope="col">SKU</th>
       <th class="manage-column column-columnname" scope="col">Item</th>
+      <th class="manage-column column-columnname" scope="col">Desc</th>
       <th class="manage-column column-columnname" scope="col">Quantity</th>
       <th class="manage-column column-columnname" scope="col">Cost</th>
       <th class="manage-column column-columnname" scope="col">Status</th>
@@ -52,9 +54,10 @@
       <th class="check-column" scope="row"><?php echo $count; ?></th>
       <td class="column-columnname"><?php echo $list[$i]['sku']; ?></td>
       <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$list[$i]['ref']); ?>" title="View More"><?php echo $list[$i]['title']; ?></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory&return='.$_REQUEST['page'].'&edit&id='.$list[$i]['ref']); ?>" title="Edit"><i class="fas fa-edit"></i></a></td>
+      <td class="column-columnname"><?php echo $list[$i]['qty_desc']; ?></td>
       <td><?php echo number_format( self::getBalance( $list[$i]['ref'] ) ); ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&add&id='.$list[$i]['ref']); ?>" title="Add to Stock"><i class="fas fa-plus-square" style="color:green"></i></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&remove&id='.$list[$i]['ref']); ?>" title="Remove from Stock"><i class="fas fa-minus-square" style="color:red"></i></a></td>
+      <td class="column-columnname"><?php echo "&#8358; ".number_format($list[$i]['cost'], 2); ?></td>
       <td class="column-columnname"><?php echo $list[$i]['status']; ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-inventory&return='.$_REQUEST['page'].'&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a></td>
-      <td class="column-columnname"><?php echo "&#8358; ".number_format($result[$i]['cost'], 2); ?></td>
       <td class="column-columnname"><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
       <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
       <td class="column-columnname"><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>
@@ -77,5 +80,6 @@
 </div>
 <script>
 jQuery(function ($) {
+    $('#datatable_list').DataTable();
 } );
 </script>
