@@ -1,8 +1,10 @@
 <?php
 class clinic extends database {
+    public static $id;
     public static $logged_in_user;
     public static $return = array();
     public static $userData = array();
+    public static $patientData = array();
     public static $list = array();
     public static $viewData = array();
     public static $appointmentData = array();
@@ -20,6 +22,19 @@ class clinic extends database {
 
     public static $showPatient = false;
     public static $userToken;
+
+    public static function managePrint() {
+        self::$id = $_REQUEST['id'];
+
+        self::$patientData['details'] = patient::listOne(self::$id);
+        self::$patientData['details']['patientId'] = patient::patienrNumber( self::$id );
+        self::recent_vital( self::$id );
+        self::recent_continuation( self::$id );
+        self::recent_post_op( self::$id );
+        self::recent_medication( self::$id );
+        self::recent_fluid_balance( self::$id );
+		include_once(LH_PLUGIN_DIR."includes/pages/clinic/managePrint.php");
+    }
 
     public static function manage() {
         self::$userToken = users::getToken( get_current_user_id(), FALSE );
@@ -106,7 +121,7 @@ class clinic extends database {
     }
 
     private static function get_medication($id) {
-        self::$allVitalsData = clinic_medication::getSortedList($id, "patient_id");
+        self::$patientData['medication'] = self::$allVitalsData = clinic_medication::getSortedList($id, "patient_id");
         return true;
     }
 
@@ -116,27 +131,27 @@ class clinic extends database {
     }
     
     private static function recent_vital ($id) {
-        self::$vitalsData = vitals::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
+        self::$patientData['vitals'] = self::$vitalsData = vitals::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
     }
     
     private static function recent_continuation ($id) {
-        self::$vitalsData = clinic_continuation_sheet::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
+        self::$patientData['continuation'] = self::$vitalsData = clinic_continuation_sheet::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
     }
     
     private static function recent_post_op ($id) {
-        self::$vitalsData = clinic_post_op::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
+        self::$patientData['post_op'] = self::$vitalsData = clinic_post_op::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
     }
     
     private static function recent_medication ($id) {
-        self::$vitalsData = clinic_medication::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
+        self::$patientData['medication'] = self::$vitalsData = clinic_medication::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
     }
     
     private static function recent_fluid_balance ($id) {
-        self::$vitalsData = clinic_fluid_balance::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
+        self::$patientData['fluid_balance'] = self::$vitalsData = clinic_fluid_balance::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
     }
 
@@ -539,6 +554,348 @@ class clinic extends database {
         }
 
         return self::$return;
+    }
+
+    private static function cleanMessage($meesgae, $int=false) {
+        return ("" != $meesgae) ? $meesgae : "Not Available";
+    } 
+
+    public static function print_view() {
+        if (isset($_REQUEST['id'])) {
+            global $pdf;
+            
+            self::$id = $_REQUEST['id'];
+
+            self::$patientData['details'] = patient::listOne(self::$id);
+            self::$patientData['details']['patientId'] = patient::patienrNumber( self::$id );
+            self::recent_vital( self::$id );
+            self::recent_continuation( self::$id );
+            self::recent_post_op( self::$id );
+            self::recent_medication( self::$id );
+            self::recent_fluid_balance( self::$id );
+                              
+            $data = self::$patientData;
+            // set document information
+            $pdf->SetCreator('LekkiHill');
+            $pdf->SetAuthor('LekkiHill');
+            $pdf->SetTitle('Patient Report');
+            $pdf->SetSubject('Patient Report');
+            $pdf->SetKeywords('LekkiHill, PDF, Patient, Report');
+            // set auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            
+            $pdf->SetDefaultMonospacedFont("courier");
+
+            $pdf->SetFont('dejavusans', '', 10);
+
+            // add a page
+            $pdf->AddPage();
+            
+            $pdf->Ln();
+
+            // create some HTML content
+
+            $html = '<small class="right">Print Date: '.date('l jS \of F Y h:i:s A').'</small>
+            <h2>Patient\'s Details</h2>
+            <table class="widefat striped fixed">
+                <tbody>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Patient ID</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['patientId'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Last Name</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['last_name'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Other Names</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['first_name'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Age</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['age'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Sex</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['sex'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Phone Number</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['phone_number'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Email</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['email'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Address</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['address'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_Kin'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin Contact</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_contact'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin Address</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_address'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Allergies</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['allergies'].'</i></td>
+                </tr>
+                </tbody>
+            </table>';
+            if ((isset($_REQUEST['vitals'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Vitals</h2>
+                <table class="widefat striped fixed">
+                    <tbody>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Weight (Kg)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['weight']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Height (cm)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['height']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>BMI</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['bmi']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>SPO2</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['spo2']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm))</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['respiratory']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Temprature (C)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['temprature']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Pulse Rate (bpm)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['pulse']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Blood Pressure-SYS (mmHg)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['bp_sys']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Blood Pressure-DIA (mmHg)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['bp_dia']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['added_by']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['create_time']).'</i></td>
+                    </tr>
+                    </tbody>
+                </table>';
+            }
+            if ((isset($_REQUEST['continuationSheet'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Clinic Continuation</h2>
+                <p id="summary_c"><i>'.self::cleanMessage($data['continuation']['notes']).'</i></p>
+                <small id="summary_added_by"><i>'.self::cleanMessage($data['continuation']['added_by']).'</i></small>
+                <small id="summary_c_create_time"><i>'.self::cleanMessage($data['continuation']['create_time']).'</i></small><br>';
+            }
+            if ((isset($_REQUEST['operativeNote'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Post Operative Note</h2>
+                <table class="widefat striped fixed">
+                    <tbody>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Surgery</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['surgery']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Category</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['surgery_category']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Indication</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['indication']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Surgeon</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['surgeon']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Assistant Surgeon</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['asst_surgeon']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Peri Op Nurse</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['per_op_nurse']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Circulating Nurse</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['circulating_nurse']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Anaestdesia</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['anaesthesia']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Anaestdesia Time</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['anaesthesia_time']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Knife on Skin</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['knife_on_skin']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Infiltration Time</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['infiltration_time']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Liposuction Time</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['liposuction_time']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>End of Surgery</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['end_of_surgery']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Procedure</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['procedure']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Right Buttock)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['amt_of_fat_right']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Right Buttock)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['amt_of_fat_left']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Transfered Fat (Otder Areas)</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['amt_of_fat_other']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>EBL</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['ebl']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Plan</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['plan']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['added_by']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['modify_time']).'</i></td>
+                    </tr>
+                    </tbody>
+                </table>';
+            }
+            if ((isset($_REQUEST['medication'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Medication</h2>
+                <table class="widefat striped fixed">
+                    <tbody>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Route</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['route']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Medication</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['medication']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Dose</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['dose']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Frequency</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['frequency']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Report Date</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage(trim($data['medication']['report_date']." : ".$data['medication']['report_time']), " : ").'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['added_by']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['create_time']).'</i></td>
+                    </tr>
+                    </tbody>
+                </table>';
+            }
+            if ((isset($_REQUEST['massage'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Massage Register</h2>';
+            }
+            if ((isset($_REQUEST['fluidBalance'])) || (isset($_REQUEST['all']))) {
+                $html .= '<h2>Fluid Balance</h2>
+                <table class="widefat striped fixed">
+                    <tbody>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col" colspan="2"><strong>Intake (ML)</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong> of IV Fluid</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['iv_fluid']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Amount</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['amount']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Oral Fluid</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['oral_fluid']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>NG Tube Feeding</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['ng_tube_feeding']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col" colspan="2"><strong>Output (ML)</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Vomit</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['vomit']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Urine</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['urine']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Drains</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['drains']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>NG Tube Drainage</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['ng_tube_drainage']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Report Date</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage(trim($data['fluid_balance']['report_date']." : ".$data['fluid_balance']['report_time']), " : ").'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['added_by']).'</i></td>
+                    </tr>
+                    <tr>
+                        <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['create_time']).'</i></td>
+                    </tr>
+                    </tbody>
+                </table>';
+            }
+            // output the HTML content
+            $pdf->writeHTML($html, true, false, true, false, '');
+            $pdf->Output($data['details']['patientId']."_".$data['details']['last_name'].'.pdf', 'I');
+        }
     }
 }
 //other clinic classes and functions

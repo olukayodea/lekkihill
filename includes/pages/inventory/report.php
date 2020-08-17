@@ -1,3 +1,7 @@
+<?php
+$list = self::$list;
+$data = self::$viewData;
+?>
 <div class="wrap">
   <h2>Inventory Report</h2>
   <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
@@ -41,7 +45,7 @@
                 <label for="user">Users</label>
                 <select id="user" name="user">
                   <option value="">Select One</option>
-                  <?php foreach ( $users as $user ) { ?>
+                  <?php foreach ( self::$users as $user ) { ?>
                     <option value="<?php echo $user->ID; ?>"<?php if ($user->ID == $_POST['user']) { ?> selected<?php } ?>><?php echo esc_html( $user->display_name) ?></option>
                   <?php } ?>
                 </select>
@@ -59,10 +63,10 @@
       </div>
     </div>
   </div>
-  <?php if ($show == true) { ?>
+  <?php if (self::$show == true) { ?>
   <h2>Query Result</h2>
   <p><?php echo $tag; ?></p>
-  <button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-report-inventory&view='.$_POST['view'].'&search='.$_POST['search'].'&category='.$_POST['category'].'&user='.$_POST['user'].'&from='.urlencode($_POST['from']).'&to='.urlencode($_POST['to'])); ?>&downloadInventoryPDF'">
+  <button type="button" target="_blank" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-report-inventory&view='.$_POST['view'].'&search='.$_POST['search'].'&category='.$_POST['category'].'&user='.$_POST['user'].'&from='.urlencode($_POST['from']).'&to='.urlencode($_POST['to'])); ?>&downloadInventoryPDF'">
   <i class="fas fa-file-pdf fa-lg"></i>&nbsp;Download or Print PDF
   </button>
   <button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-report-inventory&view='.$_POST['view'].'&search='.$_POST['search'].'&category='.$_POST['category'].'&user='.$_POST['user'].'&from='.urlencode($_POST['from']).'&to='.urlencode($_POST['to'])); ?>&downloadInventoryCSV'">

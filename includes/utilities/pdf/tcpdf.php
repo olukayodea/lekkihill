@@ -15253,7 +15253,7 @@ class TCPDF {
 		if (TCPDF_STATIC::empty_string(trim($code))) {
 			return;
 		}
-		require_once(LH_PLUGIN_DIR.'includes\utilities\pdf\tcpdf_barcodes_1d.php');
+		require_once(LH_PLUGIN_DIR.'/includes/utilities/pdf/tcpdf_barcodes_1d.php');
 		// save current graphic settings
 		$gvars = $this->getGraphicVars();
 		// create new barcode object

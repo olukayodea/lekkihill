@@ -27,8 +27,7 @@ $pdf = new TCPDF("P", "mm", "A4", true, 'UTF-8', false);
 
 //database
 require_once LH_PLUGIN_DIR . 'includes/database/main.php';
-$database = new database;
-$db       = $database->connect();
+database::connect();
 
 //classes and functions
 require_once LH_PLUGIN_DIR . 'includes/controllers/settings.php';
@@ -112,6 +111,30 @@ class mainClass extends main {
             require_once WP_INCLUDE_DIR . '/pluggable.php';
 
             inventory::print_view();
+			exit;
+        }
+		if(isset($_GET['downloadPatientPDF'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            clinic::print_view();
+			exit;
+        }
+		if(isset($_GET['PrintPDF'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            clinic::managePrint();
+			exit;
+        }
+		if(isset($_GET['PrintInvoice'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            billing::PrintInvoice();
+			exit;
+        }
+		if(isset($_GET['DownloadInvoice'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            billing::DownloadInvoice();
 			exit;
         }
         //add REST API

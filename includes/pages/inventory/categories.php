@@ -1,3 +1,7 @@
+<?php
+$list = self::$list;
+$data = self::$viewData;
+?>
 <div class="wrap">
   <h1 class="wp-heading-inline">Categories</h1>
   <form class="search-form wp-clearfix" method="get">
@@ -33,7 +37,7 @@
             <?php if (isset($_REQUEST['return'])) { ?>
               <input type="hidden" name="return" id="return" value="<?php echo $_REQUEST['return']."&id=".$data['ref']; ?>" />
             <?php } ?>
-            <button name="submit" id="submit" type="submit" class="button button-primary"><i class="fa fa-floppy-o fa-lg"></i><?php echo $tag; ?></button>
+            <button name="submit" id="submit" type="submit" class="button button-primary"><i class="fa fa-floppy-o fa-lg"></i><?php echo self::$tag; ?></button>
             <button name="reset" id="reset" type="reset" class="button"><i class="fa fa-undo fa-lg"></i>Reset</button>
           </form>
         </div>

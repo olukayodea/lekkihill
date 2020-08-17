@@ -1,3 +1,7 @@
+<?php
+$list = self::$list;
+$data = self::$viewData;
+?>
 <div class="wrap">
 <h2>Manage Inventory Item</h2>
 <?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>

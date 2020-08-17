@@ -72,7 +72,7 @@ $data = self::$viewData; ?>
             for ($i = 0;  $i < count($list); $i++) { ?>
             <tr <?php echo $alt; ?>>
               <th class="check-column" scope="row"><?php echo $count; ?></th>
-              <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&edit&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $list[$i]['ref'] ); ?></a></td>
+              <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $list[$i]['ref'] ); ?></a></td>
               <td class="column-columnname"><?php echo patient::getSingle( $list[$i]['patient_id'] )." ".patient::getSingle( $list[$i]['patient_id'], "first_name" ); ?></td>
               <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
               <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
@@ -147,27 +147,30 @@ function add_button( key ) {
 }
 
 jQuery(function ($) {
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
+  $('#datatable_list').dataTable({
+    "pageLength": 50
+  });
+  var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+  var api_key = Math.floor(Math.random() * 100001);
+  var user_token = '<?php echo self::$userToken; ?>';
+  var api_token = btoa(api_key+"_"+user_token)
 
-    $.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
+  $.ajaxSetup({
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': api_key,
+      'api-token': api_token
+      }
+  });
 
-    $('#search').autocomplete({
-        source: se_ajax_url,
-        minLength: 2,
-        select: function( event, ui ) {
-            $('#patient_id').val( ui.item.id );
-        }
-    });
+  $('#search').autocomplete({
+    source: se_ajax_url,
+    minLength: 2,
+    select: function( event, ui ) {
+      $('#patient_id').val( ui.item.id );
+    }
+  });
 
 } );
 </script>

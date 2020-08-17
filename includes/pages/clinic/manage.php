@@ -12,6 +12,11 @@
     $managePatient = true;
   }
 ?>
+<style>
+  .right {
+    float: right;
+  }
+</style>
 <input type="hidden" name="patient_id" id="patient_id" value="<?php echo $_REQUEST['id']; ?>">
 <div class="wrap">
   <h1 class="wp-heading-inline">Clinic</h1>
@@ -159,9 +164,11 @@
             <button type="button" id="control_fb_bt" data-id="0" class="button button-primary"><i class="fas fa-balance-scale-right fa-lg"></i>&nbsp;Fluid Balance</button>
             <button type="button" id="control_fo_bt" data-id="0" class="button button-primary"><i class="fab fa-wpforms fa-lg"></i>&nbsp;Forms</button>
           </div>
-          <div class="col-wrap control_bt" id="control_sm_bt_div" style="display: none">  
+          <div class="col-wrap control_bt" id="control_sm_bt_div" style="display: none">
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print All</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download All</button>
             <span id="sm_notice"></span>
             <h2>Vitals</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&vitals&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Vitals</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&vitals&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Vitals</button>
             <table class='widefat striped fixed'>
               <tbody>
                 <tr>
@@ -211,11 +218,13 @@
               </tbody>
             </table> 
             <h2>Clinic Continuation</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&continuationSheet&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Clinic Continuation</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&continuationSheet&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Clinic Continuation</button>
             <p id="summary_c"><i>fetching data...</i></p>
             <small id="summary_added_by"><i>fetching data...</i></small>
             <small id="summary_c_create_time"><i>fetching data...</i></small><br>
             <a href="Javascript:void(0)" id="control_cs_bt_l">Add New</a>
             <h2>Post Operative Note</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&operativeNote&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Operative Note</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&operativeNote&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Operative Note</button>
             <table class='widefat striped fixed'>
               <tbody>
                 <tr>
@@ -306,6 +315,7 @@
             </table> 
             <a href="Javascript:void(0)" id="control_po_bt_l">Add New</a>
             <h2>Medication</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&medication&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Medication</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&medication&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Medication</button>
             <table class='widefat striped fixed'>
               <tbody>
                 <tr>
@@ -340,8 +350,10 @@
             </table> 
             <a href="Javascript:void(0)" id="control_m_bt_l">Add New</a>
             <h2>Massage Register</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&massage&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Massage Register</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&massage&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Massage Register</button>
             <a href="Javascript:void(0)" id="control_mg_bt_l">Add New</a>
             <h2>Fluid Balance</h2>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&fluidBalance&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print Fluid Balance</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&fluidBalance&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download Fluid Balance</button>
             <table class='widefat striped fixed'>
               <tbody>
                 <tr>

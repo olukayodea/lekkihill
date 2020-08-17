@@ -1,12 +1,16 @@
+<?php
+$list = self::$list;
+$data = self::$viewData;
+?>
 <div class="wrap">
 <h2>Add Inventory Item</h2>
-<?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
-<?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
   <div id="col-container" class="wp-clearfix">
     <div id="col-left">
       <div class="col-wrap">
         <div class="form-wrap">
-          <form id="form2" name="form2" method="post" action="<?php echo $url; ?>" autocomplete="off">
+          <form id="form2" name="form2" method="post" action="<?php echo self::$url; ?>" autocomplete="off">
             <div class="form-field form-required term-title-wrap">
               <label for="title"> Item Name</label>
               <input type="text" name="title" id="title" value="<?php echo $data['title']; ?>" required />
@@ -47,7 +51,7 @@
             <?php if (isset($_REQUEST['return'])) { ?>
             <input type="hidden" name="return" id="return" value="<?php echo $_REQUEST['return']."&id=".$data['ref']; ?>" />
             <?php } ?>
-            <button name="save" id="save" type="submit" class="button button-primary"><i class="fa fa-floppy-o fa-lg"></i><?php echo $tag; ?></button>
+            <button name="save" id="save" type="submit" class="button button-primary"><i class="fa fa-floppy-o fa-lg"></i><?php echo self::$tag; ?></button>
             <button name="reset" id="reset" type="reset" class="button"><i class="fa fa-undo fa-lg"></i>Reset</button>
           </form>
         </div>

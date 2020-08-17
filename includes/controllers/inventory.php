@@ -1,5 +1,14 @@
 <?php
 class inventory extends database {
+    public static $url;
+    public static $tag;
+    public static $list = array();
+    public static $inventory_activity = array();
+    public static $viewData = array();
+    public static $users;
+    public static $message;
+    public static $show = false;
+    public static $error_message;
     public static $return = array();
     public static $userData = array();
     public static $successResponse = array("status" => 200, "message" => "OK");
@@ -277,9 +286,9 @@ class inventory extends database {
 
     public function manage() {
         if (isset($_REQUEST['done'])) {
-            $message = $_REQUEST['done'];
+            self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
-            $error_message = $_REQUEST['error'];
+            self::$error_message = $_REQUEST['error'];
         }
 
         if (isset($_GET['changeStatus'])) {
@@ -290,24 +299,23 @@ class inventory extends database {
                 $tag = "INACTIVE";
                 $msg = "deactivated";
             }
-
             $update = self::updateOne(table_name_prefix."inventory", "status", $tag, $_GET['id']);
             if ($update) {
-                $message = "Inventory item ".$msg." successfully";
-                self::returnUrl("done", $message);
+                self::$message = "Inventory item ".$msg." successfully";
+                self::returnUrl("done", self::$message);
             } else {
-                $error_message = "there was an error performing this action";
-                self::returnUrl("error", $error_message);
+                self::$error_message = "there was an error performing this action";
+                self::returnUrl("error", self::$error_message);
             }
         } else if (isset($_GET['remove'])) {
             $update = self::updateOne(table_name_prefix."inventory", "status", "DELETED", $_GET['id']);
             if ($update) {
                 self::delete(table_name_prefix."inventory_count", $_GET['id'], "inventory_id");
-                $message = "Inventory item deleted successfully";
-                self::returnUrl("done", $message);
+                self::$message = "Inventory item deleted successfully";
+                self::returnUrl("done", self::$message);
             } else {
-                $error_message = "there was an error performing this action";
-                self::returnUrl("error", $error_message);
+                self::$error_message = "there was an error performing this action";
+                self::returnUrl("error", self::$error_message);
             }
         }
 
@@ -316,33 +324,33 @@ class inventory extends database {
             unset($_POST['return']);
             $add = self::create($_POST);
             if ($add) {
-                $message = "Inventory item modified successfully";
-                self::returnUrl("done", $message);
+                self::$message = "Inventory item modified successfully";
+                self::returnUrl("done", self::$message);
             } else {
-                $error_message = "there was an error performing this action";
-                self::returnUrl("error", $error_message);
+                self::$error_message = "there was an error performing this action";
+                self::returnUrl("error", self::$error_message);
             }
         }
-        $list =  self::getList();
+        self::$list =  self::getList();
 		include_once(LH_PLUGIN_DIR."includes/pages/inventory/list.php");
     }
 
     public function add() {
         if (isset($_REQUEST['done'])) {
-            $message = $_REQUEST['done'];
+            self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
-            $error_message = $_REQUEST['error'];
+            self::$error_message = $_REQUEST['error'];
         }
 
-        $list =  inventory_category::getSortedList("ACTIVE", "status");
+        self::$list = inventory_category::getSortedList("ACTIVE", "status");
         if (inventory_category::getCount()) {
-            $url = "";
-            $tag = "Add to Inventory";
+            self::$url = "";
+            self::$tag = "Add to Inventory";
             if (isset($_REQUEST['id'])) {
                 $id = $_REQUEST['id'];
-                $data = self::listOne($id);   
-                $url = admin_url('admin.php?page=lh-inventory');
-                $tag = "Modify Inventory Item";
+                self::$viewData = self::listOne($id);   
+                self::$url = admin_url('admin.php?page=lh-inventory');
+                self::$tag = "Modify Inventory Item";
             }
 
             if (isset($_POST['save'])) {
@@ -355,11 +363,11 @@ class inventory extends database {
                     $array['inventory_before_added'] = 0;
                     $array['added_by'] = get_current_user_id();
                     inventory_count::create($array);
-                    $message = "Inventory item saved successfully";
-                    self::returnUrl("done", $message);
+                    self::$message = "Inventory item saved successfully";
+                    self::returnUrl("done", self::$message);
                 } else {
-                    $error_message = "there was an error performing this action";
-                    self::returnUrl("error", $error_message);
+                    self::$error_message = "there was an error performing this action";
+                    self::returnUrl("error", self::$error_message);
                 }
             }
 
@@ -374,9 +382,9 @@ class inventory extends database {
 
     public function manageStock() {
         if (isset($_REQUEST['done'])) {
-            $message = $_REQUEST['done'];
+            self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
-            $error_message = $_REQUEST['error'];
+            self::$error_message = $_REQUEST['error'];
         }
 
         if (isset($_REQUEST['id'])) {
@@ -404,11 +412,11 @@ class inventory extends database {
                 $_POST['added_by'] = get_current_user_id();
                 $add = inventory_count::create($_POST);
                 if ($add) {
-                    $message = "Inventory item updated successfully";
-                    self::returnUrl("done", $message);
+                    self::$message = "Inventory item updated successfully";
+                    self::returnUrl("done", self::$message);
                 } else {
-                    $error_message = "there was an error performing this action";
-                    self::returnUrl("error", $error_message);
+                    self::$error_message = "there was an error performing this action";
+                    self::returnUrl("error", self::$error_message);
                 }
             }
             
@@ -428,17 +436,17 @@ class inventory extends database {
 
     public function categories() {
         if (isset($_REQUEST['done'])) {
-            $message = $_REQUEST['done'];
+            self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
-            $error_message = $_REQUEST['error'];
+            self::$error_message = $_REQUEST['error'];
         }
 
         if (isset($_REQUEST['id'])) {
             $id = $_REQUEST['id'];
-            $data = inventory_category::listOne($id);
-            $tag = "Modify Category";
+            self::$viewData = inventory_category::listOne($id);
+            self::$tag = "Modify Category";
         } else {
-            $tag = "Add Category";
+            self::$tag = "Add Category";
         }
 
         if (isset($_POST['submit'])) {
@@ -448,36 +456,36 @@ class inventory extends database {
             $_POST['last_modified_by'] = get_current_user_id();
             $add = inventory_category::create($_POST);
             if ($add) {
-                $message = "Category saved successfully";
-                self::returnUrl("done", $message);
+                self::$message = "Category saved successfully";
+                self::returnUrl("done", self::$message);
             } else {
-                $error_message = "there was an error performing this action";
-                self::returnUrl("error", $error_message);
+                self::$error_message = "there was an error performing this action";
+                self::returnUrl("error", self::$error_message);
             }
         } else if (isset($_GET['changeStatus'])) {
             if ($_GET['changeStatus'] == "INACTIVE") {
-                $tag = "ACTIVE";
+                self::$tag = "ACTIVE";
                 $msg = "activated";
             } else if ($_GET['changeStatus'] == "ACTIVE") {
-                $tag = "INACTIVE";
+                self::$tag = "INACTIVE";
                 $msg = "deactivated";
             }
 
-            $update = self::updateOne(table_name_prefix."inventory_category", "status", $tag, $_GET['id']);
+            $update = self::updateOne(table_name_prefix."inventory_category", "status", self::$tag, $_GET['id']);
             if ($update) {
-                $message = "Category ".$msg." successfully";
+                self::$message = "Category ".$msg." successfully";
             } else {
-                $error_message = "there was an error performing this action";
+                self::$error_message = "there was an error performing this action";
             }
         } else if (isset($_GET['remove'])) {
             $update = self::updateOne(table_name_prefix."inventory_category", "status", "DELETED", $_GET['id']);
             if ($update) {
-                $message = "Category deleted successfully";
+                self::$message = "Category deleted successfully";
             } else {
-                $error_message = "there was an error performing this action";
+                self::$error_message = "there was an error performing this action";
             }
         }
-        $list =  inventory_category::getList();
+        self::$list =  inventory_category::getList();
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/categories.php");
     }
 
@@ -492,17 +500,17 @@ class inventory extends database {
 
     public function view() {
         if (isset($_REQUEST['done'])) {
-            $message = $_REQUEST['done'];
+            self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
-            $error_message = $_REQUEST['error'];
+            self::$error_message = $_REQUEST['error'];
         }
 
         if (isset($_REQUEST['id'])) {
             $id = $_REQUEST['id'];
 
             $return = self::processView($id);
-            $data = $return['data'];
-            $inventory_activity = $return['inventory_activity'];
+            self::$viewData = $return['data'];
+            self::$inventory_activity = $return['inventory_activity'];
 
             include_once(LH_PLUGIN_DIR."includes/pages/inventory/view.php");
         } else {
@@ -514,7 +522,7 @@ class inventory extends database {
     }
 
     public function report() {
-        $show = false;
+        self::$show = false;
         if (isset($_POST['save'])) {
             $result = self::processReport($_POST);
             if ($_POST['view'] == "search") {
@@ -524,15 +532,15 @@ class inventory extends database {
             } else if ($_POST['view'] == "user") {
                 $msg = " added by <strong>".self::getuser($_POST['user'])."</strong>";
             }
-            $tag = "Showing ".count($result)." record(s)".$msg." between ".$_POST['from']." to ".$_POST['to'];
-            $show = true;
+            self::$tag = "Showing ".count($result)." record(s)".$msg." between ".$_POST['from']." to ".$_POST['to'];
+            self::$show = true;
         }
-        $users = get_users( [ 'role__in' => [ 'lekki_hill_inventory', 'lekki_hill_admin', 'administrator' ] ] );
-        $list =  inventory_category::getList();
+        self::$users = get_users( [ 'role__in' => [ 'lekki_hill_inventory', 'lekki_hill_admin', 'administrator' ] ] );
+        self::$list =  inventory_category::getList();
         include_once(LH_PLUGIN_DIR."includes/pages/inventory/report.php");
     }
 
-    public function print_view() {
+    public static function print_view() {
         if (isset($_REQUEST['id'])) {
             global $pdf;
             $id = $_REQUEST['id'];
@@ -640,7 +648,7 @@ class inventory extends database {
         }
     }
 
-    public function  print_report() {
+    public static function print_report() {
         global $pdf;
         $result = self::processReport($_GET);
                 
@@ -701,7 +709,7 @@ class inventory extends database {
         $pdf->Output('example_006.pdf', 'I');
     }
 
-    public function downloadView() {
+    public static function downloadView() {
         if (isset($_REQUEST['id'])) {
             $id = $_REQUEST['id'];
             $return = self::processView($id);
@@ -747,7 +755,7 @@ class inventory extends database {
         }
     }
 
-    public function downloadReport() {
+    public static function downloadReport() {
         $result = self::processReport($_GET);
 
         // filename for download
@@ -793,7 +801,7 @@ class inventory extends database {
         exit;
     }
 
-    private function processReport( $array ) {
+    private static function processReport( $array ) {
         if ($array['view'] == "search") {
             $tag = " AND (`wp_lekkihill_inventory`.`title` LIKE '%".$array['search']."%' OR `wp_lekkihill_inventory`.`sku` LIKE '%".$array['search']."%')";
         } else if ($array['view'] == "category") {
@@ -824,11 +832,11 @@ class inventory extends database {
         return self::replace(table_name_prefix."inventory", $array, $replace);
     }
 
-    private function createSKU($id) {
+    private static function createSKU($id) {
         return strtoupper(substr(inventory_category::getSingle($id), 0, 3).rand(100000, 999999));
     }
 
-    private function confirmSKU( $key, $id ) {
+    private static function confirmSKU( $key, $id ) {
         if (self::checkExixst(table_name_prefix."inventory", "sku", $key, "sku") == 0) {
             return $key;
         } else {

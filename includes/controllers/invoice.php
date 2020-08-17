@@ -1,7 +1,11 @@
 <?php
 class invoice extends billing {
     public static $invoice;
-    public function create($array) {
+    public static $patient_id;
+    public static $status = "ALL";
+    public static $from_date;
+    public static $to_date;
+    public static function create($array) {
         $invData['amount'] = $invData['due'] = 0;
         $invData['patient_id'] = $array['patient_id'];
         if (isset($array['due_date'])) {
@@ -33,31 +37,42 @@ class invoice extends billing {
         return self::$invoice;
     }
 
-    public function invoiceNumber($id) {
+    public static function invoiceNumber($id) {
         return "INV".(10000+$id);
     }
 
-    function getPending() {
+    public static function getPending() {
         return self::query("SELECT * FROM ".table_name_prefix."invoice WHERE `status` != 'PAID'", false, "list");
     }
 
-    function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
+    public static function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."invoice", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingle($name, $tag="title", $ref="ref") {
+    public static function getSingle($name, $tag="title", $ref="ref") {
         return self::getOneField(table_name_prefix."invoice", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    public static function listOne($id) {
         return self::getOne(table_name_prefix."invoice", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."invoice", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function formatResult($data, $single=false) {
+    public static function filer( ) {
+        if (self::$status != "ALL") {
+            $tag = " AND `status` = '".self::$status."'";
+        }
+        if (self::$patient_id > 0) {
+            $tag .= " AND `patient_id` = '".self::$patient_id."'";
+        }
+
+        return self::query("SELECT * FROM `".DB_NAME."`.`".table_name_prefix."invoice` WHERE `due_date` BETWEEN '".self::$from_date."' AND '".self::$to_date."'".$tag, false, "list");
+    }
+
+    public static function formatResult($data, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
                 $data[$i] = self::clean($data[$i]);
@@ -68,7 +83,7 @@ class invoice extends billing {
         return $data;
     }
 
-    public function clean($data) {
+    public static function clean($data) {
         $patient_id['id'] = $data['patient_id'];
         $patient_id['first_name'] = patient::getSingle( $data['patient_id'], "first_name" );
         $patient_id['last_name'] = patient::getSingle( $data['patient_id'], "last_name" );

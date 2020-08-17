@@ -154,6 +154,33 @@ class main {
             'methods'  => 'GET',
             'callback' => array("billing",'list_api_invoice_pending')
         ));
+        //list all patients invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/patients/ID;
+        register_rest_route( 'api', 'billing/invoice/patients/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'list_patient_api')
+        ));
+        //filter all patients invoice
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/filter/from/to/status/id;
+        register_rest_route( 'api', 'billing/invoice/filter/(?P<from_date>\S+)/(?P<to_date>\S+)/(?P<status>\S+)/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'filter_patient_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/filter/from/to/id;
+        register_rest_route( 'api', 'billing/invoice/filter/(?P<from_date>\S+)/(?P<to_date>\S+)/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'filter_patient_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/filter/from/to/status;
+        register_rest_route( 'api', 'billing/invoice/filter/(?P<from_date>\S+)/(?P<to_date>\S+)/(?P<status>\S+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'filter_patient_api')
+        ));
+        //url = https://lekkihill.com/wp-json/api/billing/invoice/filter/from/to;
+        register_rest_route( 'api', 'billing/invoice/filter/(?P<from_date>\S+)/(?P<to_date>\S+)',array(
+            'methods'  => 'GET',
+            'callback' => array("billing",'filter_patient_api')
+        ));
         //list all paid invoice
         //url = https://lekkihill.com/wp-json/api/billing/invoice/paid;
         register_rest_route( 'api', 'billing/invoice/paid',array(
@@ -311,7 +338,6 @@ class main {
             'callback' => array("clinic",'api_recent_fluid_balance')
         ));
 
-
         //POST settings route
         //add/update component
         //url = https://lekkihill.com/wp-json/api/settings;
@@ -329,7 +355,7 @@ class main {
     }
 
     //get all the  menus  and  submenu
-    public function  lh_add_menu() {
+    public static function  lh_add_menu() {
         add_menu_page(
             "Patients",
             "Patients",
@@ -791,7 +817,7 @@ class main {
     }
     
 	//external scripts and CSS
-	function admin_styles_and_script() {
+	public static function admin_styles_and_script() {
 		wp_enqueue_script( 'load-fa', 'https://kit.fontawesome.com/f905a65f30.js' );
 		wp_enqueue_style( 'load-select2-css', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css' );
 		wp_enqueue_script( 'load-select2-js', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js' );

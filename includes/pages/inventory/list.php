@@ -1,3 +1,7 @@
+<?php
+$list = self::$list;
+$data = self::$viewData;
+?>
 <div class="wrap">
 <h2>List Inventory</h2>
 <form class="search-form wp-clearfix" method="get" autocomplete="off">

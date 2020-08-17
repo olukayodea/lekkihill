@@ -4,11 +4,15 @@ if ($data['status'] == "INACTIVE") {
 } else if ($data['status'] == "ACTIVE") {
   $tag = "This action will make this item invisible to all users";
 }
+
+$list = self::$list;
+$inventory_activity = self::$inventory_activity;
+$data = self::$viewData;
 ?>
 <div class="wrap">
 <h2><i class="fas fa-capsules"></i>&nbsp;<?php echo $data['title'];  ?></h2>
-<?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
-<?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
 <table width="100%" border="0">
   <tbody>
   <tr class='striped'>
@@ -63,7 +67,7 @@ if ($data['status'] == "INACTIVE") {
   </tbody>
 </table>
 <h3>History</h3>
-<button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemPDF'">
+<button type="button" class="button" onclick="window.open('<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemPDF','_blank')">
 <i class="fas fa-file-pdf fa-lg"></i>&nbsp;Download or Print PDF
 </button>
 <button type="button" class="button" onclick="location='<?php echo admin_url('admin.php?page=lh-add-inventory-view&id='.$_REQUEST['id']); ?>&downloadItemCSV'">
