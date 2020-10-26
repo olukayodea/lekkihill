@@ -132,8 +132,20 @@ class main {
             'methods'  => 'POST',
             'callback' => array("billing",'create_api_invoice')
         ));
+        //add new invoice
+        //url = https://lekkihill.com/wp-json/api/billing/postPayment;
+        register_rest_route( 'api', 'billing/postPayment',array(
+            'methods'  => 'POST',
+            'callback' => array("invoice",'api_post_payment')
+        ));
 
         //PUT billing route
+        //update component
+        //url = https://lekkihill.com/wp-json/api/billing/payInvoice;
+        register_rest_route( 'api', 'billing/payInvoice',array(
+            'methods'  => 'PUT',
+            'callback' => array("invoice",'api_pay_invoice')
+        ));
         //update component
         //url = https://lekkihill.com/wp-json/api/billing/component;
         register_rest_route( 'api', 'billing/component',array(
@@ -233,6 +245,12 @@ class main {
             'methods'  => 'POST',
             'callback' => array("patient",'create_api_component')
         ));
+        //add new patient notes
+        //url = https://lekkihill.com/wp-json/api/patient/notes;
+        register_rest_route( 'api', 'patient/notes',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_add_note')
+        ));
         //add new patient vitals
         //url = https://lekkihill.com/wp-json/api/patient/vitals;
         register_rest_route( 'api', 'patient/vitals',array(
@@ -276,6 +294,12 @@ class main {
         register_rest_route( 'api', 'patient/(?P<patient_id>\d+)',array(
             'methods'  => 'GET',
             'callback' => array("patient",'read_api_component')
+        ));
+        //get patient notes
+        //url = https://lekkihill.com/wp-json/api/patient/notes/1;
+        register_rest_route( 'api', 'patient/notes/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'api_get_notes')
         ));
         //get patient vitals
         //url = https://lekkihill.com/wp-json/api/patient/vitals/1;
@@ -338,6 +362,22 @@ class main {
             'callback' => array("clinic",'api_recent_fluid_balance')
         ));
 
+        //POST Visitors route
+        //add new visitor
+        //url = https://lekkihill.com/wp-json/api/visitors;
+        register_rest_route( 'api', 'visitors',array(
+            'methods'  => 'POST',
+            'callback' => array("visitors",'create_api_component')
+        ));
+
+        //GET Visitors route
+        //add new visitor
+        //url = https://lekkihill.com/wp-json/api/visitors;
+        register_rest_route( 'api', 'visitors',array(
+            'methods'  => 'GET',
+            'callback' => array("visitors",'getvisitorsList')
+        ));
+
         //POST settings route
         //add/update component
         //url = https://lekkihill.com/wp-json/api/settings;
@@ -392,6 +432,25 @@ class main {
             array('clinic','manage'),
             "dashicons-id",'2.2.9',
             1
+        );
+
+        add_submenu_page(
+            "lh-manage-clinic",
+            "Medications",
+            "Medications",
+            "manage_medication",
+            "lh-manage-medication",
+            array('clinic','manage')
+        );
+
+        add_menu_page(
+            "Visitors",
+            "Visitors",
+            "manage_visitors",
+            "lh-manage-visitors",
+            array('visitors','manage'),
+            "dashicons-id",'2.2.9',
+            7
         );
 
         add_submenu_page(
@@ -579,6 +638,7 @@ class main {
         $inventory_category     = new inventory_category;
 
         $patient                = new patient;
+        $visitors               = new visitors;
         $billing                = new billing;
         $billing_component      = new billing_component;
         $invoice                = new invoice;
@@ -591,6 +651,7 @@ class main {
         $clinic_fluid_balance   = new clinic_fluid_balance;
         $clinic_continuation_sheet  = new clinic_continuation_sheet;
         $clinic_medication      =  new clinic_medication;
+        $clinic_doctors_report  = new clinic_doctors_report;
 
         $users->initialize_table();
         $inventory->initialize_table();
@@ -598,6 +659,7 @@ class main {
         $inventory_count->initialize_table();
         $inventory_category->initialize_table();
         $patient->initialize_table();
+        $visitors->initialize_table();
         $billing->initialize_table();
         $billing_component->initialize_table();
         $invoice->initialize_table();
@@ -608,6 +670,7 @@ class main {
         $clinic_fluid_balance->initialize_table();
         $clinic_continuation_sheet->initialize_table();
         $clinic_medication->initialize_table();
+        $clinic_doctors_report->initialize_table();
 
         //add user roles
         //add admin
@@ -622,6 +685,8 @@ class main {
         $lekkihill_admin = get_role( "lekki_hill_admin" );
         $lekkihill_admin->add_cap( 'manage_patient' );
         $lekkihill_admin->add_cap( 'manage_clinic' );
+        $lekkihill_admin->add_cap( 'manage_medication' );
+        $lekkihill_admin->add_cap( 'manage_visitors' );
         $lekkihill_admin->add_cap( 'manage_inventory' );
         $lekkihill_admin->add_cap( 'mamange_accounts' );
         $lekkihill_admin->add_cap( 'manage_settings' );
@@ -639,12 +704,30 @@ class main {
 			)
         );
         
-        $lekkihill_admin = get_role( "lekki_hill_doctor" );
-        $lekkihill_admin->add_cap( 'manage_patient' );
-        $lekkihill_admin->add_cap( 'manage_clinic' );
-        $lekkihill_admin->add_cap( 'manage_inventory' );
-        $lekkihill_admin->add_cap( 'mamange_accounts' );
-        $lekkihill_admin->add_cap( 'manage_patient_report' );
+        $lekkihill_doctor = get_role( "lekki_hill_doctor" );
+        $lekkihill_doctor->add_cap( 'manage_patient' );
+        $lekkihill_doctor->add_cap( 'manage_medication' );
+        $lekkihill_doctor->add_cap( 'manage_clinic' );
+        $lekkihill_doctor->add_cap( 'manage_inventory' );
+        $lekkihill_doctor->add_cap( 'mamange_accounts' );
+        $lekkihill_doctor->add_cap( 'manage_patient_report' );
+
+        //add nurses
+		add_role(
+			'lekki_hill_nurses',
+			__( 'LekkiHill Nurse' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekkihill_nurse = get_role( "lekki_hill_nurses" );
+        $lekkihill_nurse->add_cap( 'manage_patient' );
+        $lekkihill_nurse->add_cap( 'manage_medication' );
+        $lekkihill_nurse->add_cap( 'manage_clinic' );
+        $lekkihill_nurse->add_cap( 'manage_inventory' );
+        $lekkihill_nurse->add_cap( 'mamange_accounts' );
+        $lekkihill_nurse->add_cap( 'manage_patient_report' );
 
         //add front desk
 		add_role(
@@ -658,6 +741,7 @@ class main {
         $lekki_hill_front_desk = get_role( "lekki_hill_front_desk" );
         $lekki_hill_front_desk->add_cap( 'manage_patient' );
         $lekki_hill_front_desk->add_cap( 'manage_clinic' );
+        $lekki_hill_front_desk->add_cap( 'manage_visitors' );
 
         //add accounts
 		add_role(
@@ -690,6 +774,8 @@ class main {
 		$administrator		= get_role('administrator');
         $administrator->add_cap( 'manage_patient' );
         $administrator->add_cap( 'manage_clinic' );
+        $administrator->add_cap( 'manage_visitors' );
+        $administrator->add_cap( 'manage_medication' );
         $administrator->add_cap( 'manage_inventory' );
         $administrator->add_cap( 'mamange_accounts' );
         $administrator->add_cap( 'manage_settings' );
@@ -703,39 +789,9 @@ class main {
         self::remove_cap();
         self::remove_role();
 
-        $users                  = new users;
-        $inventory              = new inventory;
-        $inventory_used         = new inventory_used;
-        $inventory_count        = new inventory_count;
-        $inventory_category     = new inventory_category;
-        $patient                = new patient;
-        $billing                = new billing;
-        $billing_component      = new billing_component;
-        $invoice                = new invoice;
-        $appointments           = new appointments;
-        $appointments_history   = new appointments_history;
-        $vitals                 = new vitals;
-        $clinic_post_op         = new clinic_post_op;
-        $clinic_fluid_balance   = new clinic_fluid_balance;
-        $clinic_continuation_sheet  = new clinic_continuation_sheet;
-        $clinic_medication      = new clinic_medication;
+        $users  = new users;
 
         $users->clear_table();
-        // $inventory->delete_table();
-        // $inventory_used->delete_table();
-        // $inventory_count->delete_table();
-        // $inventory_category->delete_table();
-        // $patient->delete_table();
-        // $billing->delete_table();
-        // $billing_component->delete_table();
-        // $invoice->delete_table();
-        // $appointments->delete_table();
-        // $appointments_history->delete_table();
-        // $vitals->delete_table();
-        // $clinic_post_op->delete_table();
-        $clinic_fluid_balance->delete_table();
-        // $clinic_continuation_sheet->delete_table();
-        $clinic_medication->delete_table();
     }
 
     public static function lh_uninstall() {
@@ -744,6 +800,7 @@ class main {
         $inventory_count    = new inventory_count;
         $inventory_category = new inventory_category;
         $patient                = new patient;
+        $visitors               = new visitors;
         $billing                = new billing;
         $billing_component      = new billing_component;
         $invoice                = new invoice;
@@ -754,12 +811,14 @@ class main {
         $clinic_fluid_balance   = new clinic_fluid_balance;
         $clinic_continuation_sheet = new clinic_continuation_sheet;
         $clinic_medication      = new clinic_medication;
+        $clinic_doctors_report  = new clinic_doctors_report;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
         $inventory_count->delete_table();
         $inventory_category->delete_table();
         $patient->delete_table();
+        $visitors->delete_table();
         $billing->delete_table();
         $billing_component->delete_table();
         $invoice->delete_table();
@@ -770,6 +829,7 @@ class main {
         $clinic_fluid_balance->delete_table();
         $clinic_continuation_sheet->delete_table();
         $clinic_medication->delete_table();
+        $clinic_doctors_report->delete_table();
     }
 
     // Remove the plugin-specific custom capability
@@ -778,6 +838,9 @@ class main {
         foreach ($GLOBALS['wp_roles']->role_objects as $key => $role) {
             if (isset($roles[$key]) && $role->has_cap('manage_patient')) {
                 $role->remove_cap('manage_patient');
+            }
+            if (isset($roles[$key]) && $role->has_cap('manage_medication')) {
+                $role->remove_cap('manage_medication');
             }
             if (isset($roles[$key]) && $role->has_cap('manage_patient_report')) {
                 $role->remove_cap('manage_patient_report');
@@ -814,6 +877,9 @@ class main {
 		if ( get_role('lekki_hill_admin') ){
 			remove_role( 'lekki_hill_admin' );
 		}
+		if ( get_role('lekki_hill_nurses') ){
+			remove_role( 'lekki_hill_nurses' );
+		}
     }
     
 	//external scripts and CSS
@@ -824,9 +890,11 @@ class main {
 		wp_enqueue_style( 'load-datatables-css', 'https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css' );
         wp_enqueue_script( 'load-datatables-js', 'https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js' );
         wp_enqueue_script( 'editable-select-js', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.js' );
-		wp_enqueue_style( 'editable-select-css', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.css' );
+        wp_enqueue_style( 'editable-select-css', 'https://rawgit.com/indrimuska/jquery-editable-select/master/dist/jquery-editable-select.min.css' );
         
-		wp_enqueue_style( 'load-main-css', plugins_url( 'css/main.css' , __FILE__ ) );
+        wp_enqueue_script( 'bootstrap-design-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js' );
+        wp_enqueue_style( 'bootstrap-design-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css' );
+        
 		wp_enqueue_style( 'load-datepicker-css', plugins_url( 'css/jquery.datetimepicker.css' , __FILE__ ) );
         wp_enqueue_script( 'load-datepicker-js', plugins_url( 'js/jquery.datetimepicker.js' , __FILE__ ));
         wp_enqueue_script('suggest');

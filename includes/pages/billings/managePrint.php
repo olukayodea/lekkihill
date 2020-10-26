@@ -30,7 +30,7 @@
         <td class="column-columnname"><?php echo invoice::invoiceNumber( $list[$i]['ref'] ); ?></td>
         <td class="column-columnname"><?php echo patient::getSingle( $list[$i]['patient_id'] )." ".patient::getSingle( $list[$i]['patient_id'], "first_name" ); ?></td>
         <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
-        <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
+        <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['due'], 2 ); ?></td>
         <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
         <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
         <td class="column-columnname"><?php echo $list[$i]['modify_time']; ?></td>

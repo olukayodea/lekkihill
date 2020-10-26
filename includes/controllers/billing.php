@@ -142,7 +142,7 @@ class billing extends database {
             $row_list[] = invoice::invoiceNumber( $row['ref'] );
             $row_list[] = patient::getSingle( $row['patient_id'] )." ".patient::getSingle( $row['patient_id'], "first_name" );
             $row_list[] = "&#8358; ".number_format( $row['amount'], 2 );
-            $row_list[] = "&#8358; ".number_format( $row['amount'], 2 );
+            $row_list[] = "&#8358; ".number_format( $row['due'], 2 );
             $row_list[] = $row['status'];
             $row_list[] = $row['create_time'];
             $row_list[] = $row['modify_time'];
@@ -572,8 +572,8 @@ class billing extends database {
             $tag = "`patient_id` = (SELECT `ref` FROM `wp_lekkihill_patient` WHERE `email` = '".$email."' ) AND ";
         }
 
-        self::$balance = self::query("SELECT SUM(`due`) FROM `wp_lekkihill_invoice` WHERE ". $tag ."`status` = 'UN-PAID'", false, "getCol");
-        self::$list_invoice = self::query("SELECT * FROM `wp_lekkihill_invoice` WHERE ". $tag ."`status` = 'UN-PAID'", false, "list");
+        self::$balance = self::query("SELECT SUM(`due`) FROM `wp_lekkihill_invoice` WHERE ". $tag ."`status` != 'PAID'", false, "getCol");
+        self::$list_invoice = self::query("SELECT * FROM `wp_lekkihill_invoice` WHERE ". $tag ."`status` != 'PAID'", false, "list");
     }
 
     public static function report() {
@@ -582,6 +582,10 @@ class billing extends database {
 
     public static function create($array) {
         return self::insert(table_name_prefix."billing", $array);
+    }
+
+    static function modifyOneBill($tag, $value, $id, $ref="ref") {
+        return self::updateOne(table_name_prefix."billing", $tag, $value, $id, $ref);
     }
 
     public static function listOne($id) {

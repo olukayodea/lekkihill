@@ -2,10 +2,14 @@
 class settings extends database {
     public static $return = array();
     public static $userData = array();
+    public static $list = array();
     public static $consultationFee_cost;
     public static $consultationFee_component_id;
     public static $registrationFee_cost;
     public static $registrationFee_component_id;
+    public static $lowInventoryCount;
+    public static $medicationCategory;
+    public static $alertGroup;
     public static $message;
     public static $error_message;
     public static $successResponse = array("status" => 200, "message" => "OK");
@@ -38,6 +42,7 @@ class settings extends database {
         }
         self::getSettings();
         billing::list_component();
+        self::$list = inventory_category::getSortedList("ACTIVE", "status");
 
         include_once(LH_PLUGIN_DIR."includes/pages/settings/manage.php");
     }
@@ -59,6 +64,8 @@ class settings extends database {
         self::$return['data']['consultationFee_component_id'] = self::$consultationFee_component_id;
         self::$return['data']['registrationFee_cost'] = self::$registrationFee_cost;
         self::$return['data']['registrationFee_component_id'] = self::$registrationFee_component_id;
+        self::$return['data']['lowInventoryCount'] = self::$lowInventoryCount;
+        self::$return['data']['alertGroup'] = self::$alertGroup;
 
         return self::$return;
     }
@@ -68,6 +75,9 @@ class settings extends database {
         self::$consultationFee_component_id = get_option("lh-consultationFee-component-id");
         self::$registrationFee_cost = get_option("lh-registrationFee-cost");
         self::$registrationFee_component_id = get_option("lh-registrationFee-component-id");
+        self::$medicationCategory = get_option("lh-medicationCategory");
+        self::$lowInventoryCount = get_option("lh-lowInventoryCount");
+        self::$alertGroup = get_option("lh-alertGroup");
     }
 
     private function setSettings($field, $value) {

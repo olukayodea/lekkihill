@@ -4,6 +4,7 @@ class billing_component extends billing {
         $replace = array();
         
         $replace[] = "title";
+        $replace[] = "description";
         $replace[] = "cost";
         $replace[] = "last_modified_by";
         $replace[] = "status";
@@ -67,6 +68,7 @@ class billing_component extends billing {
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."billing_component` (
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `title` VARCHAR(50) NOT NULL,
+            `description` TEXT NULL,
             `cost` DOUBLE NOT NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
             `created_by` INT NOT NULL, 

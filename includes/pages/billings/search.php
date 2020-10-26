@@ -63,7 +63,11 @@ $url = self::$url; ?>
     <div id="col-right">
       <div class="col-wrap">
         <h2><?php echo $tag; ?></h2>
-        <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing&PrintInvoice'.$url); ?>','_blank')"><i class="fas fa-print"></i> Print</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing&DownloadInvoice'.$url); ?>','_blank')"><i class="fas fa-download"></i> Download</button>
+        <?php if (count($list) > 0) { ?>
+          <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing&PrintInvoice'.$url); ?>','_blank')"><i class="fas fa-print"></i> Print</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing&DownloadInvoice'.$url); ?>','_blank')"><i class="fas fa-download"></i> Download</button>
+        <?php } ?>
+        <?php for ($i = 0;  $i < count($list); $i++) { ?>
+        <?php } ?>
         <table class="widefat striped fixed" id="datatable_list">
           <thead>
             <tr>
@@ -86,7 +90,7 @@ $url = self::$url; ?>
               <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $list[$i]['ref'] ); ?></a></td>
               <td class="column-columnname"><?php echo patient::getSingle( $list[$i]['patient_id'] )." ".patient::getSingle( $list[$i]['patient_id'], "first_name" ); ?></td>
               <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
-              <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
+              <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['due'], 2 ); ?></td>
               <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['modify_time']; ?></td>

@@ -17,7 +17,7 @@ define( 'LH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define(  "table_name_prefix", $wpdb->prefix."lekkihill_" );
 if (defined('WP_CONTENT_DIR') && !defined('WP_INCLUDE_DIR')){
     define('WP_INCLUDE_DIR', str_replace('wp-content', 'wp-includes', WP_CONTENT_DIR));
- }
+}
 //common functions and utilities
 require_once LH_PLUGIN_DIR . 'includes/controllers/common.php';
 $common = new common;
@@ -33,6 +33,7 @@ database::connect();
 require_once LH_PLUGIN_DIR . 'includes/controllers/settings.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/users.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/patient.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/visitors.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/invoice.php';
@@ -43,6 +44,7 @@ require_once LH_PLUGIN_DIR . 'includes/controllers/vitals.php';
 $settings               = new settings;
 $users                  = new users;
 $patient                = new patient;
+$visitors               = new visitors;
 $clinic                 = new clinic;
 $billing                = new billing;
 $invoice                = new invoice;

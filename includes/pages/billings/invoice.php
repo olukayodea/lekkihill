@@ -28,6 +28,7 @@ $data = self::$viewData; ?>
                     <?php for ($i = 0; $i < count(billing::$list_component); $i++) { ?>
                         <option value="<?php echo billing::$list_component[$i]['ref']."_".billing::$list_component[$i]['cost']; ?>"><?php echo billing::$list_component[$i]['title']; ?></option>
                     <?php } ?>
+                    <option value="0">Others</option>
                 </select>
                 <input type="hidden" name="billing_component[0][id]" id="comp_id_0" value="" />
                 <label for="comp_qty_0">Quantity</label>
@@ -53,6 +54,9 @@ $data = self::$viewData; ?>
     <div id="col-right">
       <div class="col-wrap">
         <h2>All Pending Invoices</h2>
+        <?php for ($i = 0;  $i < count($list); $i++) { ?>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing-invoice&PrintInvoice'.$url); ?>','_blank')"><i class="fas fa-print"></i> Print</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing-invoice&DownloadInvoice'.$url); ?>','_blank')"><i class="fas fa-download"></i> Download</button>
+        <?php } ?>
         <table class="widefat striped fixed" id="datatable_list">
           <thead>
             <tr>
@@ -75,7 +79,7 @@ $data = self::$viewData; ?>
               <td class="column-columnname"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $list[$i]['ref'] ); ?></a></td>
               <td class="column-columnname"><?php echo patient::getSingle( $list[$i]['patient_id'] )." ".patient::getSingle( $list[$i]['patient_id'], "first_name" ); ?></td>
               <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
-              <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['amount'], 2 ); ?></td>
+              <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['due'], 2 ); ?></td>
               <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['modify_time']; ?></td>

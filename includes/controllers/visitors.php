@@ -1,10 +1,10 @@
 <?php
-class patient extends database {
+class visitors extends database {
     public static $return = array();
     public static $userData = array();
     public static $list = array();
     public static $viewData = array();
-    public static $patientList = array();
+    public static $visitorsList = array();
     public static $message;
     public static $error_message;
     public static $successResponse = array("status" => 200, "message" => "OK");
@@ -23,7 +23,6 @@ class patient extends database {
             }
         } else if (isset($_POST['submit'])) {
             unset($_POST['submit']);
-            $_POST['p_type'] = "regular";
             $add = self::create($_POST, get_current_user_id());
 
             if ($add) {
@@ -40,15 +39,21 @@ class patient extends database {
             self::$error_message = $_REQUEST['error'];
         }
 
-		include_once(LH_PLUGIN_DIR."includes/pages/patient/manage.php");
+		include_once(LH_PLUGIN_DIR."includes/pages/visitors/manage.php");
     }
 
-    public static function getPatientList() {
-        self::$patientList = self::getList();
-    }
+    public static function getvisitorsList($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
 
-    public static function patienrNumber($id) {
-        return "LH".(100000+$id);
+        self::$return = self::$successResponse;
+        self::$return['data'] = self::getList();
     }
 
     public static function read_api_component($request) {
@@ -60,7 +65,7 @@ class patient extends database {
         } else {
             return $auth;
         }
-        $id = $request['patient_id'];
+        $id = $request['visitors_id'];
         if (intval($id) > 0) {
             self::read_component($id);
             self::$return = self::$successResponse;
@@ -76,7 +81,7 @@ class patient extends database {
         self::$viewData = self::listOne($id);
     }
 
-    public static function get_patient_suggest_api($request) {
+    public static function get_visitors_suggest_api($request) {
         $auth = self::validateSession($request);
         if ($auth['status'] == 200) {
             unset($auth['status']);
@@ -89,7 +94,7 @@ class patient extends database {
         $return = array();
         $search = $request['term'];
 
-        $data = self::query("SELECT * FROM ".table_name_prefix."patient WHERE `last_name` LIKE '%".$search."%' OR `first_name` LIKE '%".$search."%' OR `phone_number` LIKE '%".$search."%' OR `email` LIKE '%".$search."%'", false, "list");
+        $data = self::query("SELECT * FROM ".table_name_prefix."visitors WHERE `last_name` LIKE '%".$search."%' OR `first_name` LIKE '%".$search."%' OR `phone_number` LIKE '%".$search."%' OR `email` LIKE '%".$search."%'", false, "list");
 
         for ($i = 0; $i < count($data); $i++) {
             $return[$i]['id'] = $data[$i]['ref'];
@@ -117,11 +122,9 @@ class patient extends database {
             self::$return = self::$BadReques;
             return self::$return;
         }
-        $parameters['p_type'] = "regular";
-
         $add = self::create($parameters, self::$userData['ID']);
         if ($add) {
-            self::$successResponse['additional_message'] = "Patient saved successfully";
+            self::$successResponse['additional_message'] = "visitors saved successfully";
             self::$return = self::$successResponse;
             self::$return['ID'] = $add;
         } else {
@@ -133,77 +136,42 @@ class patient extends database {
     }
 
     private static function create($array, $user) {
-        $replace[] = "last_name";
-        $replace[] = "first_name";
-        $replace[] = "age";
-        $replace[] = "sex";
-        $replace[] = "phone_number";
-        $id = self::replace(table_name_prefix."patient", $array, $replace);
-
-        if ($id) {
-            $consultationFee_cost = get_option("lh-consultationFee-cost");
-            $consultationFee_component_id = get_option("lh-consultationFee-component-id");
-            $registrationFee_cost = get_option("lh-registrationFee-cost");
-            $registrationFee_component_id = get_option("lh-registrationFee-component-id");
-            $data['patient_id'] = $id;
-            $data['added_by'] = $user;
-            $data['amount'] = $registrationFee_cost+$consultationFee_cost;
-
-            $data['billing_component'][0]['id'] = $consultationFee_component_id;
-            $data['billing_component'][0]['cost'] = $consultationFee_cost;
-            $data['billing_component'][0]['quantity'] = 1;
-            $data['billing_component'][0]['description'] = NULL;
-            $data['billing_component'][1]['id'] = $registrationFee_component_id;
-            $data['billing_component'][1]['cost'] = $registrationFee_cost;
-            $data['billing_component'][1]['quantity'] = 1;
-            $data['billing_component'][1]['description'] = NULL;
-
-            invoice::create($data);
-        }
-
-        return $id;
-    }
-
-    private function edit($array, $where) {
-        return self::update(table_name_prefix."patient", $array, $where);
+        $array['added_by'] = $user;
+        return self::insert(table_name_prefix."visitors", $array);
     }
 
     static function modifyOne($tag, $value, $id, $ref="ref") {
-        return self::updateOne(table_name_prefix."patient", $tag, $value, $id, $ref);
+        return self::updateOne(table_name_prefix."visitors", $tag, $value, $id, $ref);
     }
     
     static function getList($start=false, $limit=false, $order="last_name", $dir="ASC", $type="list") {
-        return self::lists(table_name_prefix."patient", $start, $limit, $order, $dir, false, $type);
+        return self::lists(table_name_prefix."visitors", $start, $limit, $order, $dir, false, $type);
     }
 
     static function getSingle($name, $tag="last_name", $ref="ref") {
-        return self::getOneField(table_name_prefix."patient", $name, $ref, $tag);
+        return self::getOneField(table_name_prefix."visitors", $name, $ref, $tag);
     }
 
     static function listOne($id) {
-        return self::getOne(table_name_prefix."patient", $id, "ref");
+        return self::getOne(table_name_prefix."visitors", $id, "ref");
     }
 
     static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
-        return self::sortAll(table_name_prefix."patient", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
+        return self::sortAll(table_name_prefix."visitors", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
     public function initialize_table() {
         //create database
-        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."patient` (
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."visitors` (
             `ref` INT NOT NULL AUTO_INCREMENT,
             `last_name` VARCHAR(50) NOT NULL,
             `first_name` VARCHAR(50) NOT NULL,
-            `age` date NOT NULL,
-            `sex` VARCHAR(6) NOT NULL,
             `phone_number` VARCHAR(15) NOT NULL,
             `email` VARCHAR(255) NULL,
             `address` VARCHAR(255) NULL,
-            `next_of_Kin` VARCHAR(255) NULL,
-            `next_of_contact` VARCHAR(255) NULL,
-            `next_of_address` VARCHAR(255) NULL,
-            `p_type` VARCHAR(20) NOT NULL,
-            `allergies` TEXT NULL,
+            `whom_to_see` VARCHAR(255) NULL,
+            `resason` TEXT NULL,
+            `added_by` INT NOT NULL,
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`),
@@ -215,18 +183,16 @@ class patient extends database {
 
     public function clear_table() {
         //clear database
-        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."patient`";
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."visitors`";
 
         $this->query($query);
     }
 
     public function delete_table() {
         //clear database
-        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."patient`";
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."visitors`";
 
         $this->query($query);
     }
 }
-require_once LH_PLUGIN_DIR . 'includes/controllers/patient_medication.php';
-$patient_medication = new patient_medication;
 ?>

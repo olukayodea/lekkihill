@@ -6,6 +6,7 @@ class clinic extends database {
     public static $userData = array();
     public static $patientData = array();
     public static $list = array();
+    public static $inventoryList = array();
     public static $viewData = array();
     public static $appointmentData = array();
     public static $vitalsData = array();
@@ -51,11 +52,15 @@ class clinic extends database {
                 billing::get_due_invoice(self::$appointmentData['patient_id'], false);
             }
         }
-        if (isset($_REQUEST['patient'])) {
-            self::$viewData = patient::listOne($id);
-            billing::get_due_invoice($id, false);
-        }
-        if (isset($_POST['submit_vitals'])) {
+        if (isset($_POST['payInvoice'])) {
+            unset($_POST['payInvoice']);
+            if (invoice::payInvoice($_POST)){
+                self::$message = "Payment Successful";
+                self::$viewData = array();
+            } else {
+                self::$error_message = "there was an error performing this action";
+            }
+        } else if (isset($_POST['submit_vitals'])) {
             unset($_POST['submit_vitals']);
             $_POST['patient_id'] = $id;
             $_POST['added_by'] = get_current_user_id();
@@ -66,10 +71,32 @@ class clinic extends database {
             } else {
                 self::$error_message = "there was an error performing this action";
             }
+        } else if (isset($_POST['patient_id'])) {
+            unset($_POST['postPayment']);
+            $_POST['added_by'] = get_current_user_id();
+            $_POST['due_date'] = date("Y-m-d");
+
+            $_POST['billing_component'][] = array("id"=>$_POST['id'],"cost"=>$_POST['cost'],"quantity"=>$_POST['quantity'],"description"=>$_POST['description']);
+
+            if (invoice::postPayment($_POST)) {
+                self::$message = "Payment Successful";
+                self::$viewData = array();
+            } else {
+                self::$error_message = "there was an error performing this action";
+            }
+            $id = $_POST['patient_id'];
+        }
+
+        if (isset($_REQUEST['patient'])) {
+            self::$viewData = patient::listOne($id);
+            billing::get_due_invoice($id, false);
         }
 
         self::get_vital($id);
         self::recent_vital($id);
+
+        billing::list_component();
+        self::$inventoryList = inventory::getSortedList(get_option("lh-medicationCategory"), "category_id", "status", "ACTIVE");
         self::$vitalsData['respiratory'] = "";
         self::$vitalsData['temprature'] = "";
         self::$vitalsData['pulse'] = "";
@@ -101,12 +128,21 @@ class clinic extends database {
         return clinic_continuation_sheet::create($array);
     }
 
+    private static function add_notes($array) {
+        return clinic_doctors_report::create($array);
+    }
+
     private static function add_fluid_balanceion($array) {
         return clinic_fluid_balance::create($array);
     }
 
     private static function get_vital($id) {
         self::$allVitalsData = vitals::getSortedList($id, "patient_id");
+        return true;
+    }
+
+    private static function get_note($id) {
+        self::$allVitalsData = clinic_doctors_report::getSortedList($id, "patient_id");
         return true;
     }
 
@@ -153,6 +189,33 @@ class clinic extends database {
     private static function recent_fluid_balance ($id) {
         self::$patientData['fluid_balance'] = self::$vitalsData = clinic_fluid_balance::getSortedList($id, "patient_id", false, false, false, false, "ref", "DESC", "AND", false, 1)[0];
         return true;
+    }
+
+    public static function api_add_note($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+        $parameters['added_by'] = self::$userData['ID'];
+
+        $add = self::add_notes($parameters);
+        if ($add) {
+            self::$return = self::$successResponse;
+        } else {
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
     }
 
     public static function api_add_continuation($request) {
@@ -392,6 +455,32 @@ class clinic extends database {
             self::$return = self::$BadReques;
         }
 
+        return self::$return;
+    }
+
+    public static function api_get_notes($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $id = $request['patient_id'];
+        if (intval($id) > 0) {
+            if (self::get_note($id)) {
+                self::$return = self::$successResponse;
+                self::$return['data'] = vitals::formatResult( self::$allVitalsData );
+            } else {
+                self::$BadReques['additional_message'] = self::$error_message;
+                self::$return = self::$BadReques;
+            }
+        } else {
+            self::$BadReques['additional_message'] = "Missing Patient ID";
+            self::$return = self::$BadReques;
+        }
         return self::$return;
     }
 
@@ -903,8 +992,10 @@ require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_post_op.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_fluid_balance.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_continuation_sheet.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_medication.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_doctors_report.php';
 $clinic_post_op = new clinic_post_op;
 $clinic_fluid_balance = new clinic_fluid_balance;
 $clinic_continuation_sheet = new clinic_continuation_sheet;
 $clinic_medication =  new clinic_medication;
+$clinic_doctors_report = new clinic_doctors_report;
 ?>

@@ -37,12 +37,102 @@ class invoice extends billing {
         return self::$invoice;
     }
 
+    public static function postPayment( $array ) {
+        $add = self::create($array);
+        $data['data'][] = array("ref" => $add, "amount" => $array['billing_component'][0]['quantity']*$array['billing_component'][0]['cost']);
+
+        return self::payInvoice($data);
+    }
+
     public static function invoiceNumber($id) {
         return "INV".(10000+$id);
     }
 
+    public static function api_pay_invoice($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+
+        $add = self::payInvoice($parameters);
+        if ($add) {
+            self::$return = self::$successResponse;
+        } else {
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
+    }
+
+
+    public static function api_post_payment($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+
+        $data['patient_id'] = $parameters['patient_id'];
+        $data['due_date'] = date("Y-m-d");
+        $data['added_by'] = self::$userData['ID'];
+
+        $data['billing_component'][] = array("id"=>$parameters['component_id'],"cost"=>$parameters['cost'],"quantity"=>$parameters['quantity'],"description"=>$parameters['description']);
+
+        $add = self::postPayment($data);
+        if ($add) {
+            self::$return = self::$successResponse;
+        } else {
+            self::$return = self::$BadReques;
+        }
+        return self::$return;
+    }
+
+    public static function payInvoice($data) {
+        foreach($data['data'] as $details) {
+            if (self::query("UPDATE ".table_name_prefix."invoice SET `due` = (`due`-".$details['amount'].") WHERE `ref` = ".$details['ref'])) {
+                self::modifyOne("status", "PARTIALLY-PAID", $details['ref']);
+                self::modifyOneBill("status", "PARTIALLY-PAID", $details['ref'], "invoice_id");
+
+                $getOne = self::listOne($details['ref']);
+
+                if ($getOne['due'] <= 0) {
+                    self::modifyOne("status", "PAID", $details['ref']);
+                    self::modifyOneBill("status", "PAID", $details['ref'], "invoice_id");
+                }
+            }
+        }
+
+        //send reciept
+
+        return true;
+    }
+
     public static function getPending() {
         return self::query("SELECT * FROM ".table_name_prefix."invoice WHERE `status` != 'PAID'", false, "list");
+    }
+
+    static function modifyOne($tag, $value, $id, $ref="ref") {
+        return self::updateOne(table_name_prefix."invoice", $tag, $value, $id, $ref);
     }
 
     public static function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {

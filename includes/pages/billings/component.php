@@ -27,6 +27,10 @@ $data = self::$viewData; ?>
               <label for="cost"> Item Cost</label>
               <input type="number" name="cost" id="cost" value="<?php echo $data['cost']; ?>" step='0.01' placeholder='&#8358; 0.00' />
             </div>
+            <div class="form-field form-required term-description-wrap">
+              <label for="description"> Description</label>
+              <textarea name="description" id="description"><?php echo $data['description']; ?></textarea>
+            </div>
               <?php if (isset($_REQUEST['id'])) { ?>
                 <input type="hidden" name="ref" id="ref" value="<?php echo $data['ref']; ?>" />
               <?php } ?>
@@ -56,6 +60,7 @@ $data = self::$viewData; ?>
               <th class="manage-column column-cb check-column"></th>
               <th class="manage-column column-columnname" scope="col">Title</th>
               <th class="manage-column column-columnname" scope="col">Cost</th>
+              <th class="manage-column column-columnname" scope="col">Desc.</th>
               <th class="manage-column column-columnname" scope="col">Status</th>
               <th class="manage-column column-columnname" scope="col">Created By</th>
               <th class="manage-column column-columnname" scope="col">Last Modified</th>
@@ -70,6 +75,7 @@ $data = self::$viewData; ?>
               <th class="check-column" scope="row"><?php echo $count; ?></th>
               <td class="column-columnname"><?php echo $list[$i]['title']; ?></td>
               <td class="column-columnname"><?php echo "&#8358; ".number_format( $list[$i]['cost'], 2 ); ?></td>
+              <td class="column-columnname"><?php echo $list[$i]['description']; ?></td>
               <td class="column-columnname"><?php echo $list[$i]['status']; ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
               <td class="column-columnname"><?php echo self::getuser( $list[$i]['last_modified_by'] ); ?></td>
@@ -85,6 +91,7 @@ $data = self::$viewData; ?>
               <th class="manage-column column-cb check-column"></th>
               <th class="manage-column column-columnname" scope="col">Title</th>
               <th class="manage-column column-columnname" scope="col">Cost</th>
+              <th class="manage-column column-columnname" scope="col">Desc.</th>
               <th class="manage-column column-columnname" scope="col">Status</th>
               <th class="manage-column column-columnname" scope="col">Created By</th>
               <th class="manage-column column-columnname" scope="col">Last Modified</th>

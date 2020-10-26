@@ -1,12 +1,16 @@
 <?php
   $list = appointments::$list;
+  $inventoryList = self::$inventoryList;
   $data = self::$viewData;
   $appointmentData = self::$appointmentData;
   $vitalsData = self::$vitalsData;
   $allVitalsData = self::$allVitalsData;
   $balance = billing::$balance;
+  $listInvoice = billing::$list_invoice;
   
-  $managePatient = false;
+  $managePatient = true;
+
+  $rowCount = 0;
   
   if ( mktime(0, 0, 0, date("m"), date("d"), date("Y")) < strtotime( $vitalsData['create_time'], time() ) ) {
     $managePatient = true;
@@ -129,15 +133,16 @@
             <?php } ?>
             <?php if ((isset($_REQUEST['appointment'])) || (isset($_REQUEST['patient']))) { ?>
             <?php if ($balance > 0) { ?>
-              <button type="button" id="add_button_0" data-id="0" class="button button-primary" onclick=""><i class="fas fa-file-invoice fa-lg"></i>&nbsp;Pending Invoice</button>
+              <button type="button" id="add_button_0" data-id="0" class="button button-primary" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-file-invoice fa-lg"></i>&nbsp;Pending Invoice</button>&nbsp;&nbsp;
             <?php } ?>
             <?php if ($balance+get_option("lh-consultationFee-cost") > 0) { ?>
-              <button type="button" id="add_button_1" data-id="0" class="button button-primary"><i class="fas fa-money-check-alt fa-lg"></i>&nbsp;Post Payment</button>
+              <button type="button" id="add_button_1" data-id="0" class="button button-primary" data-toggle="modal" data-target="#poatPayment"><i class="fas fa-money-check-alt fa-lg"></i>&nbsp;Post Payment</button>&nbsp;&nbsp;
             <?php } ?>
-            <button type="button" id="add_button_2" data-id="0" class="button button-primary"><i class="fas fa-thermometer-quarter fa-lg"></i>&nbsp;Record Vitals</button>
+            <button type="button" id="add_button_5" data-id="0" class="button button-primary"><i class="fas fa-prescription"></i>&nbsp;Medications</button>&nbsp;&nbsp;
+            <button type="button" id="add_button_2" data-id="0" class="button button-primary"><i class="fas fa-thermometer-quarter fa-lg"></i>&nbsp;Record Vitals</button>&nbsp;&nbsp;
             <?php if ($managePatient) { ?>
-            <button type="button" id="add_button_3" data-id="0" class="button button-primary"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Manage Patient</button>
-            <button type="button" id="add_button_4" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Close</button>
+            <button type="button" id="add_button_3" data-id="0" class="button button-primary"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Manage Patient</button>&nbsp;&nbsp;
+            <button type="button" id="add_button_4" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Close</button>&nbsp;&nbsp;
             <?php } else { ?>
             <div class="update-nag"><p><?php echo "You can not manage patient at the moment, patient's vitals has not been collected today"; ?></p></div><?php } ?>
             <?php } ?>
@@ -156,6 +161,7 @@
       <div class="col-wrap">
         <div class="form-wrap">
           <div class="col-wrap" id="control_buttons" style="display: none">
+            <button type="button" id="control_doctors_note" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Doctor's Notes</button>
             <button type="button" id="control_sm_bt" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Summary</button>
             <button type="button" id="control_cs_bt" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;Continuation Sheet</button>
             <button type="button" id="control_po_bt" data-id="0" class="button button-primary"><i class="fas fa-bed fa-lg"></i>&nbsp;Post Operative Note</button>
@@ -163,6 +169,31 @@
             <button type="button" id="control_mg_bt" data-id="0" class="button button-primary"><i class="fas fa-spa fa-lg"></i>&nbsp;Massage</button>
             <button type="button" id="control_fb_bt" data-id="0" class="button button-primary"><i class="fas fa-balance-scale-right fa-lg"></i>&nbsp;Fluid Balance</button>
             <button type="button" id="control_fo_bt" data-id="0" class="button button-primary"><i class="fab fa-wpforms fa-lg"></i>&nbsp;Forms</button>
+          </div>
+          <div class="col-wrap control_bt" id="control_doctors_note_div" style="display: none">
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print All</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download All</button>
+            <span id="sm_notice"></span>
+            <h2>Doctor's Note</h2>
+            <form id="form3" name="form3" method="post" onsubmit="doctorsNotes();return false">
+              <div class="form-field form-required term-doctors_note_data-wrap">
+                <label for="doctors_note_data">Note</label>
+                <textarea id="doctors_note_data" cols="85%" rows="15%"></textarea>
+              </div>
+              <div class="form-field form-required term-title-wrap">
+                <label for="product"> Recommended Mediacations/Products</label>
+                <select id="product" multiple >
+                  <option>Select</option>
+                  <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
+                    <option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+              <button type="submit" id="doctors_mote_button" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
+            </form>
+
+            <h2>Past Notes</h2>
+            <span id="doctors_notice"></span>
+            <div id="doctors_list"></div>
           </div>
           <div class="col-wrap control_bt" id="control_sm_bt_div" style="display: none">
             <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print All</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download All</button>
@@ -984,7 +1015,7 @@
           </div>
           <div class="col-wrap control_bt" id="appointment_div">
             <h2>Appointments Scheduled for Today</h2>
-            <table class='widefat striped fixed' id="datatable_list">
+            <table class='widefat striped fixed' id="appointment_list">
                 <thead>
                 <tr>
                     <th class="manage-column column-cb check-column"></th>
@@ -1028,16 +1059,112 @@
     </div>
   </div>
 </div>
-
+<!-- pending invoice modal --->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Pending Invoice</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <?php foreach ($listInvoice as $dueData) { ?>
+            <div class="form-group row">
+              <label for="staticEmail" class="col-sm-3 col-form-label"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $dueData['ref'] ); ?></a></label>
+              <label for="staticEmail" class="col-sm-3 col-form-label">&nbsp;Total: <?php echo "&#8358; ".number_format($dueData['amount'], 2); ?></label>
+              <label for="staticEmail" class="col-sm-2 col-form-label">Due</label>
+              <div class="col-sm-4">
+                <input type="hidden" name="patient_id" value="<?php echo $_REQUEST['id']; ?>">
+                <input type="hidden" name="data[<?php echo $rowCount; ?>][ref]" value="<?php echo $dueData['ref']; ?>">
+                <input type="number" name="data[<?php echo $rowCount; ?>][amount]" required max="<?php echo $dueData['due']; ?>" class="form-control-plaintext" id="staticEmail" value="<?php echo $dueData['due']; ?>">
+              </div>
+            </div>
+          <?php $rowCount++;} ?>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" name="payInvoice" class="btn btn-primary">Pay Invoice</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- post payment invoice modal --->
+<div class="modal fade" id="poatPayment" tabindex="-1" role="dialog" aria-labelledby="poatPaymentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="poatPaymentLabel">Post Payment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label for="staticEmail" class="col-sm-3 col-form-label">Payment Type</label>
+            <div class="col-sm-9">
+              <select id="component" name="component" data-id="0" required onchange="getComponent(0)">
+                <option value="">Select One</option>
+                <?php for ($i = 0; $i < count(billing::$list_component); $i++) { ?>
+                  <option value="<?php echo billing::$list_component[$i]['ref']."_".billing::$list_component[$i]['cost']; ?>"><?php echo billing::$list_component[$i]['title']; ?></option>
+                <?php } ?>
+                <option value="0">Others</option>
+                </select>
+                <input type="hidden" name="id" id="comp_id" value="" />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="comp_qty_0" class="col-sm-3 col-form-label">Quantity</label>
+            <div class="col-sm-9">
+              <input type="number" class="form-control-plaintext" name="quantity" id="comp_qty" value="1" placeholder="Quantity" required />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="comp_qty_0" class="col-sm-3 col-form-label">Cost</label>
+            <div class="col-sm-9">
+              <input type="number" class="form-control-plaintext" name="cost" id="comp_cost" step='0.01' value="" placeholder="&#8358; 0.00" required />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="staticEmail" class="col-sm-3 col-form-label">Description (Optional)</label>
+            <div class="col-sm-9">
+              <textarea name="description" id="comp_desc" class="" placeholder="Description (Optional)"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="text" name="patient_id" value="<?php echo $_REQUEST['id']; ?>">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" name="postPayment" class="btn btn-primary">Post Payment</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 <script>
+function getComponent( ) {
+    var data = jQuery("#component" ).val();
+    var result = data.split("_");
+    jQuery("#comp_id").val( result[0]);
+    jQuery("#comp_cost").val( result[1]);
+}
+  var inventory = [];
 jQuery(function ($) {
     $('#procedure').select2();
+    $('#product').select2({
+      placeholder: "Prescribe Medication",
+      allowClear: true
+    });
     $('#next_appointment').datetimepicker({
         minDate:'<?php echo date("Y-m-d"); ?>',
         minTime:'9:00',
         maxTime:'16:30'
     });
-    $('#datatable_list').DataTable();
+    $('#datatable_list, #appointment_list').DataTable();
     $('#editable-select').editableSelect();
     
     var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
@@ -1054,7 +1181,24 @@ jQuery(function ($) {
             }
     });
 
+    $( "#control_doctors_note" ).click(function() {
+      $('#control_doctors_note_div').show();
+      $('#control_sm_bt_div').hide();
+      $('#control_cs_bt_div').hide();
+      $('#control_po_bt_div').hide();
+      $('#control_m_bt_div').hide();
+      $('#control_mg_bt_div').hide();
+      $('#control_fb_bt_div').hide();
+      $('#control_fo_bt_div').hide();
+
+      $('#updatedMessage').hide();
+      $('#errorMessage').hide();
+
+      doctorsNotesRecords();
+    });
+
     $( "#control_sm_bt" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').show();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -1068,6 +1212,7 @@ jQuery(function ($) {
     });
 
     $( "#control_cs_bt, #control_cs_bt_l" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').show();
       $('#control_po_bt_div').hide();
@@ -1083,6 +1228,7 @@ jQuery(function ($) {
     });
 
     $( "#control_po_bt, #control_po_bt_l" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').show();
@@ -1098,6 +1244,7 @@ jQuery(function ($) {
     });
     
     $( "#control_m_bt, #control_m_bt_l" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -1113,6 +1260,7 @@ jQuery(function ($) {
     });
 
     $( "#control_mg_bt, #control_mg_bt_l" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -1128,6 +1276,7 @@ jQuery(function ($) {
     });
 
     $( "#control_fb_bt, #control_fb_bt_l" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -1143,6 +1292,7 @@ jQuery(function ($) {
     });
 
     $( "#control_fo_bt" ).click(function() {
+      $('#control_doctors_note_div').hide();
       $('#control_sm_bt_div').hide();
       $('#control_cs_bt_div').hide();
       $('#control_po_bt_div').hide();
@@ -1306,6 +1456,79 @@ jQuery(function ($) {
     });
    
 } );
+
+function doctorsNotes() {
+  jQuery(function ($) {
+    var patient_id = $("#patient_id").val();
+    var report = $("#doctors_note_data").val();
+    var product = $("#product").val();
+
+    console.log(product);
+    var sendInfo = {
+      patient_id: patient_id,
+      report: report,
+      recommended: product
+    };
+    console.log(sendInfo);
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$userToken; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': api_key,
+        'api-token': api_token
+      }
+    });
+
+    var url = '<?php echo get_rest_url()."api/patient/notes"; ?>';
+
+    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      if (data.status == "200") {
+        $('#updatedMessage').show();
+        $('#updatedMessage').html('<p>Record Added!</p>');
+        $("#doctors_note_data").val("");
+        $("#doctors_note_data").focus();
+
+        doctorsNotesRecords();
+      } else {
+        $('#errorMessage').show();
+        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      }
+    });
+  });
+}
+
+function doctorsNotesRecords() {
+  jQuery(function ($) {
+    $('#doctors_notice').html('loading data...');
+    var patient_id = document.getElementById('patient_id').value;
+    var se_ajax_url = '<?php echo get_rest_url().'api/patient/notes/'; ?>'+patient_id;
+
+    var api_key = Math.floor(Math.random() * 100001);
+    var user_token = '<?php echo self::$userToken; ?>';
+    var api_token = btoa(api_key+"_"+user_token)
+
+    jQuery.ajaxSetup({
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': api_key,
+            'api-token': api_token
+            }
+    });
+    jQuery.get( se_ajax_url, function( data ) {
+
+      $('#doctors_notice').html('');
+      $("#doctors_list").html('');
+      for (var key in data.data) {
+        $("#doctors_list").append("<br>"+data.data[key].report+'<br><strong>Recommendations</strong><br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
+      }
+    });
+
+  });
+}
 
 function continuationSheet() {
   jQuery(function ($) {
