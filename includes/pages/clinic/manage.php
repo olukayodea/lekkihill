@@ -138,7 +138,7 @@
             <?php if ($balance+get_option("lh-consultationFee-cost") > 0) { ?>
               <button type="button" id="add_button_1" data-id="0" class="button button-primary" data-toggle="modal" data-target="#poatPayment"><i class="fas fa-money-check-alt fa-lg"></i>&nbsp;Post Payment</button>&nbsp;&nbsp;
             <?php } ?>
-            <button type="button" id="add_button_5" data-id="0" class="button button-primary"><i class="fas fa-prescription"></i>&nbsp;Medications</button>&nbsp;&nbsp;
+            <button type="button" id="add_button_5" data-id="0" class="button button-primary" onclick="location='<?php echo admin_url('admin.php?page=lh-manage-medication&patient&id='.$data['ref']); ?>'"><i class="fas fa-prescription"></i>&nbsp;Medications</button>&nbsp;&nbsp;
             <button type="button" id="add_button_2" data-id="0" class="button button-primary"><i class="fas fa-thermometer-quarter fa-lg"></i>&nbsp;Record Vitals</button>&nbsp;&nbsp;
             <?php if ($managePatient) { ?>
             <button type="button" id="add_button_3" data-id="0" class="button button-primary"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Manage Patient</button>&nbsp;&nbsp;
@@ -177,16 +177,37 @@
             <form id="form3" name="form3" method="post" onsubmit="doctorsNotes();return false">
               <div class="form-field form-required term-doctors_note_data-wrap">
                 <label for="doctors_note_data">Note</label>
-                <textarea id="doctors_note_data" cols="85%" rows="15%"></textarea>
+                <textarea id="doctors_note_data" cols="85%" rows="15%" required></textarea>
               </div>
               <div class="form-field form-required term-title-wrap">
                 <label for="product"> Recommended Mediacations/Products</label>
-                <select id="product" multiple >
-                  <option>Select</option>
-                  <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
-                    <option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>
-                  <?php } ?>
-                </select>
+                <div class="form-field form-required term-age-wrap" id="div_0">
+                    <label for="component_0">Medication</label>
+                    <select id="component_0" name="medication[0][medication_id]" data-id="0" required>
+                        <option value="">Select One</option>
+                        <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
+                            <option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>
+                        <?php } ?>
+                    </select>
+                    <label for="comp_qty_0">Quantity</label>
+                    <input type="number" name="medication[0][quantity]" id="comp_qty_0" value="1" placeholder="Quantity" required />
+                    <label for="comp_dose_0">Dose</label>
+                    <input type="number" name="medication[0][dose]" id="comp_dose_0" value="" required placeholder='Dose' />
+                    <label for="comp_freq_0">Frequency</label>
+                    <select id="comp_freq_0" name="medication[0][frequency]" required >
+                        <option value="">Select One</option>
+                        <option value="Morning Afternoon Evening">Morning Afternoon Evening</option>
+                        <option value="Morning Evening">Morning Evening</option>
+                        <option value="Afternoon Evening">Afternoon Evening</option>
+                        <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Monthly">Monthly</option>
+                    </select>
+                    <label for="comp_notes_0">Notes (Optional)</label>
+                    <textarea name="medication[0][notes]" id="comp_notes_0" placeholder="Notes (Optional)"></textarea><br>
+                    <button type="button" id="add_button_0" data-id="0" class="button button-primary" onclick="add_button(0)"><i class="fas fa-plus-square fa-lg"></i></button>
+                </div>
+                <div id="other_content"></div>
               </div>
               <button type="submit" id="doctors_mote_button" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
             </form>
@@ -1137,7 +1158,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <input type="text" name="patient_id" value="<?php echo $_REQUEST['id']; ?>">
+          <input type="hidden" name="patient_id" value="<?php echo $_REQUEST['id']; ?>">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="submit" name="postPayment" class="btn btn-primary">Post Payment</button>
         </div>
@@ -1146,925 +1167,967 @@
   </div>
 </div>
 <script>
-function getComponent( ) {
-    var data = jQuery("#component" ).val();
-    var result = data.split("_");
-    jQuery("#comp_id").val( result[0]);
-    jQuery("#comp_cost").val( result[1]);
-}
-  var inventory = [];
-jQuery(function ($) {
-    $('#procedure').select2();
-    $('#product').select2({
-      placeholder: "Prescribe Medication",
-      allowClear: true
-    });
-    $('#next_appointment').datetimepicker({
-        minDate:'<?php echo date("Y-m-d"); ?>',
-        minTime:'9:00',
-        maxTime:'16:30'
-    });
-    $('#datatable_list, #appointment_list').DataTable();
-    $('#editable-select').editableSelect();
-    
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    $.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
-
-    $( "#control_doctors_note" ).click(function() {
-      $('#control_doctors_note_div').show();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-
-      doctorsNotesRecords();
-    });
-
-    $( "#control_sm_bt" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').show();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#control_cs_bt, #control_cs_bt_l" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').show();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#cs_notes').focus();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#control_po_bt, #control_po_bt_l" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').show();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#surgery').focus();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-    
-    $( "#control_m_bt, #control_m_bt_l" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').show();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#m_route').focus();
-      
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#control_mg_bt, #control_mg_bt_l" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').show();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').hide();
-
-      $('#surgery').focus();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#control_fb_bt, #control_fb_bt_l" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').show();
-      $('#control_fo_bt_div').hide();
-
-      $('#iv_fluid').focus();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#control_fo_bt" ).click(function() {
-      $('#control_doctors_note_div').hide();
-      $('#control_sm_bt_div').hide();
-      $('#control_cs_bt_div').hide();
-      $('#control_po_bt_div').hide();
-      $('#control_m_bt_div').hide();
-      $('#control_mg_bt_div').hide();
-      $('#control_fb_bt_div').hide();
-      $('#control_fo_bt_div').show();
-
-      $('#updatedMessage').hide();
-      $('#errorMessage').hide();
-    });
-
-    $( "#add_button_4" ).click(function() {
-      $('#vital_signs').hide();
-      $('#control_buttons').hide();
-      $('#appointment_div').show();
-    });
-
-    $( "#add_button_2" ).click(function() {
-      $('.fullName').html($('#names').val());
-      $('#vital_signs').show();
-
-      $('#control_buttons').hide();
-      $('.control_bt').hide();
-
-      $('#appointment_div').hide();
-    });
-
-    // show patient button
-    $( "#add_button_3" ).click(function() {
-      $('.fullName').html($('#names').val());
-      $('#control_buttons').show();
-      $('#add_button_4').show();
-      
-      $('#appointment_div').hide();
-      $('#vital_signs').hide();
-      $('#add_button_3').hide();
-
-      summary();
-    });
-
-    // close patient button
-    $( "#add_button_4" ).click(function() {
-      $('#appointment_div').show();
-      $('#add_button_3').show();
-      
-      $('#control_buttons').hide();
-      $('#vital_signs').hide();
-      $('#add_button_4').hide();
-      $('.control_bt').hide();
-    });
-
-    // vitals show and hide buttons
-    $( "#vital_add_record" ).click(function() {
-      $('#add_record_div').show();
-      $('#show_record_div').hide();
-      $('#vital_add_record').hide();
-      $('#vital_show_record').show();
-    });
-
-    $( "#vital_show_record" ).click(function() {
-      $('#show_record_div').show();
-      $('#add_record_div').hide();
-      $('#vital_add_record').show();
-      $('#vital_show_record').hide();
-
-      $('#vital_list').DataTable();
-    });
-
-    // medication show and hide buttons
-    $( "#m_add_record" ).click(function() {
-      $('#m_add_record').hide();
-      $('#m_show_record').show();
-      $('#m_show_record_div').hide();
-      $('#m_add_record_div').show();
-    });
-
-    $( "#m_show_record" ).click(function() {
-      $('#m_add_record').show();
-      $('#m_show_record').hide();
-      $('#m_show_record_div').show();
-      $('#m_add_record_div').hide();
-      medicationRecord();
-    });
-
-    // massage show and hide buttons
-    $( "#mg_add_record" ).click(function() {
-      $('#mg_add_record').hide();
-      $('#mg_show_record').show();
-    });
-
-    $( "#mg_show_record" ).click(function() {
-      $('#mg_add_record').show();
-      $('#mg_show_record').hide();
-    });
-
-    // continuation sheet show and hide buttons
-    $( "#cs_add_record" ).click(function() {
-      $('#cs_add_record').hide();
-      $('#cs_show_record').show();
-      $('#cs_show_record_div').hide();
-      $('#cs_add_record_div').show();
-    });
-
-    $( "#cs_show_record" ).click(function() {
-      $('#cs_add_record').show();
-      $('#cs_show_record').hide();
-      $('#cs_show_record_div').show();
-      $('#cs_add_record_div').hide();
-
-      continuationSheetRecords();
-    });
-
-    // post op show and hide buttons
-    $( "#po_add_record" ).click(function() {
-      $('#po_add_record').hide();
-      $('#po_show_record').show();
-      $('#po_show_record_div').hide();
-      $('#po_add_record_div').show();
-    });
-
-    $( "#po_show_record" ).click(function() {
-      $('#po_add_record').show();
-      $('#po_show_record').hide();
-      $('#po_show_record_div').show();
-      $('#po_add_record_div').hide();
-
-      postOpRecord();
-    });
-
-    // fluid balance show and hide buttons
-    $( "#fb_add_record" ).click(function() {
-      $('#fb_add_record').hide();
-      $('#fb_show_record').show();
-      $('#fb_show_record_div').hide();
-      $('#fb_add_record_div').show();
-    });
-
-    $( "#fb_show_record" ).click(function() {
-      $('#fb_add_record').show();
-      $('#fb_show_record').hide();
-      $('#fb_show_record_div').show();
-      $('#fb_add_record_div').hide();
-
-      fluidBalanceRecord();
-    });
-    
-    $('#weight, #height').keyup(function() {
-      var weight = $('#weight').val();
-      var height = ($('#height').val()/100);
-      var bmi = (weight/(height*height))
-      $('#bmi').val(bmi.toFixed(2));
-    });
-
-    $('#search').autocomplete({
-        source: se_ajax_url,
-        minLength: 2,
-        select: function( event, ui ) {
-            window.location = '<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&id='); ?>' + ui.item.id;
-        }
-    });
-   
-} );
-
-function doctorsNotes() {
+  function getComponent( ) {
+      var data = jQuery("#component" ).val();
+      var result = data.split("_");
+      jQuery("#comp_id").val( result[0]);
+      jQuery("#comp_cost").val( result[1]);
+  }
+  var product = [];
   jQuery(function ($) {
-    var patient_id = $("#patient_id").val();
-    var report = $("#doctors_note_data").val();
-    var product = $("#product").val();
+      $('#procedure').select2();
+      $('#product').select2({
+        placeholder: "Prescribe Medication",
+        allowClear: true
+      });
+      $('#next_appointment').datetimepicker({
+          minDate:'<?php echo date("Y-m-d"); ?>',
+          minTime:'9:00',
+          maxTime:'16:30'
+      });
+      $('#datatable_list, #appointment_list').DataTable();
+      $('#editable-select').editableSelect();
+      
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/search'; ?>';
 
-    console.log(product);
-    var sendInfo = {
-      patient_id: patient_id,
-      report: report,
-      recommended: product
-    };
-    console.log(sendInfo);
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+      $.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
 
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
-    });
+      $( "#control_doctors_note" ).click(function() {
+        $('#control_doctors_note_div').show();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-    var url = '<?php echo get_rest_url()."api/patient/notes"; ?>';
-
-    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      if (data.status == "200") {
-        $('#updatedMessage').show();
-        $('#updatedMessage').html('<p>Record Added!</p>');
-        $("#doctors_note_data").val("");
-        $("#doctors_note_data").focus();
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
 
         doctorsNotesRecords();
-      } else {
-        $('#errorMessage').show();
-        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      }
-    });
-  });
-}
+      });
 
-function doctorsNotesRecords() {
-  jQuery(function ($) {
-    $('#doctors_notice').html('loading data...');
-    var patient_id = document.getElementById('patient_id').value;
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/notes/'; ?>'+patient_id;
+      $( "#control_sm_bt" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').show();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
 
-    jQuery.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
-    jQuery.get( se_ajax_url, function( data ) {
+      $( "#control_cs_bt, #control_cs_bt_l" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').show();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-      $('#doctors_notice').html('');
-      $("#doctors_list").html('');
-      for (var key in data.data) {
-        $("#doctors_list").append("<br>"+data.data[key].report+'<br><strong>Recommendations</strong><br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
-      }
-    });
+        $('#cs_notes').focus();
 
-  });
-}
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
 
-function continuationSheet() {
-  jQuery(function ($) {
-    var patient_id = $("#patient_id").val();
-    var notes = $("#cs_notes").val();
+      $( "#control_po_bt, #control_po_bt_l" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').show();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-    var sendInfo = {
-      patient_id: patient_id,
-      notes: notes
-    };
+        $('#surgery').focus();
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
+      
+      $( "#control_m_bt, #control_m_bt_l" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').show();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
-    });
+        $('#m_route').focus();
+        
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
 
-    var url = '<?php echo get_rest_url()."api/patient/continuation"; ?>';
+      $( "#control_mg_bt, #control_mg_bt_l" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').show();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').hide();
 
-    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      if (data.status == "200") {
+        $('#surgery').focus();
+
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
+
+      $( "#control_fb_bt, #control_fb_bt_l" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').show();
+        $('#control_fo_bt_div').hide();
+
+        $('#iv_fluid').focus();
+
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
+
+      $( "#control_fo_bt" ).click(function() {
+        $('#control_doctors_note_div').hide();
+        $('#control_sm_bt_div').hide();
+        $('#control_cs_bt_div').hide();
+        $('#control_po_bt_div').hide();
+        $('#control_m_bt_div').hide();
+        $('#control_mg_bt_div').hide();
+        $('#control_fb_bt_div').hide();
+        $('#control_fo_bt_div').show();
+
+        $('#updatedMessage').hide();
+        $('#errorMessage').hide();
+      });
+
+      $( "#add_button_4" ).click(function() {
+        $('#vital_signs').hide();
+        $('#control_buttons').hide();
+        $('#appointment_div').show();
+      });
+
+      $( "#add_button_2" ).click(function() {
+        $('.fullName').html($('#names').val());
+        $('#vital_signs').show();
+
+        $('#control_buttons').hide();
+        $('.control_bt').hide();
+
+        $('#appointment_div').hide();
+      });
+
+      // show patient button
+      $( "#add_button_3" ).click(function() {
+        $('.fullName').html($('#names').val());
+        $('#control_buttons').show();
+        $('#add_button_4').show();
+        
+        $('#appointment_div').hide();
+        $('#vital_signs').hide();
+        $('#add_button_3').hide();
+
+        summary();
+      });
+
+      // close patient button
+      $( "#add_button_4" ).click(function() {
+        $('#appointment_div').show();
+        $('#add_button_3').show();
+        
+        $('#control_buttons').hide();
+        $('#vital_signs').hide();
+        $('#add_button_4').hide();
+        $('.control_bt').hide();
+      });
+
+      // vitals show and hide buttons
+      $( "#vital_add_record" ).click(function() {
+        $('#add_record_div').show();
+        $('#show_record_div').hide();
+        $('#vital_add_record').hide();
+        $('#vital_show_record').show();
+      });
+
+      $( "#vital_show_record" ).click(function() {
+        $('#show_record_div').show();
+        $('#add_record_div').hide();
+        $('#vital_add_record').show();
+        $('#vital_show_record').hide();
+
+        $('#vital_list').DataTable();
+      });
+
+      // medication show and hide buttons
+      $( "#m_add_record" ).click(function() {
+        $('#m_add_record').hide();
+        $('#m_show_record').show();
+        $('#m_show_record_div').hide();
+        $('#m_add_record_div').show();
+      });
+
+      $( "#m_show_record" ).click(function() {
+        $('#m_add_record').show();
+        $('#m_show_record').hide();
+        $('#m_show_record_div').show();
+        $('#m_add_record_div').hide();
+        medicationRecord();
+      });
+
+      // massage show and hide buttons
+      $( "#mg_add_record" ).click(function() {
+        $('#mg_add_record').hide();
+        $('#mg_show_record').show();
+      });
+
+      $( "#mg_show_record" ).click(function() {
+        $('#mg_add_record').show();
+        $('#mg_show_record').hide();
+      });
+
+      // continuation sheet show and hide buttons
+      $( "#cs_add_record" ).click(function() {
+        $('#cs_add_record').hide();
+        $('#cs_show_record').show();
+        $('#cs_show_record_div').hide();
+        $('#cs_add_record_div').show();
+      });
+
+      $( "#cs_show_record" ).click(function() {
+        $('#cs_add_record').show();
+        $('#cs_show_record').hide();
         $('#cs_show_record_div').show();
         $('#cs_add_record_div').hide();
 
-        $('#cs_add_record').hide();
-        $('#cs_show_record').show();
-
-        $('#updatedMessage').show();
-        $('#updatedMessage').html('<p>Record Added!</p>');
-
         continuationSheetRecords();
-      } else {
-        $('#errorMessage').show();
-        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      }
-    });
-  });
-}
+      });
 
-function continuationSheetRecords() {
-  jQuery(function ($) {
-    $('#cs_notice').html('loading data...');
-    var patient_id = document.getElementById('patient_id').value;
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/'; ?>'+patient_id;
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
-    jQuery.get( se_ajax_url, function( data ) {
-
-      $('#cs_notice').html('');
-      $("#cs_list").html('');
-      for (var key in data.data) {
-        $("#cs_list").append('<li><h2>'+data.data[key].notes+'</h2><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small></li>');
-      }
-    });
-
-  });
-}
-
-function postOp() {
-  jQuery(function ($) {
-    var patient_id = $("#patient_id").val();
-    var notes = $("#notes").val();
-    var surgery = $("#surgery").val();
-    var surgery_category = $("#surgery_category").val();
-    var Indication = $("#Indication").val();
-    var surgeon = $("#surgeon").val();
-    var asst_surgeon = $("#asst_surgeon").val();
-    var per_op_nurse = $("#per_op_nurse").val();
-    var circulating_nurse = $("#circulating_nurse").val();
-    var anaesthesia = $("#patient_anaesthesiaid").val();
-    var anaesthesia_time = $("#anaesthesia_time").val();
-    var knife_on_skin = $("#knife_on_skin").val();
-    var infiltration_time = $("#infiltration_time").val();
-    var liposuction_time = $("#liposuction_time").val();
-    var procedure = $("#procedure2").val();
-    var amt_of_fat_right = $("#amt_of_fat_right").val();
-    var amt_of_fat_left = $("#amt_of_fat_left").val();
-    var amt_of_fat_other = $("#amt_of_fat_other").val();
-    var ebl = $("#ebl").val();
-    var plan = $("#patient_id").val();
-
-    var sendInfo = {
-      patient_id: patient_id,
-      notes: notes,
-      surgery: surgery,
-      surgery_category: surgery_category,
-      Indication: Indication,
-      surgeon: surgeon,
-      asst_surgeon: asst_surgeon,
-      per_op_nurse: per_op_nurse,
-      circulating_nurse: circulating_nurse,
-      anaesthesia: anaesthesia,
-      anaesthesia_time: anaesthesia_time,
-      knife_on_skin: knife_on_skin,
-      infiltration_time: infiltration_time,
-      liposuction_time: liposuction_time,
-      procedure: procedure,
-      amt_of_fat_right: amt_of_fat_right,
-      amt_of_fat_left: amt_of_fat_left,
-      amt_of_fat_other: amt_of_fat_other,
-      ebl: ebl,
-      plan: plan
-    };
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
-    });
-
-    var url = '<?php echo get_rest_url()."api/patient/postOp"; ?>';
-
-    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      if (data.status == "200") {
-        $('#po_show_record_div').show();
-        $('#po_add_record_div').hide();
-        
+      // post op show and hide buttons
+      $( "#po_add_record" ).click(function() {
         $('#po_add_record').hide();
         $('#po_show_record').show();
+        $('#po_show_record_div').hide();
+        $('#po_add_record_div').show();
+      });
 
-        $('#updatedMessage').show();
-        $('#updatedMessage').html('<p>Record Added!</p>');
+      $( "#po_show_record" ).click(function() {
+        $('#po_add_record').show();
+        $('#po_show_record').hide();
+        $('#po_show_record_div').show();
+        $('#po_add_record_div').hide();
 
         postOpRecord();
-      } else {
-        $('#errorMessage').show();
-        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      }
-    });
-  });
-}
+      });
 
-function postOpRecord() {
-  jQuery(function ($) {
-    $('#po_notice').html('loading data...');
-    var patient_id = document.getElementById('patient_id').value;
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/'; ?>'+patient_id;
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
-
-    var tabledata = '';
-    var count = 1;
-    jQuery.get( se_ajax_url, function( data ) {
-
-      $('#po_notice').html('');
-      $("#po_list").html('');
-      for (var key in data.data) {
-        tabledata = '';
-
-        tabledata = '<tr>'+
-        '<th class="check-column" scope="row">'+count+'</th>'+
-        '<td class="column-columnname">'+data.data[key].surgery+' ('+data.data[key].surgery_category+'}</td>'+
-        '<td class="column-columnname">'+data.data[key].indication+'</td>'+
-        '<td class="column-columnname">'+data.data[key].surgeon+'</td>'+
-        '<td class="column-columnname">'+data.data[key].asst_surgeon+'</td>'+
-        '<td class="column-columnname">'+data.data[key].per_op_nurse+'</td>'+
-        '<td class="column-columnname">'+data.data[key].circulating_nurse+'</td>'+
-        '<td class="column-columnname">'+data.data[key].anaesthesia+'</td>'+
-        '<td class="column-columnname">'+data.data[key].anaesthesia_time+'</td>'+
-        '<td class="column-columnname">'+data.data[key].knife_on_skin+'</td>'+
-        '<td class="column-columnname">'+data.data[key].infiltration_time+'</td>'+
-        '<td class="column-columnname">'+data.data[key].liposuction_time+'</td>'+
-        '<td class="column-columnname">'+data.data[key].end_of_surgery+'</td>'+
-        '<td class="column-columnname">'+data.data[key].procedure+'</td>'+
-        '<td class="column-columnname">'+data.data[key].amt_of_fat_right+'</td>'+
-        '<td class="column-columnname">'+data.data[key].amt_of_fat_left+'</td>'+
-        '<td class="column-columnname">'+data.data[key].amt_of_fat_other+'</td>'+
-        '<td class="column-columnname">'+data.data[key].ebl+'</td>'+
-        '<td class="column-columnname">'+data.data[key].plan+'</td>'+
-        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
-        '</tr>';
-        count++;
-
-        $("#po_list").append(tabledata);
-      }
-    });
-
-  });
-}
-
-function addMedication() {
-  jQuery(function ($) {
-    var patient_id = $("#patient_id").val();
-    var route = $("#m_route").val();
-    var medication = $("#m_medication").val();
-    var dose = $("#m_dose").val();
-    var frequency = $("#m_frequency").val();
-    var report_date = $("#m_report_date").val();
-    var report_time = $("#m_report_time").val();
-
-    var sendInfo = {
-      patient_id: patient_id,
-      route: route,
-      medication: medication,
-      dose: dose,
-      report_date: report_date,
-      report_time: report_time,
-      frequency: frequency
-    };
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
-    });
-
-    var url = '<?php echo get_rest_url()."api/patient/medication"; ?>';
-
-    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      if (data.status == "200") {
-        $('#m_show_record_div').show();
-        $('#m_add_record_div').hide();
-        
-        $('#m_add_record').hide();
-        $('#m_show_record').show();
-
-        $('#updatedMessage').show();
-        $('#updatedMessage').html('<p>Record Added!</p>');
-
-        medicationRecord();
-      } else {
-        $('#errorMessage').show();
-        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      }
-    });
-  });
-}
-
-function medicationRecord() {
-  jQuery(function ($) {
-    $('#m_notice').html('loading data...');
-    var patient_id = document.getElementById('patient_id').value;
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/medication/'; ?>'+patient_id;
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-        headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
-    });
-
-    var tabledata = '';
-    var count = 1;
-    jQuery.get( se_ajax_url, function( data ) {
-
-      $('#m_notice').html('');
-      $("#m_list").html('');
-      for (var key in data.data) {
-        tabledata = '';
-
-        tabledata = '<tr>'+
-        '<th class="check-column" scope="row">'+count+'</th>'+
-        '<td class="column-columnname">'+data.data[key].route+'</td>'+
-        '<td class="column-columnname">'+data.data[key].medication+'</td>'+
-        '<td class="column-columnname">'+data.data[key].dose+'</td>'+
-        '<td class="column-columnname">'+data.data[key].frequency+'</td>'+
-        '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
-        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
-        '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
-        '</tr>';
-        count++;
-
-        $("#m_list").append(tabledata);
-      }
-    });
-
-  });
-}
-
-function fluidBalance() {
-  jQuery(function ($) {
-    var patient_id = $("#patient_id").val();
-    var iv_fluid = $("#iv_fluid").val();
-    var amount = $("#amount").val();
-    var oral_fluid = $("#oral_fluid").val();
-    var ng_tube_feeding = $("#ng_tube_feeding").val();
-    var vomit = $("#vomit").val();
-    var urine = $("#urine").val();
-    var drains = $("#drains").val();
-    var ng_tube_drainage = $("#ng_tube_drainage").val();
-    var report_date = $("#report_date").val();
-    var report_time = $("#report_time").val();
-    
-
-    var sendInfo = {
-      patient_id: patient_id,
-      iv_fluid: iv_fluid,
-      amount: amount,
-      oral_fluid: oral_fluid,
-      ng_tube_feeding: ng_tube_feeding,
-      vomit: vomit,
-      urine: urine,
-      drains: drains,
-      ng_tube_drainage: ng_tube_drainage,
-      report_date: report_date,
-      report_time: report_time
-    };
-
-
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
-
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
-    });
-
-    var url = '<?php echo get_rest_url()."api/patient/fluidBalance"; ?>';
-
-    jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      if (data.status == "200") {
-        $('#fb_show_record_div').show();
-        $('#fb_add_record_div').hide();
-        
+      // fluid balance show and hide buttons
+      $( "#fb_add_record" ).click(function() {
         $('#fb_add_record').hide();
         $('#fb_show_record').show();
+        $('#fb_show_record_div').hide();
+        $('#fb_add_record_div').show();
+      });
 
-        $('#updatedMessage').show();
-        $('#updatedMessage').html('<p>Record Added!</p>');
+      $( "#fb_show_record" ).click(function() {
+        $('#fb_add_record').show();
+        $('#fb_show_record').hide();
+        $('#fb_show_record_div').show();
+        $('#fb_add_record_div').hide();
 
         fluidBalanceRecord();
-      } else {
-        $('#errorMessage').show();
-        $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      }
+      });
+      
+      $('#weight, #height').keyup(function() {
+        var weight = $('#weight').val();
+        var height = ($('#height').val()/100);
+        var bmi = (weight/(height*height))
+        $('#bmi').val(bmi.toFixed(2));
+      });
+
+      $('#search').autocomplete({
+          source: se_ajax_url,
+          minLength: 2,
+          select: function( event, ui ) {
+              window.location = '<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&id='); ?>' + ui.item.id;
+          }
+      });
+    
+  } );
+
+
+  function minus_button( key ) {
+    jQuery( "#div_" + key ).remove();
+  }
+
+  function add_button( key ) {
+    var locate = parseInt(jQuery("#add_button_" + key ).attr("data-id"));
+    var next = locate+1;
+
+    var data = '<div class="form-field form-required term-age-wrap" id="div_'+next+'">'
+      +'<label for="component_'+next+'">Medication</label>'
+      +'<select id="component_'+next+'" name="medication['+next+'][medication_id]" data-id="'+next+'" required >'
+        +'<option value="">Select One</option>'
+        <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
+          +'<option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>'
+        <?php } ?>
+      +'</select>'
+      +'<label for="comp_qty_'+next+'">Quantity</label>'
+      +'<input type="number" name="medication['+next+'][quantity]" id="comp_qty_'+next+'" value="1" placeholder="Quantity" required />'
+      +'<label for="comp_dose_'+next+'">Dose</label>'
+      +'<input type="number" name="medication['+next+'][dose]" id="comp_dose_'+next+'" value="" required placeholder="Dose" />'
+      +'<label for="comp_freq_'+next+'">Frequency</label>'
+      +'<select id="comp_freq_'+next+'" name="medication['+next+'][frequency]" required >'
+        +'<option value="">Select One</option>'
+        +'<option value="Morning Afternoon Evening">Morning Afternoon Evening</option>'
+        +'<option value="Morning Evening">Morning Evening</option>'
+        +'<option value="Afternoon Evening">Afternoon Evening</option>'
+        +'<option value="Daily">Daily</option>'
+        +'<option value="Weekly">Weekly</option>'
+        +'<option value="Monthly">Monthly</option>'
+      +'</select>'
+      +'<label for="comp_notes_'+next+'">Notes (Optional)</label>'
+      +'<textarea name="medication['+next+'][notes]" id="comp_notes_'+next+'" placeholder="Notes (Optional)"></textarea><br>'
+      +'<button type="button" id="add_button_'+next+'" data-id="'+next+'" class="button button-primary" onclick="add_button('+next+')"><i class="fas fa-plus-square fa-lg"></i></button>'
+      +'<button type="button" id="minus_button_'+next+'" data-id="'+next+'" class="button button-primary" onclick="minus_button('+next+')"><i class="fas fa-minus-square fa-lg"></i></button>'
+    +'</div>'
+
+    jQuery('#other_content').append( data );
+  }
+
+  function doctorsNotes() {
+    jQuery(function ($) {
+      var patient_id = $("#patient_id").val();
+      var report = $("#doctors_note_data").val();
+
+      var doctorsNotes = $('#form3').serializeArray();
+
+      console.log(doctorsNotes);
+      console.log(product);
+      var sendInfo = {
+        patient_id: patient_id,
+        report: report,
+        recommended: product
+      };
+      console.log(sendInfo);
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      // jQuery.ajaxSetup({
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'api-key': api_key,
+      //     'api-token': api_token
+      //   }
+      // });
+
+      // var url = '<?php echo get_rest_url()."api/patient/notes"; ?>';
+
+      // jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+      //   if (data.status == "200") {
+      //     $('#updatedMessage').show();
+      //     $('#updatedMessage').html('<p>Record Added!</p>');
+      //     $("#doctors_note_data").val("");
+      //     $("#doctors_note_data").focus();
+
+      //     doctorsNotesRecords();
+      //   } else {
+      //     $('#errorMessage').show();
+      //     $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+      //   }
+      // });
     });
-  });
-}
+  }
 
-function fluidBalanceRecord() {
-  jQuery(function ($) {
-    $('#fb_notice').html('loading data...');
-    var patient_id = document.getElementById('patient_id').value;
-    var se_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/'; ?>'+patient_id;
+  function doctorsNotesRecords() {
+    jQuery(function ($) {
+      $('#doctors_notice').html('loading data...');
+      var patient_id = document.getElementById('patient_id').value;
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/notes/'; ?>'+patient_id;
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
 
-    jQuery.ajaxSetup({
+      jQuery.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
+      jQuery.get( se_ajax_url, function( data ) {
+
+        $('#doctors_notice').html('');
+        $("#doctors_list").html('');
+        for (var key in data.data) {
+          $("#doctors_list").append("<br>"+data.data[key].report+'<br><strong>Recommendations</strong><br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
+        }
+      });
+
+    });
+  }
+
+  function continuationSheet() {
+    jQuery(function ($) {
+      var patient_id = $("#patient_id").val();
+      var notes = $("#cs_notes").val();
+
+      var sendInfo = {
+        patient_id: patient_id,
+        notes: notes
+      };
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
         headers: {
-            'Content-Type': 'application/json',
-            'api-key': api_key,
-            'api-token': api_token
-            }
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
+
+      var url = '<?php echo get_rest_url()."api/patient/continuation"; ?>';
+
+      jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+        if (data.status == "200") {
+          $('#cs_show_record_div').show();
+          $('#cs_add_record_div').hide();
+
+          $('#cs_add_record').hide();
+          $('#cs_show_record').show();
+
+          $('#updatedMessage').show();
+          $('#updatedMessage').html('<p>Record Added!</p>');
+
+          continuationSheetRecords();
+        } else {
+          $('#errorMessage').show();
+          $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+        }
+      });
     });
+  }
 
-    var tabledata = '';
+  function continuationSheetRecords() {
+    jQuery(function ($) {
+      $('#cs_notice').html('loading data...');
+      var patient_id = document.getElementById('patient_id').value;
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/'; ?>'+patient_id;
 
-    $("#fb_list").html('');
-    var count = 1;
-    jQuery.get( se_ajax_url, function( data ) {
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
 
-      $('#fb_notice').html('');
-      for (var key in data.data) {
-        tabledata = '';
+      jQuery.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
+      jQuery.get( se_ajax_url, function( data ) {
 
-        tabledata = '<tr>'+
-        '<th class="check-column" scope="row">'+count+'</th>'+
-        '<td class="column-columnname">'+data.data[key].iv_fluid+'</td>'+
-        '<td class="column-columnname">'+data.data[key].amount+'</td>'+
-        '<td class="column-columnname">'+data.data[key].oral_fluid+'</td>'+
-        '<td class="column-columnname">'+data.data[key].ng_tube_feeding+'</td>'+
-        '<td class="column-columnname">'+data.data[key].vomit+'</td>'+
-        '<td class="column-columnname">'+data.data[key].urine+'</td>'+
-        '<td class="column-columnname">'+data.data[key].drains+'</td>'+
-        '<td class="column-columnname">'+data.data[key].ng_tube_drainage+'</td>'+
-        '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
-        '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
-        '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
-        '</tr>';
-        count++;
+        $('#cs_notice').html('');
+        $("#cs_list").html('');
+        for (var key in data.data) {
+          $("#cs_list").append('<li><h2>'+data.data[key].notes+'</h2><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small></li>');
+        }
+      });
 
-        $("#fb_list").append(tabledata);
-      }
     });
+  }
 
-  });
-}
+  function postOp() {
+    jQuery(function ($) {
+      var patient_id = $("#patient_id").val();
+      var notes = $("#notes").val();
+      var surgery = $("#surgery").val();
+      var surgery_category = $("#surgery_category").val();
+      var Indication = $("#Indication").val();
+      var surgeon = $("#surgeon").val();
+      var asst_surgeon = $("#asst_surgeon").val();
+      var per_op_nurse = $("#per_op_nurse").val();
+      var circulating_nurse = $("#circulating_nurse").val();
+      var anaesthesia = $("#patient_anaesthesiaid").val();
+      var anaesthesia_time = $("#anaesthesia_time").val();
+      var knife_on_skin = $("#knife_on_skin").val();
+      var infiltration_time = $("#infiltration_time").val();
+      var liposuction_time = $("#liposuction_time").val();
+      var procedure = $("#procedure2").val();
+      var amt_of_fat_right = $("#amt_of_fat_right").val();
+      var amt_of_fat_left = $("#amt_of_fat_left").val();
+      var amt_of_fat_other = $("#amt_of_fat_other").val();
+      var ebl = $("#ebl").val();
+      var plan = $("#patient_id").val();
 
-function summary() {
-  jQuery(function ($) {
-    $("#control_sm_bt_div").show();
-    $('#sm_notice').html('loading data...');
+      var sendInfo = {
+        patient_id: patient_id,
+        notes: notes,
+        surgery: surgery,
+        surgery_category: surgery_category,
+        Indication: Indication,
+        surgeon: surgeon,
+        asst_surgeon: asst_surgeon,
+        per_op_nurse: per_op_nurse,
+        circulating_nurse: circulating_nurse,
+        anaesthesia: anaesthesia,
+        anaesthesia_time: anaesthesia_time,
+        knife_on_skin: knife_on_skin,
+        infiltration_time: infiltration_time,
+        liposuction_time: liposuction_time,
+        procedure: procedure,
+        amt_of_fat_right: amt_of_fat_right,
+        amt_of_fat_left: amt_of_fat_left,
+        amt_of_fat_other: amt_of_fat_other,
+        ebl: ebl,
+        plan: plan
+      };
 
-    var patient_id = document.getElementById('patient_id').value;
-    var vitals_ajax_url = '<?php echo get_rest_url().'api/patient/vitals/recent/'; ?>'+patient_id;
-    var continuation_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/recent/'; ?>'+patient_id;
-    var postOp_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/recent/'; ?>'+patient_id;
-    var medication_ajax_url = '<?php echo get_rest_url().'api/patient/medication/recent/'; ?>'+patient_id;
-    var fluidBalance_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/recent/'; ?>'+patient_id;
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
 
-    var api_key = Math.floor(Math.random() * 100001);
-    var user_token = '<?php echo self::$userToken; ?>';
-    var api_token = btoa(api_key+"_"+user_token)
+      jQuery.ajaxSetup({
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
 
-    jQuery.ajaxSetup({
-      headers: {
-        'Content-Type': 'application/json',
-        'api-key': api_key,
-        'api-token': api_token
-      }
+      var url = '<?php echo get_rest_url()."api/patient/postOp"; ?>';
+
+      jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+        if (data.status == "200") {
+          $('#po_show_record_div').show();
+          $('#po_add_record_div').hide();
+          
+          $('#po_add_record').hide();
+          $('#po_show_record').show();
+
+          $('#updatedMessage').show();
+          $('#updatedMessage').html('<p>Record Added!</p>');
+
+          postOpRecord();
+        } else {
+          $('#errorMessage').show();
+          $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+        }
+      });
     });
+  }
+
+  function postOpRecord() {
+    jQuery(function ($) {
+      $('#po_notice').html('loading data...');
+      var patient_id = document.getElementById('patient_id').value;
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/'; ?>'+patient_id;
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
+
+      var tabledata = '';
+      var count = 1;
+      jQuery.get( se_ajax_url, function( data ) {
+
+        $('#po_notice').html('');
+        $("#po_list").html('');
+        for (var key in data.data) {
+          tabledata = '';
+
+          tabledata = '<tr>'+
+          '<th class="check-column" scope="row">'+count+'</th>'+
+          '<td class="column-columnname">'+data.data[key].surgery+' ('+data.data[key].surgery_category+'}</td>'+
+          '<td class="column-columnname">'+data.data[key].indication+'</td>'+
+          '<td class="column-columnname">'+data.data[key].surgeon+'</td>'+
+          '<td class="column-columnname">'+data.data[key].asst_surgeon+'</td>'+
+          '<td class="column-columnname">'+data.data[key].per_op_nurse+'</td>'+
+          '<td class="column-columnname">'+data.data[key].circulating_nurse+'</td>'+
+          '<td class="column-columnname">'+data.data[key].anaesthesia+'</td>'+
+          '<td class="column-columnname">'+data.data[key].anaesthesia_time+'</td>'+
+          '<td class="column-columnname">'+data.data[key].knife_on_skin+'</td>'+
+          '<td class="column-columnname">'+data.data[key].infiltration_time+'</td>'+
+          '<td class="column-columnname">'+data.data[key].liposuction_time+'</td>'+
+          '<td class="column-columnname">'+data.data[key].end_of_surgery+'</td>'+
+          '<td class="column-columnname">'+data.data[key].procedure+'</td>'+
+          '<td class="column-columnname">'+data.data[key].amt_of_fat_right+'</td>'+
+          '<td class="column-columnname">'+data.data[key].amt_of_fat_left+'</td>'+
+          '<td class="column-columnname">'+data.data[key].amt_of_fat_other+'</td>'+
+          '<td class="column-columnname">'+data.data[key].ebl+'</td>'+
+          '<td class="column-columnname">'+data.data[key].plan+'</td>'+
+          '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+          '</tr>';
+          count++;
+
+          $("#po_list").append(tabledata);
+        }
+      });
+
+    });
+  }
+
+  function addMedication() {
+    jQuery(function ($) {
+      var patient_id = $("#patient_id").val();
+      var route = $("#m_route").val();
+      var medication = $("#m_medication").val();
+      var dose = $("#m_dose").val();
+      var frequency = $("#m_frequency").val();
+      var report_date = $("#m_report_date").val();
+      var report_time = $("#m_report_time").val();
+
+      var sendInfo = {
+        patient_id: patient_id,
+        route: route,
+        medication: medication,
+        dose: dose,
+        report_date: report_date,
+        report_time: report_time,
+        frequency: frequency
+      };
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
+
+      var url = '<?php echo get_rest_url()."api/patient/medication"; ?>';
+
+      jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+        if (data.status == "200") {
+          $('#m_show_record_div').show();
+          $('#m_add_record_div').hide();
+          
+          $('#m_add_record').hide();
+          $('#m_show_record').show();
+
+          $('#updatedMessage').show();
+          $('#updatedMessage').html('<p>Record Added!</p>');
+
+          medicationRecord();
+        } else {
+          $('#errorMessage').show();
+          $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+        }
+      });
+    });
+  }
+
+  function medicationRecord() {
+    jQuery(function ($) {
+      $('#m_notice').html('loading data...');
+      var patient_id = document.getElementById('patient_id').value;
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/medication/'; ?>'+patient_id;
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
+
+      var tabledata = '';
+      var count = 1;
+      jQuery.get( se_ajax_url, function( data ) {
+
+        $('#m_notice').html('');
+        $("#m_list").html('');
+        for (var key in data.data) {
+          tabledata = '';
+
+          tabledata = '<tr>'+
+          '<th class="check-column" scope="row">'+count+'</th>'+
+          '<td class="column-columnname">'+data.data[key].route+'</td>'+
+          '<td class="column-columnname">'+data.data[key].medication+'</td>'+
+          '<td class="column-columnname">'+data.data[key].dose+'</td>'+
+          '<td class="column-columnname">'+data.data[key].frequency+'</td>'+
+          '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
+          '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+          '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
+          '</tr>';
+          count++;
+
+          $("#m_list").append(tabledata);
+        }
+      });
+
+    });
+  }
+
+  function fluidBalance() {
+    jQuery(function ($) {
+      var patient_id = $("#patient_id").val();
+      var iv_fluid = $("#iv_fluid").val();
+      var amount = $("#amount").val();
+      var oral_fluid = $("#oral_fluid").val();
+      var ng_tube_feeding = $("#ng_tube_feeding").val();
+      var vomit = $("#vomit").val();
+      var urine = $("#urine").val();
+      var drains = $("#drains").val();
+      var ng_tube_drainage = $("#ng_tube_drainage").val();
+      var report_date = $("#report_date").val();
+      var report_time = $("#report_time").val();
+      
+
+      var sendInfo = {
+        patient_id: patient_id,
+        iv_fluid: iv_fluid,
+        amount: amount,
+        oral_fluid: oral_fluid,
+        ng_tube_feeding: ng_tube_feeding,
+        vomit: vomit,
+        urine: urine,
+        drains: drains,
+        ng_tube_drainage: ng_tube_drainage,
+        report_date: report_date,
+        report_time: report_time
+      };
 
 
-    jQuery.get( vitals_ajax_url, function( data ) {
-      $('#summary_v_weight').html(data.data.weight);
-      $('#summary_v_height').html(data.data.height);
-      $('#summary_v_bmi').html(data.data.bmi);
-      $('#summary_v_spo2').html(data.data.spo2);
-      $('#summary_v_respiratory').html(data.data.respiratory);
-      $('#summary_v_temprature').html(data.data.temprature);
-      $('#summary_v_pulse').html(data.data.pulse);
-      $('#summary_v_bp_sys').html(data.data.bp_sys);
-      $('#summary_v_bp_dia').html(data.data.bp_dia);
-      $('#summary_v_added_by').html(data.data.added_by.user_nicename);
-      $('#summary_v_create_time').html(data.data.create_time);
-    });
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
 
-    jQuery.get( continuation_ajax_url, function( data ) {
-      if (data.data === false ) {
-        $('#summary_c').html("Not Available");
-        $('#summary_c_create_time,#summary_added_by').html("");
-      } else {
-        $('#summary_c').html(data.data.notes);
-        $('#summary_c_create_time').html("Added On: "+data.data.create_time);
-        $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
-      }
-    });
+      jQuery.ajaxSetup({
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
 
-    jQuery.get( postOp_ajax_url, function( data ) {
-      if (data.data === false ) {
-        $('#summary_p_surgery,#summary_p_surgery_category,#summary_p_indication,#summary_p_surgeon,#summary_p_asst_surgeon,#summary_p_per_op_nurse,#summary_p_circulating_nurse,#summary_p_anaesthesia,#summary_p_anaesthesia_time,#summary_p_knife_on_skin,#summary_p_infiltration_time,#summary_p_liposuction_time,#summary_p_end_of_surgery,#summary_p_procedure,#summary_p_amt_of_fat_right,#summary_p_amt_of_fat_left,#summary_p_amt_of_fat_other,#summary_p_ebl,#summary_p_plan,#summary_p_added_by,#summary_p_create_time').html("Not Available");
-      } else {
-        $('#summary_p_surgery').html(data.data.surgery);
-        $('#summary_p_surgery_category').html(data.data.surgery_category);
-        $('#summary_p_indication').html(data.data.indication);
-        $('#summary_p_surgeon').html(data.data.surgeon);
-        $('#summary_p_asst_surgeon').html(data.data.asst_surgeon);
-        $('#summary_p_per_op_nurse').html(data.data.per_op_nurse);
-        $('#summary_p_circulating_nurse').html(data.data.circulating_nurse);
-        $('#summary_p_anaesthesia').html(data.data.anaesthesia);
-        $('#summary_p_anaesthesia_time').html(data.data.anaesthesia_time);
-        $('#summary_p_knife_on_skin').html(data.data.knife_on_skin);
-        $('#summary_p_infiltration_time').html(data.data.infiltration_time);
-        $('#summary_p_liposuction_time').html(data.data.liposuction_time);
-        $('#summary_p_end_of_surgery').html(data.data.end_of_surgery);
-        $('#summary_p_procedure').html(data.data.procedure);
-        $('#summary_p_amt_of_fat_right').html(data.data.amt_of_fat_right);
-        $('#summary_p_amt_of_fat_left').html(data.data.amt_of_fat_left);
-        $('#summary_p_amt_of_fat_other').html(data.data.amt_of_fat_other);
-        $('#summary_p_ebl').html(data.data.ebl);
-        $('#summary_p_plan').html(data.data.plan);
-        $('#summary_p_added_by').html(data.data.added_by.user_nicename);
-        $('#summary_p_create_time').html(data.data.create_time);
-      }
-    });
-    jQuery.get( medication_ajax_url, function( data ) {
-      if (data.data === false ) {
-        $('#summary_m_route,#summary_m_medication,#summary_m_dose,#summary_m_frequency,#summary_m_report_date,#summary_m_added_by,#summary_m_create_time').html("Not Available");
-      } else {
-        $('#summary_m_route').html(data.data.route);
-        $('#summary_m_medication').html(data.data.medication);
-        $('#summary_m_dose').html(data.data.dose);
-        $('#summary_m_frequency').html(data.data.frequency);
-        $('#summary_m_report_date').html(data.data.report_date+ " "+data.data.report_time);
-        $('#summary_m_added_by').html(data.data.added_by.user_nicename);
-        $('#summary_m_create_time').html(data.data.create_time);
-      }
-    });
-    jQuery.get( fluidBalance_ajax_url, function( data ) {
-      if (data.data === false ) {
-        $('#summary_fb_iv_fluid,#summary_fb_amount,#summary_fb_oral_fluid,#summary_fb_ng_tube_feeding,#summary_fb_vomit,#summary_fb_urine,#summary_fb_drains,#summary_fb_ng_tube_drainage,#summary_fb_report_date,#summary_fb_added_by,#summary_fb_create_time').html("Not Available");
-      } else {
-        $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
-        $('#summary_fb_amount').html(data.data.amount);
-        $('#summary_fb_oral_fluid').html(data.data.oral_fluid);
-        $('#summary_fb_ng_tube_feeding').html(data.data.ng_tube_feeding);
-        $('#summary_fb_vomit').html(data.data.vomit);
-        $('#summary_fb_urine').html(data.data.urine);
-        $('#summary_fb_drains').html(data.data.drains);
-        $('#summary_fb_ng_tube_drainage').html(data.data.ng_tube_drainage);
-        $('#summary_fb_report_date').html(data.data.report_date+ " "+data.data.report_time);
-        $('#summary_fb_added_by').html(data.data.added_by.user_nicename);
-        $('#summary_fb_create_time').html(data.data.create_time);
-      }
-    });
+      var url = '<?php echo get_rest_url()."api/patient/fluidBalance"; ?>';
 
-    $('#sm_notice').html('');
-  });  
-}
+      jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+        if (data.status == "200") {
+          $('#fb_show_record_div').show();
+          $('#fb_add_record_div').hide();
+          
+          $('#fb_add_record').hide();
+          $('#fb_show_record').show();
+
+          $('#updatedMessage').show();
+          $('#updatedMessage').html('<p>Record Added!</p>');
+
+          fluidBalanceRecord();
+        } else {
+          $('#errorMessage').show();
+          $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+        }
+      });
+    });
+  }
+
+  function fluidBalanceRecord() {
+    jQuery(function ($) {
+      $('#fb_notice').html('loading data...');
+      var patient_id = document.getElementById('patient_id').value;
+      var se_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/'; ?>'+patient_id;
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
+          headers: {
+              'Content-Type': 'application/json',
+              'api-key': api_key,
+              'api-token': api_token
+              }
+      });
+
+      var tabledata = '';
+
+      $("#fb_list").html('');
+      var count = 1;
+      jQuery.get( se_ajax_url, function( data ) {
+
+        $('#fb_notice').html('');
+        for (var key in data.data) {
+          tabledata = '';
+
+          tabledata = '<tr>'+
+          '<th class="check-column" scope="row">'+count+'</th>'+
+          '<td class="column-columnname">'+data.data[key].iv_fluid+'</td>'+
+          '<td class="column-columnname">'+data.data[key].amount+'</td>'+
+          '<td class="column-columnname">'+data.data[key].oral_fluid+'</td>'+
+          '<td class="column-columnname">'+data.data[key].ng_tube_feeding+'</td>'+
+          '<td class="column-columnname">'+data.data[key].vomit+'</td>'+
+          '<td class="column-columnname">'+data.data[key].urine+'</td>'+
+          '<td class="column-columnname">'+data.data[key].drains+'</td>'+
+          '<td class="column-columnname">'+data.data[key].ng_tube_drainage+'</td>'+
+          '<td class="column-columnname">'+data.data[key].report_date+' '+data.data[key].report_time+'</td>'+
+          '<td class="column-columnname">'+data.data[key].added_by.user_nicename+'</td>'+
+          '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
+          '</tr>';
+          count++;
+
+          $("#fb_list").append(tabledata);
+        }
+      });
+
+    });
+  }
+
+  function summary() {
+    jQuery(function ($) {
+      $("#control_sm_bt_div").show();
+      $('#sm_notice').html('loading data...');
+
+      var patient_id = document.getElementById('patient_id').value;
+      var vitals_ajax_url = '<?php echo get_rest_url().'api/patient/vitals/recent/'; ?>'+patient_id;
+      var continuation_ajax_url = '<?php echo get_rest_url().'api/patient/continuation/recent/'; ?>'+patient_id;
+      var postOp_ajax_url = '<?php echo get_rest_url().'api/patient/postOp/recent/'; ?>'+patient_id;
+      var medication_ajax_url = '<?php echo get_rest_url().'api/patient/medication/recent/'; ?>'+patient_id;
+      var fluidBalance_ajax_url = '<?php echo get_rest_url().'api/patient/fluidBalance/recent/'; ?>'+patient_id;
+
+      var api_key = Math.floor(Math.random() * 100001);
+      var user_token = '<?php echo self::$userToken; ?>';
+      var api_token = btoa(api_key+"_"+user_token)
+
+      jQuery.ajaxSetup({
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
+
+
+      jQuery.get( vitals_ajax_url, function( data ) {
+        $('#summary_v_weight').html(data.data.weight);
+        $('#summary_v_height').html(data.data.height);
+        $('#summary_v_bmi').html(data.data.bmi);
+        $('#summary_v_spo2').html(data.data.spo2);
+        $('#summary_v_respiratory').html(data.data.respiratory);
+        $('#summary_v_temprature').html(data.data.temprature);
+        $('#summary_v_pulse').html(data.data.pulse);
+        $('#summary_v_bp_sys').html(data.data.bp_sys);
+        $('#summary_v_bp_dia').html(data.data.bp_dia);
+        $('#summary_v_added_by').html(data.data.added_by.user_nicename);
+        $('#summary_v_create_time').html(data.data.create_time);
+      });
+
+      jQuery.get( continuation_ajax_url, function( data ) {
+        if (data.data === false ) {
+          $('#summary_c').html("Not Available");
+          $('#summary_c_create_time,#summary_added_by').html("");
+        } else {
+          $('#summary_c').html(data.data.notes);
+          $('#summary_c_create_time').html("Added On: "+data.data.create_time);
+          $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
+        }
+      });
+
+      jQuery.get( postOp_ajax_url, function( data ) {
+        if (data.data === false ) {
+          $('#summary_p_surgery,#summary_p_surgery_category,#summary_p_indication,#summary_p_surgeon,#summary_p_asst_surgeon,#summary_p_per_op_nurse,#summary_p_circulating_nurse,#summary_p_anaesthesia,#summary_p_anaesthesia_time,#summary_p_knife_on_skin,#summary_p_infiltration_time,#summary_p_liposuction_time,#summary_p_end_of_surgery,#summary_p_procedure,#summary_p_amt_of_fat_right,#summary_p_amt_of_fat_left,#summary_p_amt_of_fat_other,#summary_p_ebl,#summary_p_plan,#summary_p_added_by,#summary_p_create_time').html("Not Available");
+        } else {
+          $('#summary_p_surgery').html(data.data.surgery);
+          $('#summary_p_surgery_category').html(data.data.surgery_category);
+          $('#summary_p_indication').html(data.data.indication);
+          $('#summary_p_surgeon').html(data.data.surgeon);
+          $('#summary_p_asst_surgeon').html(data.data.asst_surgeon);
+          $('#summary_p_per_op_nurse').html(data.data.per_op_nurse);
+          $('#summary_p_circulating_nurse').html(data.data.circulating_nurse);
+          $('#summary_p_anaesthesia').html(data.data.anaesthesia);
+          $('#summary_p_anaesthesia_time').html(data.data.anaesthesia_time);
+          $('#summary_p_knife_on_skin').html(data.data.knife_on_skin);
+          $('#summary_p_infiltration_time').html(data.data.infiltration_time);
+          $('#summary_p_liposuction_time').html(data.data.liposuction_time);
+          $('#summary_p_end_of_surgery').html(data.data.end_of_surgery);
+          $('#summary_p_procedure').html(data.data.procedure);
+          $('#summary_p_amt_of_fat_right').html(data.data.amt_of_fat_right);
+          $('#summary_p_amt_of_fat_left').html(data.data.amt_of_fat_left);
+          $('#summary_p_amt_of_fat_other').html(data.data.amt_of_fat_other);
+          $('#summary_p_ebl').html(data.data.ebl);
+          $('#summary_p_plan').html(data.data.plan);
+          $('#summary_p_added_by').html(data.data.added_by.user_nicename);
+          $('#summary_p_create_time').html(data.data.create_time);
+        }
+      });
+      jQuery.get( medication_ajax_url, function( data ) {
+        if (data.data === false ) {
+          $('#summary_m_route,#summary_m_medication,#summary_m_dose,#summary_m_frequency,#summary_m_report_date,#summary_m_added_by,#summary_m_create_time').html("Not Available");
+        } else {
+          $('#summary_m_route').html(data.data.route);
+          $('#summary_m_medication').html(data.data.medication);
+          $('#summary_m_dose').html(data.data.dose);
+          $('#summary_m_frequency').html(data.data.frequency);
+          $('#summary_m_report_date').html(data.data.report_date+ " "+data.data.report_time);
+          $('#summary_m_added_by').html(data.data.added_by.user_nicename);
+          $('#summary_m_create_time').html(data.data.create_time);
+        }
+      });
+      jQuery.get( fluidBalance_ajax_url, function( data ) {
+        if (data.data === false ) {
+          $('#summary_fb_iv_fluid,#summary_fb_amount,#summary_fb_oral_fluid,#summary_fb_ng_tube_feeding,#summary_fb_vomit,#summary_fb_urine,#summary_fb_drains,#summary_fb_ng_tube_drainage,#summary_fb_report_date,#summary_fb_added_by,#summary_fb_create_time').html("Not Available");
+        } else {
+          $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
+          $('#summary_fb_amount').html(data.data.amount);
+          $('#summary_fb_oral_fluid').html(data.data.oral_fluid);
+          $('#summary_fb_ng_tube_feeding').html(data.data.ng_tube_feeding);
+          $('#summary_fb_vomit').html(data.data.vomit);
+          $('#summary_fb_urine').html(data.data.urine);
+          $('#summary_fb_drains').html(data.data.drains);
+          $('#summary_fb_ng_tube_drainage').html(data.data.ng_tube_drainage);
+          $('#summary_fb_report_date').html(data.data.report_date+ " "+data.data.report_time);
+          $('#summary_fb_added_by').html(data.data.added_by.user_nicename);
+          $('#summary_fb_create_time').html(data.data.create_time);
+        }
+      });
+
+      $('#sm_notice').html('');
+    });  
+  }
 </script>

@@ -23,6 +23,7 @@ class invoice extends billing {
             $data['billing_component_id'] = $array['billing_component'][$i]['id'];
             $data['cost'] = $array['billing_component'][$i]['cost'];
             $data['quantity'] = $array['billing_component'][$i]['quantity'];
+            $data['type'] = $array['billing_component'][$i]['type'];
             $data['description'] = $array['billing_component'][$i]['description'];
 
 

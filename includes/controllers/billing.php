@@ -642,6 +642,7 @@ class billing extends database {
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `invoice_id` INT NOT NULL, 
             `billing_component_id` INT NOT NULL, 
+            `type` varchar(20) NOT NULL DEFAULT 'component',
             `quantity` INT NOT NULL, 
             `description` varchar(500) NULL,
             `patient_id` INT NOT NULL, 

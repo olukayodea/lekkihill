@@ -251,6 +251,12 @@ class main {
             'methods'  => 'POST',
             'callback' => array("clinic",'api_add_note')
         ));
+        //sell or recommend drugs
+        //url = https://lekkihill.com/wp-json/api/patient/drugs;
+        register_rest_route( 'api', 'patient/drugs',array(
+            'methods'  => 'POST',
+            'callback' => array("clinic",'api_sell_medication')
+        ));
         //add new patient vitals
         //url = https://lekkihill.com/wp-json/api/patient/vitals;
         register_rest_route( 'api', 'patient/vitals',array(
@@ -294,6 +300,12 @@ class main {
         register_rest_route( 'api', 'patient/(?P<patient_id>\d+)',array(
             'methods'  => 'GET',
             'callback' => array("patient",'read_api_component')
+        ));
+        //get patient data
+        //url = https://lekkihill.com/wp-json/api/patient/1;
+        register_rest_route( 'api', 'patient/drugs/(?P<patient_id>\d+)',array(
+            'methods'  => 'GET',
+            'callback' => array("clinic",'medicationHistory_api')
         ));
         //get patient notes
         //url = https://lekkihill.com/wp-json/api/patient/notes/1;
@@ -440,7 +452,7 @@ class main {
             "Medications",
             "manage_medication",
             "lh-manage-medication",
-            array('clinic','manage')
+            array('clinic','manageMedication')
         );
 
         add_menu_page(
@@ -451,15 +463,6 @@ class main {
             array('visitors','manage'),
             "dashicons-id",'2.2.9',
             7
-        );
-
-        add_submenu_page(
-            "lh-manage-clinic",
-            "Retrieve Records",
-            "Retrieve Records",
-            "manage_clinic",
-            "lh-manage-clinic",
-            array('clinic','manage')
         );
 
         add_menu_page(
@@ -638,6 +641,7 @@ class main {
         $inventory_category     = new inventory_category;
 
         $patient                = new patient;
+        $patient_medication     = new patient_medication;
         $visitors               = new visitors;
         $billing                = new billing;
         $billing_component      = new billing_component;
@@ -659,6 +663,7 @@ class main {
         $inventory_count->initialize_table();
         $inventory_category->initialize_table();
         $patient->initialize_table();
+        $patient_medication->initialize_table();
         $visitors->initialize_table();
         $billing->initialize_table();
         $billing_component->initialize_table();
@@ -685,6 +690,7 @@ class main {
         $lekkihill_admin = get_role( "lekki_hill_admin" );
         $lekkihill_admin->add_cap( 'manage_patient' );
         $lekkihill_admin->add_cap( 'manage_clinic' );
+        $lekkihill_admin->add_cap( 'manage_clinic_massage' );
         $lekkihill_admin->add_cap( 'manage_medication' );
         $lekkihill_admin->add_cap( 'manage_visitors' );
         $lekkihill_admin->add_cap( 'manage_inventory' );
@@ -694,6 +700,8 @@ class main {
         $lekkihill_admin->add_cap( 'mamange_accounts_report' );
         $lekkihill_admin->add_cap( 'manage_inventory_report' );
         $lekkihill_admin->add_cap( 'manage_inventory_category' );
+        $lekkihill_admin->add_cap( 'manage_woocommerce' );
+        $lekkihill_admin->add_cap( 'view_woocommerce_reports' );
 
         //add doctors
 		add_role(
@@ -708,6 +716,7 @@ class main {
         $lekkihill_doctor->add_cap( 'manage_patient' );
         $lekkihill_doctor->add_cap( 'manage_medication' );
         $lekkihill_doctor->add_cap( 'manage_clinic' );
+        $lekkihill_doctor->add_cap( 'manage_clinic_massage' );
         $lekkihill_doctor->add_cap( 'manage_inventory' );
         $lekkihill_doctor->add_cap( 'mamange_accounts' );
         $lekkihill_doctor->add_cap( 'manage_patient_report' );
@@ -725,9 +734,44 @@ class main {
         $lekkihill_nurse->add_cap( 'manage_patient' );
         $lekkihill_nurse->add_cap( 'manage_medication' );
         $lekkihill_nurse->add_cap( 'manage_clinic' );
+        $lekkihill_nurse->add_cap( 'manage_clinic_massage' );
         $lekkihill_nurse->add_cap( 'manage_inventory' );
         $lekkihill_nurse->add_cap( 'mamange_accounts' );
         $lekkihill_nurse->add_cap( 'manage_patient_report' );
+        $lekkihill_nurse->add_cap( 'manage_woocommerce' );
+        $lekkihill_nurse->add_cap( 'view_woocommerce_reports' );
+
+        //add nurses
+		add_role(
+			'lekki_hill_massage',
+			__( 'LekkiHill Masseur' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekkihill_masseur = get_role( "lekki_hill_nurses" );
+        $lekkihill_masseur->add_cap( 'manage_clinic_massage' );
+        $lekkihill_masseur->add_cap( 'manage_patient' );
+        $lekkihill_masseur->add_cap( 'manage_medication' );
+        $lekkihill_masseur->add_cap( 'manage_clinic' );
+        $lekkihill_masseur->add_cap( 'manage_patient_report' );
+
+        //add pharmacy
+		add_role(
+			'lekki_hill_pharmacy',
+			__( 'LekkiHill Pharmacy' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekkihill_pharm = get_role( "lekki_hill_pharmacy" );
+        $lekkihill_pharm->add_cap( 'manage_clinic' );
+        $lekkihill_pharm->add_cap( 'manage_medication' );
+        $lekkihill_pharm->add_cap( 'manage_inventory' );
+        $lekkihill_pharm->add_cap( 'manage_woocommerce' );
+        $lekkihill_pharm->add_cap( 'view_woocommerce_reports' );
 
         //add front desk
 		add_role(
@@ -742,6 +786,7 @@ class main {
         $lekki_hill_front_desk->add_cap( 'manage_patient' );
         $lekki_hill_front_desk->add_cap( 'manage_clinic' );
         $lekki_hill_front_desk->add_cap( 'manage_visitors' );
+        $lekki_hill_front_desk->add_cap( 'manage_woocommerce' );
 
         //add accounts
 		add_role(
@@ -756,6 +801,7 @@ class main {
         $lekki_hill_accounts->add_cap( 'manage_patient' );
         $lekki_hill_accounts->add_cap( 'mamange_accounts' );
         $lekki_hill_accounts->add_cap( 'mamange_accounts_report' );
+        $lekki_hill_accounts->add_cap( 'view_woocommerce_reports' );
         
         //add inventory
 		add_role(
@@ -769,6 +815,7 @@ class main {
         $lekki_hill_inventory = get_role( "lekki_hill_inventory" );
         $lekki_hill_inventory->add_cap( 'manage_inventory' );
         $lekki_hill_inventory->add_cap( 'manage_inventory_report' );
+        $lekki_hill_inventory->add_cap( 'manage_woocommerce' );
 
 		//add roles to admin
 		$administrator		= get_role('administrator');
@@ -800,6 +847,7 @@ class main {
         $inventory_count    = new inventory_count;
         $inventory_category = new inventory_category;
         $patient                = new patient;
+        $patient_medication     = new patient_medication;
         $visitors               = new visitors;
         $billing                = new billing;
         $billing_component      = new billing_component;
@@ -818,6 +866,7 @@ class main {
         $inventory_count->delete_table();
         $inventory_category->delete_table();
         $patient->delete_table();
+        $patient_medication->delete_table();
         $visitors->delete_table();
         $billing->delete_table();
         $billing_component->delete_table();
@@ -860,6 +909,9 @@ class main {
             if (isset($roles[$key]) && $role->has_cap('mamange_accounts_report')) {
                 $role->remove_cap('mamange_accounts_report');
             }
+            if (isset($roles[$key]) && $role->has_cap('manage_clinic_massage')) {
+                $role->remove_cap('manage_clinic_massage');
+            }
         }
     }
 	
@@ -879,6 +931,9 @@ class main {
 		}
 		if ( get_role('lekki_hill_nurses') ){
 			remove_role( 'lekki_hill_nurses' );
+		}
+		if ( get_role('lekki_hill_pharmacy') ){
+			remove_role( 'lekki_hill_pharmacy' );
 		}
     }
     

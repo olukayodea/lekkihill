@@ -39,8 +39,7 @@ $data = self::$viewData; ?>
                 <textarea name="billing_component[0][description]" id="comp_desc_0" placeholder="Description (Optional)"></textarea>
                 <button type="button" id="add_button_0" data-id="0" class="button button-primary" onclick="add_button(0)"><i class="fas fa-plus-square fa-lg"></i></button>
             </div>
-            <div id="other_content">
-            </div>
+            <div id="other_content"></div>
 
             <?php if (isset($_REQUEST['return'])) { ?>
                 <input type="hidden" name="return" id="return" value="<?php echo $_REQUEST['return']."&id=".$data['ref']; ?>" />

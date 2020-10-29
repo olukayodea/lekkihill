@@ -152,7 +152,7 @@ class mainClass extends main {
         //registration hooks
         register_activation_hook( __FILE__, 'main::lh_install' );
         register_deactivation_hook( __FILE__, 'main::lh_deactivate' );
-        register_uninstall_hook( __FILE__, 'main::lh_install' );
+        register_uninstall_hook( __FILE__, 'main::lh_uninstall' );
     }
 }
 

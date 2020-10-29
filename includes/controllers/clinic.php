@@ -6,6 +6,7 @@ class clinic extends database {
     public static $userData = array();
     public static $patientData = array();
     public static $list = array();
+    public static $medicationList = array();
     public static $inventoryList = array();
     public static $viewData = array();
     public static $appointmentData = array();
@@ -35,6 +36,36 @@ class clinic extends database {
         self::recent_medication( self::$id );
         self::recent_fluid_balance( self::$id );
 		include_once(LH_PLUGIN_DIR."includes/pages/clinic/managePrint.php");
+    }
+
+    public static function manageMedication() {
+        self::$userToken = users::getToken( get_current_user_id(), FALSE );
+        self::$logged_in_user = get_userdata( get_current_user_id() );
+        $id = $_REQUEST['id'];
+
+
+        if (isset($_POST['submit'])) {
+
+            $_POST['added_by'] = get_current_user_id();
+            unset($_POST['submit']);
+
+            if (self::sell_medication($_POST)) {
+                self::$message = "Medication dispensed successfully";
+                self::$viewData = array();
+            } else {
+                self::$error_message = "there was an error performing this action";
+            }
+        }
+
+        if (isset($_REQUEST['patient'])) {
+            self::$viewData = patient::listOne($id);
+            billing::get_due_invoice($id, false);
+
+            self::medicationHistory($id);
+        }
+        billing::list_component();
+        self::$inventoryList = inventory::getSortedList(get_option("lh-medicationCategory"), "category_id", "status", "ACTIVE");
+		include_once(LH_PLUGIN_DIR."includes/pages/clinic/manage_medication.php");
     }
 
     public static function manage() {
@@ -105,6 +136,16 @@ class clinic extends database {
 		include_once(LH_PLUGIN_DIR."includes/pages/clinic/manage.php");
     }
 
+    private static function sell_medication($array) {
+        $add = patient_medication::create($array);
+        if ($add) {
+            self::$message = "Medication dispensed successfully";
+        } else {
+            self::$error_message = "there was an error performing this action";
+        }
+        return $add;
+    } 
+
     private static function add_vitals($array) {
         $add = vitals::create($array);
         if ($add) {
@@ -114,6 +155,30 @@ class clinic extends database {
         }
 
         return $add;
+    }
+
+    private static function medicationHistory($id) {
+        self::$medicationList = patient_medication::getSortedList($id, "patient_id");
+    }
+
+    public function medicationHistory_api($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $id = $request['patient_id'];
+        self::medicationHistory($id, "patient_id");
+        self::$return = self::$successResponse;
+        self::$return['data'] = self::formatResult( self::$medicationList );
+
+        return self::$return;
     }
 
     private static function add_medication($array) {
@@ -449,6 +514,34 @@ class clinic extends database {
         $parameters['added_by'] = self::$userData['ID'];
 
         $add = self::add_vitals($parameters);
+        if ($add) {
+            self::$return = self::$successResponse;
+        } else {
+            self::$return = self::$BadReques;
+        }
+
+        return self::$return;
+    }
+
+    public static function api_sell_medication($request) {
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+        $parameters['added_by'] = self::$userData['ID'];
+
+        $add = self::sell_medication($parameters);
         if ($add) {
             self::$return = self::$successResponse;
         } else {
@@ -986,7 +1079,33 @@ class clinic extends database {
             $pdf->Output($data['details']['patientId']."_".$data['details']['last_name'].'.pdf', 'I');
         }
     }
+
+    public static function formatResult($data, $single=false) {
+        if ($single == false) {
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i] = self::clean($data[$i]);
+            }
+        } else {
+            $data = self::clean($data);
+        }
+        return $data;
+    }
+
+    public static function clean($data) {
+        $patient_id['id'] = $data['patient_id'];
+        $patient_id['first_name'] = patient::getSingle( $data['patient_id'], "first_name" );
+        $patient_id['last_name'] = patient::getSingle( $data['patient_id'], "last_name" );
+        $patient_id['email'] = patient::getSingle( $data['patient_id'], "email" );
+        $patient_id['phone_number'] = patient::getSingle( $data['patient_id'], "phone_number" );
+        $data['patient_id'] = $patient_id;
+        $medication_id['ref'] = $data['medication_id'];
+        $medication_id['name'] = inventory::getSingle( $data['medication_id'] );
+        $data['medication'] = $medication_id;
+        unset($data['medication_id']);
+        return $data;
+    }
 }
+
 //other clinic classes and functions
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_post_op.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic_fluid_balance.php';

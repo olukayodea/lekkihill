@@ -121,7 +121,7 @@ class appointments extends database {
         return self::$return;
     }
 
-    public function today() {
+    public static function today() {
         $from = date("Y-m-d 00:00:00");
         $to = date("Y-m-d 23:59:59");
         self::$list = self::query("SELECT * FROM ".table_name_prefix."appointments WHERE `status` = 'SCHEDULED' AND `next_appointment` BETWEEN '".$from."' AND '".$to."' ORDER BY `next_appointment` ASC", false, "list");
@@ -355,7 +355,7 @@ class appointments extends database {
         return self::getOneField(table_name_prefix."appointments", $name, $ref, $tag);
     }
 
-    function listOne($id, $ref="ref") {
+    public static function listOne($id, $ref="ref") {
         return self::getOne(table_name_prefix."appointments", $id, $ref);
     }
 

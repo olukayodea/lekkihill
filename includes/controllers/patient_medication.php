@@ -1,8 +1,47 @@
 <?php
 class patient_medication extends patient {
     static function create($array) {
-        $array['recommended'] = serialize($array['recommended']);
-        return self::insert(table_name_prefix."patient_medication", $array);
+        // echo json_encode($array);
+
+        $invoice['patient_id'] = $array['patient_id'];
+        $invoice['due_date'] = date("Y-m-d");
+        $invoice['added_by'] = $array['added_by'];
+
+        $total = 0;
+
+        foreach ($array['medication'] as $row) {
+            $addData['id'] = $row['medication_id'];
+            $addData['quantity'] = $row['quantity'];
+            $addData['type'] = "drug";
+            $addData['cost'] = inventory::getSingle($row['medication_id'], "cost");
+            $addData['description'] = $row['notes'];
+
+            $invoice['billing_component'][] = $addData;
+            $total = $total + ($addData['quantity']*$addData['cost']);
+        }
+
+        $add = invoice::create($invoice);
+        if ($add) {
+
+            if ($array['paymentMode'] == "now") {
+                $pay['patient_id'] = $array['patient_id'];
+                $pay['data'][] = array("ref"=>$add, "amount"=>$total);
+                invoice::payInvoice($pay);
+            }
+
+            foreach ($array['medication'] as $row) {
+                $row['added_by'] = $array['added_by'];
+                $row['patient_id'] = $array['patient_id'];
+                $row['invoice_id'] = $add;
+                if ($array['paymentMode'] == "now") {
+                    $row['status'] = "PAID";
+                }
+                self::insert(table_name_prefix."patient_medication", $row);
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static function modifyOne($tag, $value, $id, $ref="ref") {
@@ -59,8 +98,12 @@ class patient_medication extends patient {
             `ref` INT NOT NULL AUTO_INCREMENT, 
             `patient_id` INT NOT NULL, 
             `doctors_report_id` INT NOT NULL,
-            `medication_id` TEXT NULL, 
-            `medication` TEXT NULL, 
+            `medication_id` INT NULL, 
+            `invoice_id` INT NULL, 
+            `quantity` INT NOT NULL, 
+            `dose` INT NOT NULL, 
+            `frequency` varchar(20) NULL, 
+            `notes` TEXT NULL, 
             `added_by` INT NOT NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'NEW',
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
