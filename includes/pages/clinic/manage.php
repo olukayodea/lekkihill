@@ -182,19 +182,19 @@
               <div class="form-field form-required term-title-wrap">
                 <label for="product"> Recommended Mediacations/Products</label>
                 <div class="form-field form-required term-age-wrap" id="div_0">
-                    <label for="component_0">Medication</label>
-                    <select id="component_0" name="medication[0][medication_id]" data-id="0" required>
+                    <label for="medication_id">Medication</label>
+                    <select id="medication_id" name="medication_id" data-id="0" required>
                         <option value="">Select One</option>
                         <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
                             <option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>
                         <?php } ?>
                     </select>
-                    <label for="comp_qty_0">Quantity</label>
-                    <input type="number" name="medication[0][quantity]" id="comp_qty_0" value="1" placeholder="Quantity" required />
-                    <label for="comp_dose_0">Dose</label>
-                    <input type="number" name="medication[0][dose]" id="comp_dose_0" value="" required placeholder='Dose' />
-                    <label for="comp_freq_0">Frequency</label>
-                    <select id="comp_freq_0" name="medication[0][frequency]" required >
+                    <label for="quantity">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" value="1" placeholder="Quantity" required />
+                    <label for="dose">Dose</label>
+                    <input type="number" name="dose" id="dose" value="" required placeholder='Dose' />
+                    <label for="frequency">Frequency</label>
+                    <select id="frequency" name="frequency" required >
                         <option value="">Select One</option>
                         <option value="Morning Afternoon Evening">Morning Afternoon Evening</option>
                         <option value="Morning Evening">Morning Evening</option>
@@ -203,11 +203,25 @@
                         <option value="Weekly">Weekly</option>
                         <option value="Monthly">Monthly</option>
                     </select>
-                    <label for="comp_notes_0">Notes (Optional)</label>
-                    <textarea name="medication[0][notes]" id="comp_notes_0" placeholder="Notes (Optional)"></textarea><br>
-                    <button type="button" id="add_button_0" data-id="0" class="button button-primary" onclick="add_button(0)"><i class="fas fa-plus-square fa-lg"></i></button>
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea name="notes" id="notes" placeholder="Notes (Optional)"></textarea><br>
+                    <button type="button" id="add_button_0" data-id="0" class="button button-primary" onclick="add_button()"><i class="fas fa-plus-square fa-lg"></i></button>
+                    <table id="drugList" width="100%">
+                      <thead>
+                        <tr>
+                          <td>Medication</td>
+                          <td>Quantity</td>
+                          <td>Dose</td>
+                          <td>Note</td>
+                          <td>&nbsp;</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                      <div id="other_content"></div>
+                    </table>
                 </div>
-                <div id="other_content"></div>
+                
               </div>
               <button type="submit" id="doctors_mote_button" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
             </form>
@@ -1173,7 +1187,8 @@
       jQuery("#comp_id").val( result[0]);
       jQuery("#comp_cost").val( result[1]);
   }
-  var product = [];
+  
+  const product = [];
   jQuery(function ($) {
       $('#procedure').select2();
       $('#product').select2({
@@ -1478,44 +1493,77 @@
     
   } );
 
-
   function minus_button( key ) {
     jQuery( "#div_" + key ).remove();
   }
 
-  function add_button( key ) {
-    var locate = parseInt(jQuery("#add_button_" + key ).attr("data-id"));
-    var next = locate+1;
+  function add_button() {
+    jQuery(function ($) {
+      var medication_id = $("#medication_id").val();
+      var medication_text = $("#medication_id option:selected").text();
+      var quantity = $("#quantity").val();
+      var dose = $("#dose").val();
+      var frequency = $("#frequency").val();
+      var notes = $("#notes").val();
 
-    var data = '<div class="form-field form-required term-age-wrap" id="div_'+next+'">'
-      +'<label for="component_'+next+'">Medication</label>'
-      +'<select id="component_'+next+'" name="medication['+next+'][medication_id]" data-id="'+next+'" required >'
-        +'<option value="">Select One</option>'
-        <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
-          +'<option value="<?php echo $inventoryList[$i]['ref']; ?>"><?php echo $inventoryList[$i]['title']; ?></option>'
-        <?php } ?>
-      +'</select>'
-      +'<label for="comp_qty_'+next+'">Quantity</label>'
-      +'<input type="number" name="medication['+next+'][quantity]" id="comp_qty_'+next+'" value="1" placeholder="Quantity" required />'
-      +'<label for="comp_dose_'+next+'">Dose</label>'
-      +'<input type="number" name="medication['+next+'][dose]" id="comp_dose_'+next+'" value="" required placeholder="Dose" />'
-      +'<label for="comp_freq_'+next+'">Frequency</label>'
-      +'<select id="comp_freq_'+next+'" name="medication['+next+'][frequency]" required >'
-        +'<option value="">Select One</option>'
-        +'<option value="Morning Afternoon Evening">Morning Afternoon Evening</option>'
-        +'<option value="Morning Evening">Morning Evening</option>'
-        +'<option value="Afternoon Evening">Afternoon Evening</option>'
-        +'<option value="Daily">Daily</option>'
-        +'<option value="Weekly">Weekly</option>'
-        +'<option value="Monthly">Monthly</option>'
-      +'</select>'
-      +'<label for="comp_notes_'+next+'">Notes (Optional)</label>'
-      +'<textarea name="medication['+next+'][notes]" id="comp_notes_'+next+'" placeholder="Notes (Optional)"></textarea><br>'
-      +'<button type="button" id="add_button_'+next+'" data-id="'+next+'" class="button button-primary" onclick="add_button('+next+')"><i class="fas fa-plus-square fa-lg"></i></button>'
-      +'<button type="button" id="minus_button_'+next+'" data-id="'+next+'" class="button button-primary" onclick="minus_button('+next+')"><i class="fas fa-minus-square fa-lg"></i></button>'
-    +'</div>'
+      if ((medication_id == "") || (quantity == "") || (dose == "") || (frequency == "")) {
+        alert("One or more needed field is empty");
+        return false;
+      }
+      var data = [
+        medication_id,
+        quantity,
+        dose,
+        frequency,
+        notes
+      ]
 
-    jQuery('#other_content').append( data );
+      product.push(data);
+
+      console.log(product);
+      var len  = product.length-1;
+
+      var dataArray = "<tr>"
+        +"<td>"+medication_text+"</td>"
+        +"<td>"+quantity+"</td>"
+        +"<td>"+dose+" "+frequency+"</td>"
+        +"<td>"+notes+"</td>"
+        +"<td><a href='Javascript:void(0);' onclick='removeId("+len+")'>Remove</a></td>"
+      +"</tr>"
+      jQuery('#drugList tr:last').after(dataArray);
+
+    });
+  }
+
+  function removeId(id) {
+    var list = [];
+
+    <?php for ($i = 0; $i < count($inventoryList); $i++) { ?>
+      list[<?php echo $inventoryList[$i]['ref']; ?>] = "<?php echo $inventoryList[$i]['title']; ?>";
+    <?php } ?>
+
+    const index = product.indexOf(id);
+    if (index > -1) {
+      product.splice(index, 1);
+    }
+
+    var len = 0;
+
+    jQuery("#drugList tbody").empty();
+    product.forEach(function(number) {
+      console.log(number);
+
+      var dataArray = "<tr>"
+        +"<td>"+list[number.medication_id]+"</td>"
+        +"<td>"+number.quantity+"</td>"
+        +"<td>"+number.dose+" "+number.frequency+"</td>"
+        +"<td>"+number.notes+"</td>"
+        +"<td><a href='Javascript:void(0);' onclick='removeId("+len+")'>Remove</a></td>"
+      +"</tr>"
+
+      jQuery('#drugList tr:last').after(dataArray);
+      len++;
+    });
   }
 
   function doctorsNotes() {
@@ -1538,29 +1586,29 @@
       var user_token = '<?php echo self::$userToken; ?>';
       var api_token = btoa(api_key+"_"+user_token)
 
-      // jQuery.ajaxSetup({
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'api-key': api_key,
-      //     'api-token': api_token
-      //   }
-      // });
+      jQuery.ajaxSetup({
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': api_key,
+          'api-token': api_token
+        }
+      });
 
-      // var url = '<?php echo get_rest_url()."api/patient/notes"; ?>';
+      var url = '<?php echo get_rest_url()."api/patient/notes"; ?>';
 
-      // jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
-      //   if (data.status == "200") {
-      //     $('#updatedMessage').show();
-      //     $('#updatedMessage').html('<p>Record Added!</p>');
-      //     $("#doctors_note_data").val("");
-      //     $("#doctors_note_data").focus();
+      jQuery.post( url, JSON.stringify( sendInfo ), function( data ) {
+        if (data.status == "200") {
+          $('#updatedMessage').show();
+          $('#updatedMessage').html('<p>Record Added!</p>');
+          $("#doctors_note_data").val("");
+          $("#doctors_note_data").focus();
 
-      //     doctorsNotesRecords();
-      //   } else {
-      //     $('#errorMessage').show();
-      //     $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
-      //   }
-      // });
+          doctorsNotesRecords();
+        } else {
+          $('#errorMessage').show();
+          $('#errorMessage').html('<p>An error occured, Try  Again!</p>');
+        }
+      });
     });
   }
 

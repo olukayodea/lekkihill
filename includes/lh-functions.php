@@ -407,7 +407,7 @@ class main {
     }
 
     //get all the  menus  and  submenu
-    public static function  lh_add_menu() {
+    public static function lh_add_menu() {
         add_menu_page(
             "Patients",
             "Patients",
