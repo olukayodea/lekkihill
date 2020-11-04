@@ -132,19 +132,29 @@
               <?php } ?>
             <?php } ?>
             <?php if ((isset($_REQUEST['appointment'])) || (isset($_REQUEST['patient']))) { ?>
-            <?php if ($balance > 0) { ?>
-              <button type="button" id="add_button_0" data-id="0" class="button button-primary" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-file-invoice fa-lg"></i>&nbsp;Pending Invoice</button>&nbsp;&nbsp;
+
+            <?php if( current_user_can('mamange_accounts') ) {  ?>
+              <?php if ($balance > 0) { ?>
+                <button type="button" id="add_button_0" data-id="0" class="button button-primary" data-toggle="modal" data-target="#exampleModal"><i class="fas fa-file-invoice fa-lg"></i>&nbsp;Pending Invoice</button>&nbsp;&nbsp;
+              <?php } ?>
+              <?php if ($balance+get_option("lh-consultationFee-cost") > 0) { ?>
+                <button type="button" id="add_button_1" data-id="0" class="button button-primary" data-toggle="modal" data-target="#poatPayment"><i class="fas fa-money-check-alt fa-lg"></i>&nbsp;Post Payment</button>&nbsp;&nbsp;
+              <?php } ?>
             <?php } ?>
-            <?php if ($balance+get_option("lh-consultationFee-cost") > 0) { ?>
-              <button type="button" id="add_button_1" data-id="0" class="button button-primary" data-toggle="modal" data-target="#poatPayment"><i class="fas fa-money-check-alt fa-lg"></i>&nbsp;Post Payment</button>&nbsp;&nbsp;
-            <?php } ?>
+            <?php if( current_user_can('manage_medication') ) {  ?>
             <button type="button" id="add_button_5" data-id="0" class="button button-primary" onclick="location='<?php echo admin_url('admin.php?page=lh-manage-medication&patient&id='.$data['ref']); ?>'"><i class="fas fa-prescription"></i>&nbsp;Medications</button>&nbsp;&nbsp;
-            <button type="button" id="add_button_2" data-id="0" class="button button-primary"><i class="fas fa-thermometer-quarter fa-lg"></i>&nbsp;Record Vitals</button>&nbsp;&nbsp;
-            <?php if ($managePatient) { ?>
-            <button type="button" id="add_button_3" data-id="0" class="button button-primary"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Manage Patient</button>&nbsp;&nbsp;
-            <button type="button" id="add_button_4" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Close</button>&nbsp;&nbsp;
-            <?php } else { ?>
-            <div class="update-nag"><p><?php echo "You can not manage patient at the moment, patient's vitals has not been collected today"; ?></p></div><?php } ?>
+            <?php } ?>
+
+            <?php if( current_user_can('manage_patient_records') ) {  ?>
+              <button type="button" id="add_button_2" data-id="0" class="button button-primary"><i class="fas fa-thermometer-quarter fa-lg"></i>&nbsp;Record Vitals</button>&nbsp;&nbsp;
+            <?php } ?>
+            <?php if( current_user_can('manage_patient') ) {  ?>
+              <?php if ($managePatient) { ?>
+              <button type="button" id="add_button_3" data-id="0" class="button button-primary"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Manage Patient</button>&nbsp;&nbsp;
+              <button type="button" id="add_button_4" data-id="0" class="button button-primary" style="display: none"><i class="fas fa-plus-square fa-lg"></i>&nbsp;Close</button>&nbsp;&nbsp;
+              <?php } else { ?>
+              <div class="update-nag"><p><?php echo "You can not manage patient at the moment, patient's vitals has not been collected today"; ?></p></div><?php } ?>
+              <?php } ?>
             <?php } ?>
             <br>
             <i>Remove Later: None patient appointments has not been handled, they should be added as patients automatically before their vitals are taken</i>
@@ -157,17 +167,21 @@
       </div>
     </div>
     <div id="col-right">
-
+    
       <div class="col-wrap">
         <div class="form-wrap">
           <div class="col-wrap" id="control_buttons" style="display: none">
-            <button type="button" id="control_doctors_note" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Doctor's Notes</button>
-            <button type="button" id="control_sm_bt" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Summary</button>
-            <button type="button" id="control_cs_bt" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;Continuation Sheet</button>
-            <button type="button" id="control_po_bt" data-id="0" class="button button-primary"><i class="fas fa-bed fa-lg"></i>&nbsp;Post Operative Note</button>
-            <button type="button" id="control_m_bt" data-id="0" class="button button-primary"><i class="fas fa-prescription fa-lg"></i>&nbsp;Medications</button>
-            <button type="button" id="control_mg_bt" data-id="0" class="button button-primary"><i class="fas fa-spa fa-lg"></i>&nbsp;Massage</button>
-            <button type="button" id="control_fb_bt" data-id="0" class="button button-primary"><i class="fas fa-balance-scale-right fa-lg"></i>&nbsp;Fluid Balance</button>
+            <?php if( current_user_can('manage_patient_records') ) {  ?>
+              <button type="button" id="control_doctors_note" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Doctor's Notes</button>
+              <button type="button" id="control_sm_bt" data-id="0" class="button button-primary"><i class="fas fa-clinic-medical fa-lg"></i>&nbsp;Summary</button>
+              <button type="button" id="control_cs_bt" data-id="0" class="button button-primary"><i class="fas fa-notes-medical fa-lg"></i>&nbsp;Continuation Sheet</button>
+              <button type="button" id="control_po_bt" data-id="0" class="button button-primary"><i class="fas fa-bed fa-lg"></i>&nbsp;Post Operative Note</button>
+              <button type="button" id="control_m_bt" data-id="0" class="button button-primary"><i class="fas fa-prescription fa-lg"></i>&nbsp;Medications</button>
+              <button type="button" id="control_fb_bt" data-id="0" class="button button-primary"><i class="fas fa-balance-scale-right fa-lg"></i>&nbsp;Fluid Balance</button>
+            <?php } ?>
+            <?php if( current_user_can('manage_clinic_massage') ) {  ?>
+              <button type="button" id="control_mg_bt" data-id="0" class="button button-primary"><i class="fas fa-spa fa-lg"></i>&nbsp;Massage</button>
+            <?php } ?>
             <button type="button" id="control_fo_bt" data-id="0" class="button button-primary"><i class="fab fa-wpforms fa-lg"></i>&nbsp;Forms</button>
           </div>
           <div class="col-wrap control_bt" id="control_doctors_note_div" style="display: none">
@@ -179,7 +193,7 @@
                 <label for="doctors_note_data">Note</label>
                 <textarea id="doctors_note_data" cols="85%" rows="15%" required></textarea>
               </div>
-              <div class="form-field form-required term-title-wrap">
+              <!-- <div class="form-field form-required term-title-wrap">
                 <label for="product"> Recommended Mediacations/Products</label>
                 <div class="form-field form-required term-age-wrap" id="div_0">
                     <label for="medication_id">Medication</label>
@@ -222,7 +236,7 @@
                     </table>
                 </div>
                 
-              </div>
+              </div> -->
               <button type="submit" id="doctors_mote_button" class="button button-primary"><i class="fas fa-save fa-lg"></i>&nbsp;Save</button>
             </form>
 

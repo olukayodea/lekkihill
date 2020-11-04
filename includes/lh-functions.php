@@ -702,6 +702,7 @@ class main {
         $lekkihill_admin->add_cap( 'manage_inventory_category' );
         $lekkihill_admin->add_cap( 'manage_woocommerce' );
         $lekkihill_admin->add_cap( 'view_woocommerce_reports' );
+        $lekkihill_admin->add_cap( 'manage_patient_records' );
 
         //add doctors
 		add_role(
@@ -720,6 +721,7 @@ class main {
         $lekkihill_doctor->add_cap( 'manage_inventory' );
         $lekkihill_doctor->add_cap( 'mamange_accounts' );
         $lekkihill_doctor->add_cap( 'manage_patient_report' );
+        $lekkihill_doctor->add_cap( 'manage_patient_records' );
 
         //add nurses
 		add_role(
@@ -740,6 +742,7 @@ class main {
         $lekkihill_nurse->add_cap( 'manage_patient_report' );
         $lekkihill_nurse->add_cap( 'manage_woocommerce' );
         $lekkihill_nurse->add_cap( 'view_woocommerce_reports' );
+        $lekkihill_nurse->add_cap( 'manage_patient_records' );
 
         //add nurses
 		add_role(
@@ -750,7 +753,7 @@ class main {
 			)
         );
         
-        $lekkihill_masseur = get_role( "lekki_hill_nurses" );
+        $lekkihill_masseur = get_role( "lekki_hill_massage" );
         $lekkihill_masseur->add_cap( 'manage_clinic_massage' );
         $lekkihill_masseur->add_cap( 'manage_patient' );
         $lekkihill_masseur->add_cap( 'manage_medication' );
@@ -830,6 +833,7 @@ class main {
         $administrator->add_cap( 'mamange_accounts_report' );
         $administrator->add_cap( 'manage_inventory_report' );
         $administrator->add_cap( 'manage_inventory_category' );
+        $administrator->add_cap( 'manage_patient_records' );
     }
 
     public static function lh_deactivate() {
@@ -911,6 +915,9 @@ class main {
             }
             if (isset($roles[$key]) && $role->has_cap('manage_clinic_massage')) {
                 $role->remove_cap('manage_clinic_massage');
+            }
+            if (isset($roles[$key]) && $role->has_cap('manage_patient_records')) {
+                $role->remove_cap('manage_patient_records');
             }
         }
     }
