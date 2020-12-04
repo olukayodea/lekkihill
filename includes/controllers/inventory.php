@@ -284,6 +284,44 @@ class inventory extends database {
         return $return;
     }
 
+    public function apiUpdateDiscount($request) {
+        /**
+         * API authentication
+         */
+        $auth = self::validateSession($request);
+        if ($auth['status'] == 200) {
+            unset($auth['status']);
+            unset($auth['message']);
+            self::$userData = $auth;
+        } else {
+            return $auth;
+        }
+        $parameters = $request->get_params();
+        if (!$parameters) {
+            self::$BadReques['additional_message'] = "some input values are missing";
+            self::$return = self::$BadReques;
+            return self::$return;
+        }
+        $parameters['created_by'] = self::$userData['ID'];
+        $parameters['last_modified_by'] = self::$userData['ID'];
+        if ((!isset($parameters['discountValue'])) || ($parameters['discountValue'] > 100)) {
+            self::$BadReques['additional_message'] = "'discountValue' field value can not be more than 100";
+            self::$return = self::$BadReques;
+        } else if ((!isset($parameters['discountValue'])) || ($parameters['discountValue'] < 0)) {
+            self::$BadReques['additional_message'] = "'discountValue' field value can not be less than 0";
+            self::$return = self::$BadReques;
+        } else {
+            $add = self::addDiscount($parameters);
+            if ($add) {
+                self::$return = self::$successResponse;
+            } else {self::$BadReques['additional_message'] = "there was an error performing this action";
+                self::$return = self::$BadReques;
+            }
+        }
+
+        return self::$return;
+    }
+
     public function manage() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
@@ -330,9 +368,30 @@ class inventory extends database {
                 self::$error_message = "there was an error performing this action";
                 self::returnUrl("error", self::$error_message);
             }
+        } else if (isset($_POST['updateDiscount'])) {
+            unset($_POST['updateDiscount']);
+            if ($_POST['discountValue'] > 100) {
+                self::$error_message = "there was an error performing this action, discount value can not be more than 100";
+            } else if ($_POST['discountValue'] < 0) {
+                self::$error_message = "there was an error performing this action, discount value can not be less than 0";
+            } else {
+                $add = self::addDiscount($_POST);
+                if ($add) {
+                    self::$message = "Inventory item modified successfully";
+                    self::returnUrl("done", self::$message);
+                } else {
+                    self::$error_message = "there was an error performing this action";
+                    self::returnUrl("error", self::$error_message);
+                }
+            }
+            
         }
         self::$list =  self::getList();
 		include_once(LH_PLUGIN_DIR."includes/pages/inventory/list.php");
+    }
+
+    private function addDiscount($array) {
+        return self::updateOne(table_name_prefix."inventory", "discount", $array['discountValue'], $array['inventory_id']);
     }
 
     public function add() {
@@ -874,13 +933,16 @@ class inventory extends database {
             `qty_desc` VARCHAR(50) NOT NULL,
             `cost` DOUBLE NOT NULL, 
             `category_id` INT NOT NULL, 
+            `discount` INT NOT NULL, 
             `status` varchar(20) NOT NULL DEFAULT 'ACTIVE',
             `created_by` INT NOT NULL, 
             `last_modified_by` INT NOT NULL, 
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`)
-        ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+        ) ENGINE = InnoDB DEFAULT CHARSET=utf8;
+        
+        ALTER TABLE `".DB_NAME."`.`".table_name_prefix."inventory` ADD `discount` INT NOT NULL AFTER `category_id`;";
 
         self::query($query);
     }

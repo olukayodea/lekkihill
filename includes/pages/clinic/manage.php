@@ -156,12 +156,12 @@
               <div class="update-nag"><p><?php echo "You can not manage patient at the moment, patient's vitals has not been collected today"; ?></p></div><?php } ?>
               <?php } ?>
             <?php } ?>
-            <br>
+            <!-- <br>
             <i>Remove Later: None patient appointments has not been handled, they should be added as patients automatically before their vitals are taken</i>
             <br>
             <i>Remove Later: For patients without apppointment, schedule one and charge them when they click on check vitals</i>
             <br>
-            <i>Remove Later: Disable manage patient until vitals are taken</i>
+            <i>Remove Later: Disable manage patient until vitals are taken</i> -->
           </form>
         </div>
       </div>

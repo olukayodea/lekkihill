@@ -11,8 +11,8 @@ $data = self::$viewData;
     <input type="submit" id="search-submit" class="button" value="Search Inventory"  />
   </p>
 </form>
-<?php if (isset($message)): ?><div class="updated"><p><?php echo $message; ?></p></div><?php endif; ?>
-<?php if (isset($error_message)): ?><div class="error"><p><?php echo $error_message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$message)): ?><div class="updated"><p><?php echo self::$message; ?></p></div><?php endif; ?>
+<?php if (isset(self::$error_message)): ?><div class="error"><p><?php echo self::$error_message; ?></p></div><?php endif; ?>
 <table class='widefat striped fixed' id="datatable_list">
   <thead>
     <tr>
@@ -22,6 +22,7 @@ $data = self::$viewData;
       <th class="manage-column column-columnname" scope="col">Desc</th>
       <th class="manage-column column-columnname" scope="col">Quantity</th>
       <th class="manage-column column-columnname" scope="col">Cost</th>
+      <th class="manage-column column-columnname" scope="col">Discount</th>
       <th class="manage-column column-columnname" scope="col">Status</th>
       <th class="manage-column column-columnname" scope="col">Created By</th>
       <th class="manage-column column-columnname" scope="col">Time</th>
@@ -38,6 +39,7 @@ $data = self::$viewData;
       <th class="manage-column column-columnname" scope="col">Desc</th>
       <th class="manage-column column-columnname" scope="col">Quantity</th>
       <th class="manage-column column-columnname" scope="col">Cost</th>
+      <th class="manage-column column-columnname" scope="col">Discount</th>
       <th class="manage-column column-columnname" scope="col">Status</th>
       <th class="manage-column column-columnname" scope="col">Created By</th>
       <th class="manage-column column-columnname" scope="col">Time</th>
@@ -61,6 +63,8 @@ $data = self::$viewData;
       <td class="column-columnname"><?php echo $list[$i]['qty_desc']; ?></td>
       <td><?php echo number_format( self::getBalance( $list[$i]['ref'] ) ); ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&add&id='.$list[$i]['ref']); ?>" title="Add to Stock"><i class="fas fa-plus-square" style="color:green"></i></a>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-add-inventory-stock&return='.$_REQUEST['page'].'&remove&id='.$list[$i]['ref']); ?>" title="Remove from Stock"><i class="fas fa-minus-square" style="color:red"></i></a></td>
       <td class="column-columnname"><?php echo "&#8358; ".number_format($list[$i]['cost'], 2); ?></td>
+      <td class="column-columnname"><?php echo intval($list[$i]['discount']); ?>&nbsp;&nbsp;<a href="Javascript:void(0)" class="discount" data-id="<?php echo $list[$i]['ref']; ?>" data-value="<?php echo intval($list[$i]['discount']); ?>" data-toggle="modal" data-target="#poatPayment"><i class="fas fa-edit"></i></a>
+      </td>
       <td class="column-columnname"><?php echo $list[$i]['status']; ?>&nbsp;<a href="<?php echo admin_url('admin.php?page=lh-inventory&return='.$_REQUEST['page'].'&changeStatus='.$list[$i]['status'].'&id='.$list[$i]['ref']); ?>" onClick="return confirm('<?php echo $tag; ?>. are you sure you want to continue ?')"><?php echo self::getLink($list[$i]['status']); ?></a></td>
       <td class="column-columnname"><?php echo self::getuser( $list[$i]['created_by'] ); ?></td>
       <td class="column-columnname"><?php echo $list[$i]['create_time']; ?></td>
@@ -82,8 +86,42 @@ $data = self::$viewData;
 <i class="fas fa-edit" title="Edit"></i>&nbsp;&nbsp;Edit Inventory Item<br>
 <i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Remove Inventory Item
 </div>
+
+<!-- post payment invoice modal --->
+<div class="modal fade" id="poatPayment" tabindex="-1" role="dialog" aria-labelledby="poatPaymentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="POST" action="">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="poatPaymentLabel">Edit Discount</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group row">
+            <label for="comp_qty_0" class="col-sm-3 col-form-label">Discount</label>
+            <div class="col-sm-9">
+              <input type="number" class="form-control-plaintext" name="discountValue" id="discountValue" value="" placeholder="Discount" required />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="inventory_id" id="inventory_id" value="">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" name="updateDiscount" class="btn btn-primary">Update Discount</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 <script>
 jQuery(function ($) {
+    $('.discount').click(function () {
+      // $( ".discount" ).data( "id" );
+      $('#inventory_id').val($( this ).data( "id" ));
+      $('#discountValue').val($( this ).data( "value" ));
+    });
     $('#datatable_list').DataTable();
 } );
 </script>

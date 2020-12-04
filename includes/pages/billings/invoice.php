@@ -53,7 +53,7 @@ $data = self::$viewData; ?>
     <div id="col-right">
       <div class="col-wrap">
         <h2>All Pending Invoices</h2>
-        <?php for ($i = 0;  $i < count($list); $i++) { ?>
+        <?php if (count($list) > 0) { ?>
             <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing-invoice&PrintInvoice'.$url); ?>','_blank')"><i class="fas fa-print"></i> Print</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-billing-invoice&DownloadInvoice'.$url); ?>','_blank')"><i class="fas fa-download"></i> Download</button>
         <?php } ?>
         <table class="widefat striped fixed" id="datatable_list">

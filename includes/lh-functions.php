@@ -56,11 +56,18 @@ class main {
             'callback' => array("inventory",'apiCreateInventory')
         ));
 
+        
+
         //PUT inventory routes
         //url = https://lekkihill.com/wp-json/api/inventory/category;
         register_rest_route( 'api', 'inventory/category',array(
             'methods'  => 'PUT',
             'callback' => array("inventory",'apiCreateCategory')
+        ));
+        //url = https://lekkihill.com/wp-json/api/inventory/discount;
+        register_rest_route( 'api', 'inventory/discount',array(
+            'methods'  => 'PUT',
+            'callback' => array("inventory",'apiUpdateDiscount')
         ));
         //url = https://lekkihill.com/wp-json/api/inventory;
         register_rest_route( 'api', 'inventory',array(
@@ -425,15 +432,6 @@ class main {
             "manage_patient",
             "lh-manage-patient",
             array('patient','manage')
-        );
-
-        add_submenu_page(
-            "lh-manage-patient",
-            "Reports",
-            "Reports",
-            "manage_patient_report",
-            "lh-patient-billing",
-            array(__CLASS__,'cpc_create')
         );
 
         add_menu_page(
