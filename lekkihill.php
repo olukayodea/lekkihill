@@ -139,6 +139,20 @@ class mainClass extends main {
             billing::DownloadInvoice();
 			exit;
         }
+		if(isset($_GET['PrintDoctor'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            clinic::manageDoctorPrint();
+			exit;
+        }
+		if(isset($_GET['downloadDoctorPDF'])) {
+            require_once WP_INCLUDE_DIR . '/pluggable.php';
+
+            clinic::print_doctor_view();
+			exit;
+        }
+
+        
         //add REST API
         add_action('rest_api_init', array( "main", 'apiRoutes' ) );
         //add amin menu on initialization

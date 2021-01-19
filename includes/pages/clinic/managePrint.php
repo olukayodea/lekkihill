@@ -5,7 +5,22 @@ $data = self::$patientData;
   .right {
   float: right;
 }
+.buttom {
+    vertical-align: bottom;
+}
 </style>
+<table class='widefat striped fixed'>
+    <tr>
+        <td class="buttom"><img src="https://lekkihill.com/wp-content/uploads/2020/05/new-lekki-logo-e1590591179900.png" width="150"></td>
+        <td class="buttom">
+            17, Omorinre Johnson Street,<br>
+            Lekki Phase 1,<br>
+            Lagos, Nigeria<br>
+            +234 802 237 3339<br>
+            info@lekkihill.com<br>
+        </td>
+    </tr>
+</table>
 <small class="right">Print Date: <?php echo date('l jS \of F Y h:i:s A'); ?></small>
 <h2>Patient's Details</h2>
 <table class='widefat striped fixed'>

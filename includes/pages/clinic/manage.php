@@ -185,7 +185,7 @@
             <button type="button" id="control_fo_bt" data-id="0" class="button button-primary"><i class="fab fa-wpforms fa-lg"></i>&nbsp;Forms</button>
           </div>
           <div class="col-wrap control_bt" id="control_doctors_note_div" style="display: none">
-            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&PrintPDF','_blank')"><i class="fas fa-print"></i> Print All</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&downloadPatientPDF','_blank')"><i class="fas fa-download"></i> Download All</button>
+            <button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&PrintDoctor','_blank')"><i class="fas fa-print"></i> Print Notes</button>&nbsp;<button type="button" class="right" onclick="window.open('<?php echo admin_url('admin.php?page=lh-manage-clinic&patient&all&id='.$_REQUEST['id']); ?>&downloadDoctorPDF','_blank')"><i class="fas fa-download"></i> Download Notes</button>
             <span id="sm_notice"></span>
             <h2>Doctor's Note</h2>
             <form id="form3" name="form3" method="post" onsubmit="doctorsNotes();return false">
@@ -1648,7 +1648,7 @@
         $('#doctors_notice').html('');
         $("#doctors_list").html('');
         for (var key in data.data) {
-          $("#doctors_list").append("<br>"+data.data[key].report+'<br><strong>Recommendations</strong><br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
+          $("#doctors_list").append("<br>"+data.data[key].report+'<br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
         }
       });
 

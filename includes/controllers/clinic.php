@@ -25,6 +25,16 @@ class clinic extends database {
     public static $showPatient = false;
     public static $userToken;
 
+    public static function manageDoctorPrint() {
+        self::$id = $_REQUEST['id'];
+
+        self::$patientData['details'] = patient::listOne(self::$id);
+        self::$patientData['details']['patientId'] = patient::patienrNumber( self::$id );
+        self::get_note( self::$id );
+        self::$patientData['notes'] = self::$allVitalsData;
+		include_once(LH_PLUGIN_DIR."includes/pages/clinic/manageDoctorPrint.php");
+    }
+
     public static function managePrint() {
         self::$id = $_REQUEST['id'];
 
@@ -777,7 +787,19 @@ class clinic extends database {
 
             // create some HTML content
 
-            $html = '<small class="right">Print Date: '.date('l jS \of F Y h:i:s A').'</small>
+            $html = '<small class="right">Print Date: '.date('l jS \of F Y h:i:s A').'</small><br>
+            <table class=\'widefat striped fixed\'>
+                <tr>
+                    <td class="buttom"><img src="https://lekkihill.com/wp-content/uploads/2020/05/new-lekki-logo-e1590591179900.png" width="150"></td>
+                    <td class="buttom">
+                        17, Omorinre Johnson Street,<br>
+                        Lekki Phase 1,<br>
+                        Lagos, Nigeria<br>
+                        +234 802 237 3339<br>
+                        info@lekkihill.com<br>
+                    </td>
+                </tr>
+            </table>
             <h2>Patient\'s Details</h2>
             <table class="widefat striped fixed">
                 <tbody>
@@ -1074,6 +1096,121 @@ class clinic extends database {
                     </tbody>
                 </table>';
             }
+            // output the HTML content
+            $pdf->writeHTML($html, true, false, true, false, '');
+            $pdf->Output($data['details']['patientId']."_".$data['details']['last_name'].'.pdf', 'I');
+        }
+    }
+
+    public static function print_doctor_view() {
+        if (isset($_REQUEST['id'])) {
+            global $pdf;
+            
+            self::$id = $_REQUEST['id'];
+            self::$patientData['details'] = patient::listOne(self::$id);
+            self::$patientData['details']['patientId'] = patient::patienrNumber( self::$id );
+            self::get_note( self::$id );
+            self::$patientData['notes'] = self::$allVitalsData;
+                              
+            $data = self::$patientData;
+            // set document information
+            $pdf->SetCreator('LekkiHill');
+            $pdf->SetAuthor('LekkiHill');
+            $pdf->SetTitle('Patient Report');
+            $pdf->SetSubject('Patient Report');
+            $pdf->SetKeywords('LekkiHill, PDF, Patient, Report');
+            // set auto page breaks
+            $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+            
+            $pdf->SetDefaultMonospacedFont("courier");
+
+            $pdf->SetFont('dejavusans', '', 10);
+
+            // add a page
+            $pdf->AddPage();
+            
+            $pdf->Ln();
+
+            // create some HTML content
+
+            $html = '<small class="right">Print Date: '.date('l jS \of F Y h:i:s A').'</small><br>
+            <table class=\'widefat striped fixed\'>
+                <tr>
+                    <td class="buttom"><img src="https://lekkihill.com/wp-content/uploads/2020/05/new-lekki-logo-e1590591179900.png" width="150"></td>
+                    <td class="buttom">
+                        17, Omorinre Johnson Street,<br>
+                        Lekki Phase 1,<br>
+                        Lagos, Nigeria<br>
+                        +234 802 237 3339<br>
+                        info@lekkihill.com<br>
+                    </td>
+                </tr>
+            </table>
+            <h2>Doctor\'s Notes</h2>
+            <table class=\'widefat striped fixed\'>
+                <tbody>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Patient ID</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['patientId'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Last Name</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['last_name'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Other Names</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['first_name'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Age</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['age'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Sex</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['sex'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Phone Number</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['phone_number'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Email</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['email'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Address</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['address'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_Kin'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin Contact</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_contact'].'</i></td>
+                </tr>
+                <tr>
+                    <td class="manage-column column-columnname" scope="col"><strong>Next of Kin Address</strong></td>
+                    <td class="manage-column column-columnname" scope="col"><i>'.$data['details']['next_of_address'].'</i></td>
+                </tr>
+                <tr>
+                    <td scope="col"><h2>Notes</strong></h2>
+                </tr>';
+                foreach($data['notes'] as $row) {
+                    $user_info = get_userdata($row['added_by']);
+                    $html .= '<tr>
+                    <td colspan="2" class="manage-column column-columnname" scope="col">
+                        <span class="notes">'.$row['report'].'</span><br>
+                        <small>Added by<br>
+                        '.$user_info->first_name." ".$user_info->last_name.'</small><br>
+                        <small>Added On<br>
+                        '.$row['create_time'].'</small><br><br>
+                    </td>
+                </tr>';
+                }
+                $html .= '</tbody>
+            </table> 
+            ';
             // output the HTML content
             $pdf->writeHTML($html, true, false, true, false, '');
             $pdf->Output($data['details']['patientId']."_".$data['details']['last_name'].'.pdf', 'I');
