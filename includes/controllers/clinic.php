@@ -749,8 +749,16 @@ class clinic extends database {
     }
 
     private static function cleanMessage($meesgae, $int=false) {
-        return ("" != $meesgae) ? $meesgae : "Not Available";
+        return ("" != trim($meesgae)) ? nl2br($meesgae) : "Not Available";
     } 
+
+    private static function getAdminName($id) {
+        $user_info = get_userdata($id);
+        $first_name = $user_info->first_name;
+        $last_name = $user_info->last_name;
+
+        return self::cleanMessage($first_name." ".$last_name);
+    }
 
     public static function print_view() {
         if (isset($_REQUEST['id'])) {
@@ -866,19 +874,19 @@ class clinic extends database {
                         <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['height']).'</i></td>
                     </tr>
                     <tr>
-                        <td class="manage-column column-columnname" scope="col"><strong>BMI</strong></td>
+                        <td class="manage-column column-columnname" scope="col"><strong>BMI (kg/m²)</strong></td>
                         <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['bmi']).'</i></td>
                     </tr>
                     <tr>
-                        <td class="manage-column column-columnname" scope="col"><strong>SPO2</strong></td>
+                        <td class="manage-column column-columnname" scope="col"><strong>SpO2 (%)</strong></td>
                         <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['spo2']).'</i></td>
                     </tr>
                     <tr>
-                        <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm))</strong></td>
+                        <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm)</strong></td>
                         <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['respiratory']).'</i></td>
                     </tr>
                     <tr>
-                        <td class="manage-column column-columnname" scope="col"><strong>Temprature (C)</strong></td>
+                        <td class="manage-column column-columnname" scope="col"><strong>Temperature (⁰C)</strong></td>
                         <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['temprature']).'</i></td>
                     </tr>
                     <tr>
@@ -895,7 +903,9 @@ class clinic extends database {
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
-                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['vitals']['added_by']).'</i></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::getAdminName(
+                            $data['vitals']['added_by']
+                            ).'</i></td>
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
@@ -907,7 +917,7 @@ class clinic extends database {
             if ((isset($_REQUEST['continuationSheet'])) || (isset($_REQUEST['all']))) {
                 $html .= '<h2>Clinic Continuation</h2>
                 <p id="summary_c"><i>'.self::cleanMessage($data['continuation']['notes']).'</i></p>
-                <small id="summary_added_by"><i>'.self::cleanMessage($data['continuation']['added_by']).'</i></small>
+                <small id="summary_added_by"><i>'.self::getAdminName($data['continuation']['added_by']).'</i></small>
                 <small id="summary_c_create_time"><i>'.self::cleanMessage($data['continuation']['create_time']).'</i></small><br>';
             }
             if ((isset($_REQUEST['operativeNote'])) || (isset($_REQUEST['all']))) {
@@ -992,7 +1002,7 @@ class clinic extends database {
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
-                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['post_op']['added_by']).'</i></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::getAdminName($data['post_op']['added_by']).'</i></td>
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
@@ -1027,7 +1037,7 @@ class clinic extends database {
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
-                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['medication']['added_by']).'</i></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::getAdminName($data['medication']['added_by']).'</i></td>
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
@@ -1087,7 +1097,7 @@ class clinic extends database {
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
-                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::cleanMessage($data['fluid_balance']['added_by']).'</i></td>
+                        <td class="manage-column column-columnname" scope="col" id="summary_fb_iv_fluid"><i>'.self::getAdminName($data['fluid_balance']['added_by']).'</i></td>
                     </tr>
                     <tr>
                         <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>

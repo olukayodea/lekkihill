@@ -85,22 +85,22 @@ $data = self::$patientData;
     </tr>
     <tr>
         <td class="manage-column column-columnname" scope="col"><strong>Height (cm)</strong></td>
-        <td class="manage-column column-columnname" scope="col" id="summary_v_height"><i><?php echo ("" != $data['vitals']['height']) ? $data['vitals']['weight'] : "Not Available"; ?></i></i></td>
+        <td class="manage-column column-columnname" scope="col" id="summary_v_height"><i><?php echo ("" != $data['vitals']['height']) ? $data['vitals']['height'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
-        <td class="manage-column column-columnname" scope="col"><strong>BMI</strong></td>
+        <td class="manage-column column-columnname" scope="col"><strong>BMI (kg/m²)</strong></td>
         <td class="manage-column column-columnname" scope="col" id="summary_v_bmi"><i><?php echo ("" != $data['vitals']['bmi']) ? $data['vitals']['bmi'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
-        <td class="manage-column column-columnname" scope="col"><strong>SPO2</strong></td>
+        <td class="manage-column column-columnname" scope="col"><strong>SpO2 (%)</strong></td>
         <td class="manage-column column-columnname" scope="col" id="summary_v_spo2"><i><?php echo ("" != $data['vitals']['spo2']) ? $data['vitals']['spo2'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
-        <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm))</strong></td>
+        <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm)</strong></td>
         <td class="manage-column column-columnname" scope="col" id="summary_v_respiratory"><i><?php echo ("" != $data['vitals']['respiratory']) ? $data['vitals']['respiratory'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
-        <td class="manage-column column-columnname" scope="col"><strong>Temprature (C)</strong></td>
+        <td class="manage-column column-columnname" scope="col"><strong>Temperature (⁰C)</strong></td>
         <td class="manage-column column-columnname" scope="col" id="summary_v_temprature"><i><?php echo ("" != $data['vitals']['temprature']) ? $data['vitals']['temprature'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
@@ -116,8 +116,9 @@ $data = self::$patientData;
         <td class="manage-column column-columnname" scope="col" id="summary_v_bp_dia"><i><?php echo ("" != $data['vitals']['bp_dia']) ? $data['vitals']['bp_dia'] : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
+        <?php $user_info = get_userdata($data['vitals']['added_by']); ?>
         <td class="manage-column column-columnname" scope="col"><strong>Added By</strong></td>
-        <td class="manage-column column-columnname" scope="col" id="summary_v_added_by"><i><?php echo (0 != intval( $data['vitals']['added_by'] ) ) ? $data['vitals']['added_by'] : "Not Available"; ?></i></i></td>
+        <td class="manage-column column-columnname" scope="col" id="summary_v_added_by"><i><?php echo (0 != intval( $data['vitals']['added_by'] ) ) ? $user_info->first_name." ".$user_info->last_name : "Not Available"; ?></i></i></td>
     </tr>
     <tr>
         <td class="manage-column column-columnname" scope="col"><strong>Added On</strong></td>
@@ -126,10 +127,11 @@ $data = self::$patientData;
     </tbody>
 </table>
 <?php } ?>
-<?php if ((isset($_REQUEST['continuationSheet'])) || (isset($_REQUEST['all']))) { ?>
+<?php if ((isset($_REQUEST['continuationSheet'])) || (isset($_REQUEST['all']))) {
+    $user_info = get_userdata($data['continuation']['added_by']); ?>
 <h2>Clinic Continuation</h2>
-<p id="summary_c"><i><?php echo ("" != $data['continuation']['notes']) ? $data['continuation']['notes'] : "Not Available"; ?></i></p>
-<small id="summary_added_by"><i><?php echo ("" != $data['continuation']['added_by']) ? $data['continuation']['added_by'] : ""; ?></i></small>
+<p id="summary_c"><i><?php echo ("" != $data['continuation']['notes']) ? nl2br($data['continuation']['notes']) : "Not Available"; ?></i></p>
+<small id="summary_added_by"><i><?php echo ("" != $data['continuation']['added_by']) ? $user_info->first_name." ".$user_info->last_name : ""; ?></i></small>
 <small id="summary_c_create_time"><i><?php echo ("" != $data['continuation']['create_time']) ? $data['continuation']['create_time'] : ""; ?></i></small><br>
 <?php } ?>
 <?php if ((isset($_REQUEST['operativeNote'])) || (isset($_REQUEST['all']))) { ?>

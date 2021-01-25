@@ -260,19 +260,19 @@
                   <td class="manage-column column-columnname" scope="col" id="summary_v_height"><i>fetching data...</i></td>
                 </tr>
                 <tr>
-                  <td class="manage-column column-columnname" scope="col"><strong>BMI</strong></td>
+                  <td class="manage-column column-columnname" scope="col"><strong>BMI (kg/m²)</strong></td>
                   <td class="manage-column column-columnname" scope="col" id="summary_v_bmi"><i>fetching data...</i></td>
                 </tr>
                 <tr>
-                  <td class="manage-column column-columnname" scope="col"><strong>SPO2</strong></td>
+                  <td class="manage-column column-columnname" scope="col"><strong>SpO2 (%)</strong></td>
                   <td class="manage-column column-columnname" scope="col" id="summary_v_spo2"><i>fetching data...</i></td>
                 </tr>
                 <tr>
-                  <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm))</strong></td>
+                  <td class="manage-column column-columnname" scope="col"><strong>Respiratory (cpm)</strong></td>
                   <td class="manage-column column-columnname" scope="col" id="summary_v_respiratory"><i>fetching data...</i></td>
                 </tr>
                 <tr>
-                  <td class="manage-column column-columnname" scope="col"><strong>Temprature (C)</strong></td>
+                  <td class="manage-column column-columnname" scope="col"><strong>Temperature (⁰C)</strong></td>
                   <td class="manage-column column-columnname" scope="col" id="summary_v_temprature"><i>fetching data...</i></td>
                 </tr>
                 <tr>
@@ -979,19 +979,19 @@
                   <input type="number" name="height" id="height" value="<?php echo $vitalsData['height']; ?>" required step="0.01" />
                 </div>
                 <div class="form-field form-required term-bmi-wrap">
-                  <label for="bmi">BMI</label>
+                  <label for="bmi">BMI (kg/m²)</label>
                   <input type="number" name="bmi" id="bmi" value="<?php echo $vitalsData['bmi']; ?>" required step="0.01"/>
                 </div>
                 <div class="form-field form-required term-spo2-wrap">
-                  <label for="spo2">SPO2</label>
+                  <label for="spo2">SpO2 (%)</label>
                   <input type="text" name="spo2" id="spo2" value="<?php echo $vitalsData['spo2']; ?>" required />
                 </div>
                 <div class="form-field form-required term-respiratory-wrap">
-                  <label for="respiratory">Respiratory (cpm))</label>
+                  <label for="respiratory">Respiratory (cpm)</label>
                   <input type="number" name="respiratory" id="respiratory" value="<?php echo $vitalsData['respiratory']; ?>" required step="0.01" />
                 </div>
                 <div class="form-field form-required term-temprature-wrap">
-                  <label for="temprature">Temprature (C)</label>
+                  <label for="temprature">Temperature (⁰C)</label>
                   <input type="number" name="temprature" id="temprature" value="<?php echo $vitalsData['temprature']; ?>" required step="0.01" />
                 </div>
                 <div class="form-field form-required term-pulse-wrap">
@@ -1019,10 +1019,10 @@
                     <th class="manage-column column-columnname" scope="col">Date</th>
                     <th class="manage-column column-columnname" scope="col">Weight</th>
                     <th class="manage-column column-columnname" scope="col">Height</th>
-                    <th class="manage-column column-columnname" scope="col">BMI</th>
-                    <th class="manage-column column-columnname" scope="col">SPO2</th>
+                    <th class="manage-column column-columnname" scope="col">BMI (kg/m²)</th>
+                    <th class="manage-column column-columnname" scope="col">SpO2 (%)</th>
                     <th class="manage-column column-columnname" scope="col">Respiratory</th>
-                    <th class="manage-column column-columnname" scope="col">Temprature</th>
+                    <th class="manage-column column-columnname" scope="col">Temperature (⁰C)</th>
                     <th class="manage-column column-columnname" scope="col">BP</th>
                     <th class="manage-column column-columnname" scope="col">Pulse</th>
                 </tr>
@@ -1033,10 +1033,10 @@
                     <th class="manage-column column-columnname" scope="col">Date</th>
                     <th class="manage-column column-columnname" scope="col">Weight</th>
                     <th class="manage-column column-columnname" scope="col">Height</th>
-                    <th class="manage-column column-columnname" scope="col">BMI</th>
-                    <th class="manage-column column-columnname" scope="col">SPO2</th>
+                    <th class="manage-column column-columnname" scope="col">BMI (kg/m²)</th>
+                    <th class="manage-column column-columnname" scope="col">SpO2 (%)</th>
                     <th class="manage-column column-columnname" scope="col">Respiratory</th>
-                    <th class="manage-column column-columnname" scope="col">Temprature</th>
+                    <th class="manage-column column-columnname" scope="col">Temperature (⁰C)</th>
                     <th class="manage-column column-columnname" scope="col">BP</th>
                     <th class="manage-column column-columnname" scope="col">Pulse</th>
                 </tr>
@@ -1259,6 +1259,12 @@
 
         $('#updatedMessage').hide();
         $('#errorMessage').hide();
+
+        postOpRecord();
+        medicationRecord();
+        continuationSheetRecords();
+        fluidBalanceRecord();
+        doctorsNotesRecords();
       });
 
       $( "#control_cs_bt, #control_cs_bt_l" ).click(function() {
@@ -1587,14 +1593,11 @@
 
       var doctorsNotes = $('#form3').serializeArray();
 
-      console.log(doctorsNotes);
-      console.log(product);
       var sendInfo = {
         patient_id: patient_id,
         report: report,
         recommended: product
       };
-      console.log(sendInfo);
 
       var api_key = Math.floor(Math.random() * 100001);
       var user_token = '<?php echo self::$userToken; ?>';
@@ -1648,7 +1651,7 @@
         $('#doctors_notice').html('');
         $("#doctors_list").html('');
         for (var key in data.data) {
-          $("#doctors_list").append("<br>"+data.data[key].report+'<br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
+          $("#doctors_list").append("<br>"+nl2br(data.data[key].report)+'<br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
         }
       });
 
@@ -2125,7 +2128,7 @@
           $('#summary_c').html("Not Available");
           $('#summary_c_create_time,#summary_added_by').html("");
         } else {
-          $('#summary_c').html(data.data.notes);
+          $('#summary_c').html(nl2br(data.data.notes));
           $('#summary_c_create_time').html("Added On: "+data.data.create_time);
           $('#summary_added_by').html("Added By: "+data.data.added_by.user_nicename);
         }
@@ -2192,4 +2195,12 @@
       $('#sm_notice').html('');
     });  
   }
+
+  function nl2br (str, is_xhtml) {
+    if (typeof str === 'undefined' || str === null) {
+        return '';
+    }
+    var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
+}
 </script>

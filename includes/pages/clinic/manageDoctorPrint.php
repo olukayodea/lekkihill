@@ -79,7 +79,7 @@ $data = self::$patientData;
         $user_info = get_userdata($row['added_by']); ?>
     <tr>
         <td colspan="2" class="manage-column column-columnname" scope="col">
-            <span class="notes"><?php echo $row['report']; ?></span><br>
+            <span class="notes"><?php echo nl2br($row['report']); ?></span><br>
             <small>Added by<br>
             <?php echo $user_info->first_name." ".$user_info->last_name; ?></small><br>
             <small>Added On<br>
