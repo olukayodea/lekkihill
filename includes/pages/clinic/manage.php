@@ -1651,7 +1651,7 @@
         $('#doctors_notice').html('');
         $("#doctors_list").html('');
         for (var key in data.data) {
-          $("#doctors_list").append("<br>"+nl2br(data.data[key].report)+'<br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
+          $("#doctors_list").append("<hr>"+nl2br(data.data[key].report)+'<br><small><strong>Added By: '+data.data[key].added_by.user_nicename+' at '+data.data[key].create_time+'</strong></small><br><br>');
         }
       });
 
