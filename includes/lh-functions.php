@@ -720,6 +720,11 @@ class main {
         $lekkihill_doctor->add_cap( 'mamange_accounts' );
         $lekkihill_doctor->add_cap( 'manage_patient_report' );
         $lekkihill_doctor->add_cap( 'manage_patient_records' );
+        $lekkihill_doctor->add_cap( 'manage_visitors' );
+        $lekkihill_doctor->add_cap( 'mamange_accounts' );
+        $lekkihill_doctor->add_cap( 'mamange_accounts_report' );
+        $lekkihill_doctor->add_cap( 'manage_inventory_report' );
+        $lekkihill_doctor->add_cap( 'manage_inventory_category' );
 
         //add nurses
 		add_role(
