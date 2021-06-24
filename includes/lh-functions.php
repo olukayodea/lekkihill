@@ -717,7 +717,6 @@ class main {
         $lekkihill_doctor->add_cap( 'manage_clinic' );
         $lekkihill_doctor->add_cap( 'manage_clinic_massage' );
         $lekkihill_doctor->add_cap( 'manage_inventory' );
-        $lekkihill_doctor->add_cap( 'mamange_accounts' );
         $lekkihill_doctor->add_cap( 'manage_patient_report' );
         $lekkihill_doctor->add_cap( 'manage_patient_records' );
         $lekkihill_doctor->add_cap( 'manage_visitors' );
@@ -805,6 +804,7 @@ class main {
         
         $lekki_hill_accounts = get_role( "lekki_hill_accounts" );
         $lekki_hill_accounts->add_cap( 'manage_patient' );
+        $lekki_hill_accounts->add_cap( 'manage_clinic' );
         $lekki_hill_accounts->add_cap( 'mamange_accounts' );
         $lekki_hill_accounts->add_cap( 'mamange_accounts_report' );
         $lekki_hill_accounts->add_cap( 'view_woocommerce_reports' );

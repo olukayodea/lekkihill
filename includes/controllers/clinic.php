@@ -117,7 +117,7 @@ class clinic extends database {
             $_POST['added_by'] = get_current_user_id();
             $_POST['due_date'] = date("Y-m-d");
 
-            $_POST['billing_component'][] = array("id"=>$_POST['id'],"cost"=>$_POST['cost'],"quantity"=>$_POST['quantity'],"description"=>$_POST['description']);
+            $_POST['billing_component'][] = array("id"=>$_POST['id'],"cost"=>$_POST['cost'],"type"=>"component","quantity"=>$_POST['quantity'],"description"=>$_POST['description']);
 
             if (invoice::postPayment($_POST)) {
                 self::$message = "Payment Successful";

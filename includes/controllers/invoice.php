@@ -11,6 +11,7 @@ class invoice extends billing {
         if (isset($array['due_date'])) {
             $invData['due_date'] = $array['due_date'];
         }
+
         self::$invoice = self::insert(table_name_prefix."invoice", $invData);
 
         $data['invoice_id'] = self::$invoice;
@@ -97,7 +98,7 @@ class invoice extends billing {
         $data['due_date'] = date("Y-m-d");
         $data['added_by'] = self::$userData['ID'];
 
-        $data['billing_component'][] = array("id"=>$parameters['component_id'],"cost"=>$parameters['cost'],"quantity"=>$parameters['quantity'],"description"=>$parameters['description']);
+        $data['billing_component'][] = array("id"=>$parameters['component_id'],"cost"=>$parameters['cost'],"type"=>"component","quantity"=>$parameters['quantity'],"description"=>$parameters['description']);
 
         $add = self::postPayment($data);
         if ($add) {
@@ -109,23 +110,23 @@ class invoice extends billing {
     }
 
     public static function payInvoice($data) {
-        foreach($data['data'] as $details) {
-            if (self::query("UPDATE ".table_name_prefix."invoice SET `due` = (`due`-".$details['amount'].") WHERE `ref` = ".$details['ref'])) {
-                self::modifyOne("status", "PARTIALLY-PAID", $details['ref']);
-                self::modifyOneBill("status", "PARTIALLY-PAID", $details['ref'], "invoice_id");
+        // foreach($data['data'] as $details) {
+        //     if (self::query("UPDATE ".table_name_prefix."invoice SET `due` = (`due`-".$details['amount'].") WHERE `ref` = ".$details['ref'])) {
+        //         self::modifyOne("status", "PARTIALLY-PAID", $details['ref']);
+        //         self::modifyOneBill("status", "PARTIALLY-PAID", $details['ref'], "invoice_id");
 
-                $getOne = self::listOne($details['ref']);
+        //         $getOne = self::listOne($details['ref']);
 
-                if ($getOne['due'] <= 0) {
-                    self::modifyOne("status", "PAID", $details['ref']);
-                    self::modifyOneBill("status", "PAID", $details['ref'], "invoice_id");
-                }
-            }
-        }
+        //         if ($getOne['due'] <= 0) {
+        //             self::modifyOne("status", "PAID", $details['ref']);
+        //             self::modifyOneBill("status", "PAID", $details['ref'], "invoice_id");
+        //         }
+        //     }
+        // }
 
-        //send reciept
+        // //send reciept
 
-        return true;
+        // return true;
     }
 
     public static function getPending() {
