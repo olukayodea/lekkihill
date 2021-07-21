@@ -62,7 +62,7 @@ class common {
             if ($id != false) {
                 $return['status'] = "200";
                 $return['message'] = "OK";
-                $return['ID'] = $id['ID'];
+                $return['ID'] = $id;
             } else {
                 $return['status'] = "404";
                 $return['message'] = "User is not Authorized";

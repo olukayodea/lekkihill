@@ -82,6 +82,8 @@ $patientList = patient::$patientList; ?>
               <label for="procedure">Procedure</label></td>
               <select id="procedure" name="procedure" required>
                 <option value="">Select One</option>
+                <option value="Botox">Consultation</option>
+                <option value="Botox">Investigations</option>
                 <option value="Breast Augmentation">Breast Augmentation</option>
                 <option value="Botox">Botox</option>
                 <option value="Butt Implant">Butt Implant</option>

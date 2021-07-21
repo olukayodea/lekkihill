@@ -1122,13 +1122,13 @@
         <div class="modal-body">
           <?php foreach ($listInvoice as $dueData) { ?>
             <div class="form-group row">
-              <label for="staticEmail" class="col-sm-3 col-form-label"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $dueData['ref'] ); ?></a></label>
-              <label for="staticEmail" class="col-sm-3 col-form-label">&nbsp;Total: <?php echo "&#8358; ".number_format($dueData['amount'], 2); ?></label>
-              <label for="staticEmail" class="col-sm-2 col-form-label">Due</label>
+              <label for="staticEmail<?php echo $rowCount; ?>" class="col-sm-3 col-form-label"><a href="<?php echo admin_url('admin.php?page=lh-billing-invoice&view&id='.$list[$i]['ref']); ?>" title="Manage Invoice"><?php echo invoice::invoiceNumber( $dueData['ref'] ); ?></a></label>
+              <label for="staticEmail<?php echo $rowCount; ?>" class="col-sm-3 col-form-label">&nbsp;Total: <?php echo "&#8358; ".number_format($dueData['amount'], 2); ?></label>
+              <label for="staticEmail<?php echo $rowCount; ?>" class="col-sm-2 col-form-label">Due</label>
               <div class="col-sm-4">
                 <input type="hidden" name="patient_id" value="<?php echo $_REQUEST['id']; ?>">
                 <input type="hidden" name="data[<?php echo $rowCount; ?>][ref]" value="<?php echo $dueData['ref']; ?>">
-                <input type="number" name="data[<?php echo $rowCount; ?>][amount]" required max="<?php echo $dueData['due']; ?>" class="form-control-plaintext" id="staticEmail" value="<?php echo $dueData['due']; ?>">
+                <input type="number" name="data[<?php echo $rowCount; ?>][amount]" required max="<?php echo $dueData['due']; ?>" class="form-control-plaintext" id="staticEmail<?php echo $rowCount; ?>" value="<?php echo $dueData['due']; ?>">
               </div>
             </div>
           <?php $rowCount++;} ?>
@@ -1571,8 +1571,6 @@
 
     jQuery("#drugList tbody").empty();
     product.forEach(function(number) {
-      console.log(number);
-
       var dataArray = "<tr>"
         +"<td>"+list[number.medication_id]+"</td>"
         +"<td>"+number.quantity+"</td>"
@@ -2058,6 +2056,7 @@
       jQuery.get( se_ajax_url, function( data ) {
 
         $('#fb_notice').html('');
+          console.log(data);
         for (var key in data.data) {
           tabledata = '';
 
@@ -2076,7 +2075,7 @@
           '<td class="column-columnname">'+data.data[key].create_time+'</td>'+
           '</tr>';
           count++;
-
+          
           $("#fb_list").append(tabledata);
         }
       });
@@ -2108,24 +2107,27 @@
         }
       });
 
-
       jQuery.get( vitals_ajax_url, function( data ) {
-        $('#summary_v_weight').html(data.data.weight);
-        $('#summary_v_height').html(data.data.height);
-        $('#summary_v_bmi').html(data.data.bmi);
-        $('#summary_v_spo2').html(data.data.spo2);
-        $('#summary_v_respiratory').html(data.data.respiratory);
-        $('#summary_v_temprature').html(data.data.temprature);
-        $('#summary_v_pulse').html(data.data.pulse);
-        $('#summary_v_bp_sys').html(data.data.bp_sys);
-        $('#summary_v_bp_dia').html(data.data.bp_dia);
-        $('#summary_v_added_by').html(data.data.added_by.user_nicename);
-        $('#summary_v_create_time').html(data.data.create_time);
+        if (data.data !== false ) {
+          $('#summary_v_weight').html(data.data.weight);
+          $('#summary_v_height').html(data.data.height);
+          $('#summary_v_bmi').html(data.data.bmi);
+          $('#summary_v_spo2').html(data.data.spo2);
+          $('#summary_v_respiratory').html(data.data.respiratory);
+          $('#summary_v_temprature').html(data.data.temprature);
+          $('#summary_v_pulse').html(data.data.pulse);
+          $('#summary_v_bp_sys').html(data.data.bp_sys);
+          $('#summary_v_bp_dia').html(data.data.bp_dia);
+          $('#summary_v_added_by').html(data.data.added_by.user_nicename);
+          $('#summary_v_create_time').html(data.data.create_time);
+        } else {
+          $('#summary_v_weight, #summary_v_height, #summary_v_bmi, #summary_v_spo2, #summary_v_respiratory, #summary_v_temprature, #summary_v_pulse, #summary_v_bp_sys, #summary_v_bp_dia, #summary_v_added_by, #summary_v_create_time').html("No recent Data");
+        }
       });
 
       jQuery.get( continuation_ajax_url, function( data ) {
         if (data.data === false ) {
-          $('#summary_c').html("Not Available");
+          $('#summary_c').html("");
           $('#summary_c_create_time,#summary_added_by').html("");
         } else {
           $('#summary_c').html(nl2br(data.data.notes));
@@ -2136,7 +2138,7 @@
 
       jQuery.get( postOp_ajax_url, function( data ) {
         if (data.data === false ) {
-          $('#summary_p_surgery,#summary_p_surgery_category,#summary_p_indication,#summary_p_surgeon,#summary_p_asst_surgeon,#summary_p_per_op_nurse,#summary_p_circulating_nurse,#summary_p_anaesthesia,#summary_p_anaesthesia_time,#summary_p_knife_on_skin,#summary_p_infiltration_time,#summary_p_liposuction_time,#summary_p_end_of_surgery,#summary_p_procedure,#summary_p_amt_of_fat_right,#summary_p_amt_of_fat_left,#summary_p_amt_of_fat_other,#summary_p_ebl,#summary_p_plan,#summary_p_added_by,#summary_p_create_time').html("Not Available");
+          $('#summary_p_surgery,#summary_p_surgery_category,#summary_p_indication,#summary_p_surgeon,#summary_p_asst_surgeon,#summary_p_per_op_nurse,#summary_p_circulating_nurse,#summary_p_anaesthesia,#summary_p_anaesthesia_time,#summary_p_knife_on_skin,#summary_p_infiltration_time,#summary_p_liposuction_time,#summary_p_end_of_surgery,#summary_p_procedure,#summary_p_amt_of_fat_right,#summary_p_amt_of_fat_left,#summary_p_amt_of_fat_other,#summary_p_ebl,#summary_p_plan,#summary_p_added_by,#summary_p_create_time').html("");
         } else {
           $('#summary_p_surgery').html(data.data.surgery);
           $('#summary_p_surgery_category').html(data.data.surgery_category);
@@ -2163,7 +2165,7 @@
       });
       jQuery.get( medication_ajax_url, function( data ) {
         if (data.data === false ) {
-          $('#summary_m_route,#summary_m_medication,#summary_m_dose,#summary_m_frequency,#summary_m_report_date,#summary_m_added_by,#summary_m_create_time').html("Not Available");
+          $('#summary_m_route,#summary_m_medication,#summary_m_dose,#summary_m_frequency,#summary_m_report_date,#summary_m_added_by,#summary_m_create_time').html("");
         } else {
           $('#summary_m_route').html(data.data.route);
           $('#summary_m_medication').html(data.data.medication);
@@ -2176,7 +2178,7 @@
       });
       jQuery.get( fluidBalance_ajax_url, function( data ) {
         if (data.data === false ) {
-          $('#summary_fb_iv_fluid,#summary_fb_amount,#summary_fb_oral_fluid,#summary_fb_ng_tube_feeding,#summary_fb_vomit,#summary_fb_urine,#summary_fb_drains,#summary_fb_ng_tube_drainage,#summary_fb_report_date,#summary_fb_added_by,#summary_fb_create_time').html("Not Available");
+          $('#summary_fb_iv_fluid,#summary_fb_amount,#summary_fb_oral_fluid,#summary_fb_ng_tube_feeding,#summary_fb_vomit,#summary_fb_urine,#summary_fb_drains,#summary_fb_ng_tube_drainage,#summary_fb_report_date,#summary_fb_added_by,#summary_fb_create_time').html("");
         } else {
           $('#summary_fb_iv_fluid').html(data.data.iv_fluid);
           $('#summary_fb_amount').html(data.data.amount);
