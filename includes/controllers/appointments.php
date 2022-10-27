@@ -17,7 +17,7 @@ class appointments extends database {
 
     public static $userToken;
     
-    public function manage() {
+    public static function manage() {
         self::$userToken = users::getToken( get_current_user_id(), FALSE );
         self::$logged_in_user = get_userdata( get_current_user_id() );
         if (isset($_REQUEST['new'])) {
@@ -102,7 +102,7 @@ class appointments extends database {
 		include_once(LH_PLUGIN_DIR."includes/pages/appointments/manage.php");
     }
 
-    public function manage_new_api($request) {
+    public static function manage_new_api($request) {
         self::$list = self::getSortedList("NEW", "status");
         /**
          * API authentication
@@ -127,12 +127,12 @@ class appointments extends database {
         self::$list = self::query("SELECT * FROM ".table_name_prefix."appointments WHERE `status` = 'SCHEDULED' AND `next_appointment` BETWEEN '".$from."' AND '".$to."' ORDER BY `next_appointment` ASC", false, "list");
     }
 
-    public function manage_today() {
+    public static function manage_today() {
         self::today();
 		include_once(LH_PLUGIN_DIR."includes/pages/appointments/today.php");
     }
 
-    public function manage_today_api($request) {
+    public static function manage_today_api($request) {
         self::today();
         /**
          * API authentication
@@ -151,17 +151,17 @@ class appointments extends database {
         return self::$return;
     }
 
-    public function upcoming() {
+    public static function upcoming() {
         $to = date("Y-m-d H:i:s", time());
         self::$list = self::query("SELECT * FROM ".table_name_prefix."appointments WHERE `status` = 'SCHEDULED' AND `next_appointment` > '".$to."' ORDER BY `next_appointment` ASC", false, "list");
     }
 
-    public function manage_upcoming() {
+    public static function manage_upcoming() {
         self::upcoming();
 		include_once(LH_PLUGIN_DIR."includes/pages/appointments/upcoming.php");
     }
 
-    public function manage_upcoming_api($request) {
+    public static function manage_upcoming_api($request) {
         self::upcoming();
         /**
          * API authentication
@@ -185,12 +185,12 @@ class appointments extends database {
         self::$list = self::query("SELECT * FROM ".table_name_prefix."appointments WHERE `status` = 'SCHEDULED' AND `next_appointment` < '".$to."' ORDER BY `next_appointment` DESC", false, "list");
     }
 
-    public function manage_past() {
+    public static function manage_past() {
         self::past();
 		include_once(LH_PLUGIN_DIR."includes/pages/appointments/past.php");
     }
 
-    public function manage_past_api($request) {
+    public static function manage_past_api($request) {
         self::past();
         /**
          * API authentication
@@ -231,7 +231,7 @@ class appointments extends database {
         return self::$return;
     }
 
-    public function updateAppointmentAPI($request) {
+    public static function updateAppointmentAPI($request) {
         /**
          * API authentication
          */
@@ -259,7 +259,7 @@ class appointments extends database {
         return self::$return;
     }
 
-    public function removeNewAPI($request) {
+    public static function removeNewAPI($request) {
         /**
          * API authentication
          */
@@ -273,7 +273,7 @@ class appointments extends database {
         }
         $id = $request['appointment_id'];
         if (intval($id) > 0) {
-            $remove = self::removeNew($id);
+            $remove = self::createRandomPassword($id);
             if ($remove) {
                 if ($remove === true)  {
                     self::$return = self::$successResponse;
@@ -291,7 +291,7 @@ class appointments extends database {
         return self::$return;
     }
 
-    private function create($array) {
+    private static function create($array) {
         if (isset($array['next_appointment_date'])) {
             $array['next_appointment'] = $array['next_appointment_date'];
             unset($array['next_appointment_date']);
@@ -309,7 +309,7 @@ class appointments extends database {
         return $return;
     }
 
-    private function removeNew($id) {
+    private static function removeNew($id) {
         $data = self::listOne($id);
 
         if ($data['status'] == "NEW") {
@@ -323,7 +323,7 @@ class appointments extends database {
         }
     }
     
-    private function updateAppointment($data) {
+    private static function updateAppointment($data) {
         $update['next_appointment'] = $data['next_appointment'];
         $update['status'] = $data['status'];
         $where['ref'] = $data['id'];
@@ -339,19 +339,19 @@ class appointments extends database {
         }
     }
 
-    private function edit($array, $where) {
+    private static function edit($array, $where) {
         return self::update(table_name_prefix."appointments", $array, $where);
     }
 
-    function modifyOne($tag, $value, $id, $ref="ref") {
+    public static function modifyOne($tag, $value, $id, $ref="ref") {
         return self::updateOne(table_name_prefix."appointments", $tag, $value, $id, $ref);
     }
     
-    function getList($start=false, $limit=false, $order="names", $dir="ASC", $type="list") {
+    public static function getList($start=false, $limit=false, $order="names", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."appointments", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingle($name, $tag="names", $ref="ref") {
+    public static function getSingle($name, $tag="names", $ref="ref") {
         return self::getOneField(table_name_prefix."appointments", $name, $ref, $tag);
     }
 
@@ -359,11 +359,11 @@ class appointments extends database {
         return self::getOne(table_name_prefix."appointments", $id, $ref);
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "DESC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "DESC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."appointments", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function formatResult($data, $single=false) {
+    public static function formatResult($data, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
                 $data[$i] = self::clean($data[$i]);
@@ -392,6 +392,7 @@ class appointments extends database {
         
         return $data;
     }
+    
     public function initialize_table() {
         //create database
         $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."appointments` (

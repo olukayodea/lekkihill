@@ -27,7 +27,7 @@ class common {
         return '<i class="fas '.$faa.$size.'" title="'.$tag.'"'.$style.'></i>'.$tagTitle;
     }
     
-    public function createRandomPassword($len = 7) { 
+    public static function createRandomPassword($len = 7) { 
         $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; 
         srand((double)microtime()*1000000); 
         $i = 0; 

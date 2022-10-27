@@ -17,7 +17,7 @@ class inventory extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => "500", "message" => "Internal Server Error");
 
-    public function apiCreateCategory($request) {
+    public static function apiCreateCategory($request) {
         /**
          * API authentication
          */
@@ -56,7 +56,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiDeleteCategory($request) {
+    public static function apiDeleteCategory($request) {
         /**
          * API authentication
          */
@@ -86,7 +86,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiCreateInventory($request) {
+    public static function apiCreateInventory($request) {
         /**
          * API authentication
          */
@@ -140,7 +140,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiSearch($request) {
+    public static function apiSearch($request) {
         /**
          * API authentication
          */
@@ -182,7 +182,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiGetOne($request) {
+    public static function apiGetOne($request) {
         /**
          * API authentication
          */
@@ -205,7 +205,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiListByCategory($request) {
+    public static function apiListByCategory($request) {
         /**
          * API authentication
          */
@@ -228,7 +228,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function apiGetCategoryList($request) {
+    public static function apiGetCategoryList($request) {
         /**
          * API authentication
          */
@@ -247,7 +247,7 @@ class inventory extends database {
         return $return;
     }
     
-    public function apiGetList($request) {
+    public static function apiGetList($request) {
         /**
          * API authentication
          */
@@ -266,7 +266,7 @@ class inventory extends database {
         return $return;
     }
 
-    public function apiManage($request) {
+    public static function apiManage($request) {
         /**
          * API authentication
          */
@@ -284,7 +284,7 @@ class inventory extends database {
         return $return;
     }
 
-    public function apiUpdateDiscount($request) {
+    public static function apiUpdateDiscount($request) {
         /**
          * API authentication
          */
@@ -322,7 +322,7 @@ class inventory extends database {
         return self::$return;
     }
 
-    public function manage() {
+    public static function manage() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
@@ -394,7 +394,7 @@ class inventory extends database {
         return self::updateOne(table_name_prefix."inventory", "discount", $array['discountValue'], $array['inventory_id']);
     }
 
-    public function add() {
+    public static function add() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
@@ -439,7 +439,7 @@ class inventory extends database {
         }
     }
 
-    public function manageStock() {
+    public static function manageStock() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
@@ -493,7 +493,7 @@ class inventory extends database {
         return $data;
     }
 
-    public function categories() {
+    public static function categories() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
@@ -557,7 +557,7 @@ class inventory extends database {
         return array( "data" => $data, "inventory_activity" => $list );
     }
 
-    public function view() {
+    public static function view() {
         if (isset($_REQUEST['done'])) {
             self::$message = $_REQUEST['done'];
         } else if (isset($_REQUEST['error'])) {
@@ -580,7 +580,7 @@ class inventory extends database {
         }
     }
 
-    public function report() {
+    public static function report() {
         self::$show = false;
         if (isset($_POST['save'])) {
             $result = self::processReport($_POST);
@@ -873,7 +873,7 @@ class inventory extends database {
         return self::query($sql, false, "list");
     }
 
-    private function create( $array ) {
+    private static function create( $array ) {
         $replace = array();
         $array['sku'] = self::confirmSKU(self::createSKU($array['category_id']), $array['category_id']);;
         $array['created_by'] = get_current_user_id();
@@ -904,23 +904,23 @@ class inventory extends database {
 
     }
 
-    public function getBalance($id) {
+    public static function getBalance($id) {
         return intval(inventory_count::getCount($id)-inventory_used::getCount($id));
     }
 
-    function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
+    public static function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."inventory", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingle($name, $tag="title", $ref="ref") {
+    public static function getSingle($name, $tag="title", $ref="ref") {
         return self::getOneField(table_name_prefix."inventory", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    public static function listOne($id) {
         return self::getOne(table_name_prefix."inventory", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."inventory", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 

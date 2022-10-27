@@ -1,5 +1,9 @@
 <?php
 class main {
+    public static function save_password( $user ) {
+        users::add_app_token($_POST, $user);
+    }
+
     //create the API route
     public static function apiRoutes() {
         //url = https://lekkihill.com/wp-json/api/users/login;
@@ -644,6 +648,7 @@ class main {
         $billing                = new billing;
         $billing_component      = new billing_component;
         $invoice                = new invoice;
+        $invoiceLog             = new invoiceLog;
 
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
@@ -654,8 +659,10 @@ class main {
         $clinic_continuation_sheet  = new clinic_continuation_sheet;
         $clinic_medication      =  new clinic_medication;
         $clinic_doctors_report  = new clinic_doctors_report;
+        $settings               = new settings;
 
         $users->initialize_table();
+        $users->initialize_roles_table();
         $inventory->initialize_table();
         $inventory_used->initialize_table();
         $inventory_count->initialize_table();
@@ -666,6 +673,7 @@ class main {
         $billing->initialize_table();
         $billing_component->initialize_table();
         $invoice->initialize_table();
+        $invoiceLog->initialize_table();
         $appointments->initialize_table();
         $appointments_history->initialize_table();
         $vitals->initialize_table();
@@ -674,6 +682,7 @@ class main {
         $clinic_continuation_sheet->initialize_table();
         $clinic_medication->initialize_table();
         $clinic_doctors_report->initialize_table();
+        $settings->initialize_table();
 
         //add user roles
         //add admin
@@ -702,6 +711,13 @@ class main {
         $lekkihill_admin->add_cap( 'view_woocommerce_reports' );
         $lekkihill_admin->add_cap( 'manage_patient_records' );
 
+        $users->createAdminType(
+            "LekkiHill Admin", 
+            "lekki_hill_admin",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_patient', 'manage_medication', 'manage_clinic', 'manage_clinic_massage', 'manage_inventory', 'manage_patient_report', 'manage_patient_records', 'manage_visitors', 'mamange_accounts', 'mamange_accounts_report', 'manage_inventory_report', 'manage_inventory_category', 'manage_settings', 'manage_woocommerce', 'view_woocommerce_reports' ]
+         );
+
         //add doctors
 		add_role(
 			'lekki_hill_doctor',
@@ -725,6 +741,13 @@ class main {
         $lekkihill_doctor->add_cap( 'manage_inventory_report' );
         $lekkihill_doctor->add_cap( 'manage_inventory_category' );
 
+        $users->createAdminType(
+             "LekkiHill Doctor", 
+             "lekki_hill_doctor",
+             ["read" => 1,"write" => 1,"modify" => 1],
+             ['manage_patient', 'manage_medication', 'manage_clinic', 'manage_clinic_massage', 'manage_inventory', 'manage_patient_report', 'manage_patient_records', 'manage_visitors', 'mamange_accounts', 'mamange_accounts_report', 'manage_inventory_report', 'manage_inventory_category']
+        );
+
         //add nurses
 		add_role(
 			'lekki_hill_nurses',
@@ -745,6 +768,13 @@ class main {
         $lekkihill_nurse->add_cap( 'manage_woocommerce' );
         $lekkihill_nurse->add_cap( 'view_woocommerce_reports' );
         $lekkihill_nurse->add_cap( 'manage_patient_records' );
+        
+        $users->createAdminType(
+            "LekkiHill Nurse", 
+            "lekki_hill_nurses",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_patient', 'manage_medication', 'manage_clinic', 'manage_clinic_massage', 'manage_inventory', 'mamange_accounts', 'manage_patient_report', 'manage_woocommerce', 'view_woocommerce_reports', 'manage_patient_records']
+        );
 
         //add nurses
 		add_role(
@@ -762,6 +792,13 @@ class main {
         $lekkihill_masseur->add_cap( 'manage_clinic' );
         $lekkihill_masseur->add_cap( 'manage_patient_report' );
 
+        $users->createAdminType(
+            "LekkiHill Masseur", 
+            "lekki_hill_massage",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_clinic_massage', 'manage_patient', 'manage_medication', 'manage_clinic', 'manage_patient_report']
+        );
+
         //add pharmacy
 		add_role(
 			'lekki_hill_pharmacy',
@@ -777,6 +814,53 @@ class main {
         $lekkihill_pharm->add_cap( 'manage_inventory' );
         $lekkihill_pharm->add_cap( 'manage_woocommerce' );
         $lekkihill_pharm->add_cap( 'view_woocommerce_reports' );
+		add_role(
+			'lekki_hill_pharmacy_read_only',
+			__( 'LekkiHill Pharmacy (Read-Only)' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekki_hill_pharmacy_read_only = get_role( "lekki_hill_pharmacy_read_only" );
+        $lekki_hill_pharmacy_read_only->add_cap( 'manage_clinic' );
+        $lekki_hill_pharmacy_read_only->add_cap( 'manage_medication' );
+        $lekki_hill_pharmacy_read_only->add_cap( 'manage_inventory' );
+        $lekki_hill_pharmacy_read_only->add_cap( 'manage_woocommerce' );
+        $lekki_hill_pharmacy_read_only->add_cap( 'view_woocommerce_reports' );
+		add_role(
+			'lekki_hill_pharmacy_full',
+			__( 'LekkiHill Pharmacy [Full)' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekki_hill_pharmacy_full = get_role( "lekki_hill_pharmacy_full" );
+        $lekki_hill_pharmacy_full->add_cap( 'manage_clinic' );
+        $lekki_hill_pharmacy_full->add_cap( 'manage_medication' );
+        $lekki_hill_pharmacy_full->add_cap( 'manage_inventory' );
+        $lekki_hill_pharmacy_full->add_cap( 'manage_woocommerce' );
+        $lekki_hill_pharmacy_full->add_cap( 'view_woocommerce_reports' );
+
+        $users->createAdminType(
+            "LekkiHill Pharmacy [Full)", 
+            "lekki_hill_pharmacy_full",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_clinic', 'manage_medication', 'manage_inventory', 'manage_woocommerce', 'view_woocommerce_reports']
+         );
+         $users->createAdminType(
+             "LekkiHill Pharmacy", 
+             "lekki_hill_pharmacy",
+             ["read" => 1,"write" => 1,"modify" => 0],
+             ['manage_clinic', 'manage_medication', 'manage_inventory', 'manage_woocommerce', 'view_woocommerce_reports']
+          );
+        $users->createAdminType(
+            "LekkiHill Pharmacy (Read-Only)", 
+            "lekki_hill_pharmacy_read_only",
+            ["read" => 1,"write" => 0,"modify" => 0],
+            ['manage_clinic', 'manage_medication', 'manage_inventory', 'manage_woocommerce', 'view_woocommerce_reports']
+         );
 
         //add front desk
 		add_role(
@@ -793,6 +877,13 @@ class main {
         $lekki_hill_front_desk->add_cap( 'manage_visitors' );
         $lekki_hill_front_desk->add_cap( 'manage_woocommerce' );
 
+        $users->createAdminType(
+            "LekkiHill Front Desk", 
+            "lekki_hill_front_desk",
+            ["read" => 1,"write" => 1,"modify" => 0],
+            ['manage_patient', 'manage_clinic', 'manage_visitors', 'manage_woocommerce']
+        );
+
         //add accounts
 		add_role(
 			'lekki_hill_accounts',
@@ -808,13 +899,89 @@ class main {
         $lekki_hill_accounts->add_cap( 'mamange_accounts' );
         $lekki_hill_accounts->add_cap( 'mamange_accounts_report' );
         $lekki_hill_accounts->add_cap( 'view_woocommerce_reports' );
+		add_role(
+			'lekki_hill_accounts_full',
+			__( 'LekkiHill Accounts [Full)' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekki_hill_accounts_full = get_role( "lekki_hill_accounts_full" );
+        $lekki_hill_accounts_full->add_cap( 'manage_patient' );
+        $lekki_hill_accounts_full->add_cap( 'manage_clinic' );
+        $lekki_hill_accounts_full->add_cap( 'mamange_accounts' );
+        $lekki_hill_accounts_full->add_cap( 'mamange_accounts_report' );
+        $lekki_hill_accounts_full->add_cap( 'view_woocommerce_reports' );
+		add_role(
+			'lekki_hill_accounts_read_only',
+			__( 'LekkiHill Accounts [Read-Only)' ),
+			array(
+				'read'		=> true
+			)
+        );
+        
+        $lekki_hill_accounts_read_only = get_role( "lekki_hill_accounts_read_only" );
+        $lekki_hill_accounts_read_only->add_cap( 'manage_patient' );
+        $lekki_hill_accounts_read_only->add_cap( 'manage_clinic' );
+        $lekki_hill_accounts_read_only->add_cap( 'mamange_accounts' );
+        $lekki_hill_accounts_read_only->add_cap( 'mamange_accounts_report' );
+        $lekki_hill_accounts_read_only->add_cap( 'view_woocommerce_reports' );
+
+        $users->createAdminType(
+            "LekkiHill Accounts [Full)", 
+            "lekki_hill_accounts_full",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_patient', 'manage_clinic', 'mamange_accounts', 'mamange_accounts_report', 'view_woocommerce_reports']
+         );
+         $users->createAdminType(
+             "LekkiHill Accounts", 
+             "lekki_hill_accounts",
+             ["read" => 1,"write" => 1,"modify" => 0],
+             ['manage_patient', 'manage_clinic', 'mamange_accounts', 'mamange_accounts_report', 'view_woocommerce_reports']
+          );
+        $users->createAdminType(
+            "LekkiHill Accounts (Read-Only)", 
+            "lekki_hill_accounts_read_only",
+            ["read" => 1,"write" => 0,"modify" => 0],
+            ['manage_patient', 'manage_clinic', 'mamange_accounts', 'mamange_accounts_report', 'view_woocommerce_reports']
+         );
         
         //add inventory
 		add_role(
-			'lekki_hill_inventory',
+			'lekki_hill_inventory_full',
+			__( 'LekkiHill Inventory [Full)' ),
+			array(
+				'read'		=> true,
+				'modify'    => true,
+				'write'		=> true
+			)
+        );
+        
+        $lekki_hill_inventory_full = get_role( "lekki_hill_inventory_full" );
+        $lekki_hill_inventory_full->add_cap( 'manage_inventory' );
+        $lekki_hill_inventory_full->add_cap( 'manage_inventory_report' );
+        $lekki_hill_inventory_full->add_cap( 'manage_woocommerce' );
+
+		add_role(
+			'lekki_hill_inventory_read_only',
 			__( 'LekkiHill Inventory' ),
 			array(
 				'read'		=> true
+			)
+        );
+        
+        $lekki_hill_inventory_read_only = get_role( "lekki_hill_inventory_read_only" );
+        $lekki_hill_inventory_read_only->add_cap( 'manage_inventory' );
+        $lekki_hill_inventory_read_only->add_cap( 'manage_inventory_report' );
+        $lekki_hill_inventory_read_only->add_cap( 'manage_woocommerce' );
+
+		add_role(
+			'lekki_hill_inventory',
+			__( 'LekkiHill Inventory (Read-Only)' ),
+			array(
+				'read'		=> true,
+				'write'		=> true
 			)
         );
         
@@ -822,6 +989,25 @@ class main {
         $lekki_hill_inventory->add_cap( 'manage_inventory' );
         $lekki_hill_inventory->add_cap( 'manage_inventory_report' );
         $lekki_hill_inventory->add_cap( 'manage_woocommerce' );
+
+        $users->createAdminType(
+            "LekkiHill Inventory [Full)", 
+            "lekki_hill_inventory_full",
+            ["read" => 1,"write" => 1,"modify" => 1],
+            ['manage_inventory', 'manage_inventory_report', 'manage_woocommerce']
+         );
+         $users->createAdminType(
+             "LekkiHill Inventory", 
+             "lekki_hill_inventory",
+             ["read" => 1,"write" => 1,"modify" => 0],
+             ['manage_inventory', 'manage_inventory_report', 'manage_woocommerce']
+          );
+        $users->createAdminType(
+            "LekkiHill Inventory (Read-Only)", 
+            "lekki_hill_inventory_read_only",
+            ["read" => 1,"write" => 0,"modify" => 0],
+            ['manage_inventory', 'manage_inventory_report', 'manage_woocommerce']
+         );
 
 		//add roles to admin
 		$administrator		= get_role('administrator');
@@ -846,6 +1032,7 @@ class main {
         $users  = new users;
 
         $users->clear_table();
+        $users->clear_role_table();
     }
 
     public static function lh_uninstall() {
@@ -859,6 +1046,7 @@ class main {
         $billing                = new billing;
         $billing_component      = new billing_component;
         $invoice                = new invoice;
+        $invoiceLog             = new invoiceLog;
         $appointments           = new appointments;
         $appointments_history   = new appointments_history;
         $vitals                 = new vitals;
@@ -867,6 +1055,7 @@ class main {
         $clinic_continuation_sheet = new clinic_continuation_sheet;
         $clinic_medication      = new clinic_medication;
         $clinic_doctors_report  = new clinic_doctors_report;
+        $settings               = new settings;
         
         $inventory->delete_table();
         $inventory_used->delete_table();
@@ -878,6 +1067,7 @@ class main {
         $billing->delete_table();
         $billing_component->delete_table();
         $invoice->delete_table();
+        $invoiceLog->delete_table();
         $appointments->delete_table();
         $appointments_history->delete_table();
         $vitals->delete_table();
@@ -886,6 +1076,7 @@ class main {
         $clinic_continuation_sheet->delete_table();
         $clinic_medication->delete_table();
         $clinic_doctors_report->delete_table();
+        $settings->delete_table();
     }
 
     // Remove the plugin-specific custom capability
@@ -969,7 +1160,7 @@ class main {
     }
     
 	//add settings link to the pluginPage
-	function lh_plugin_link( $actions, $plugin_file ) {
+	public static function lh_plugin_link( $actions, $plugin_file ) {
 		static $plugin;
 		if (!isset($plugin))
 		$plugin		=	plugin_basename(__FILE__);

@@ -1,6 +1,6 @@
 <?php
 class inventory_used extends inventory {
-    public function getCount($id) {
+    public static function getCount($id) {
         $query = "SELECT SUM(`inventory_used`) FROM ".table_name_prefix."inventory_used WHERE `inventory_id` = :id";
         $prepare[':id'] = $id;
 

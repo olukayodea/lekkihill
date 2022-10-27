@@ -205,6 +205,7 @@ class invoice extends billing {
             `due` DOUBLE NOT NULL, 
             `due_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `status` varchar(20) NOT NULL DEFAULT 'UN-PAID',
+            `create_by` INT NOT NULL, 
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`)

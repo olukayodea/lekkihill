@@ -1,26 +1,26 @@
 <?php
 class appointments_history extends appointments {
-    public function create($array) {
+    public static function create($array) {
         return self::insert(table_name_prefix."appointments_history", $array);
     }
 
-    function getListHistory($start=false, $limit=false, $order="appointment_id", $dir="ASC", $type="list") {
+    public static function getListHistory($start=false, $limit=false, $order="appointment_id", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."appointments_history", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingleHistory($name, $tag="appointment_id", $ref="ref") {
+    public static function getSingleHistory($name, $tag="appointment_id", $ref="ref") {
         return self::getOneField(table_name_prefix."appointments_history", $name, $ref, $tag);
     }
 
-    function listOneHistory($id) {
+    public static function listOneHistory($id) {
         return self::getOne(table_name_prefix."appointments_history", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'sku', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."appointments_history", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function formatResult($data, $single=false) {
+    public static function formatResult($data, $single=false) {
         if ($single == false) {
             for ($i = 0; $i < count($data); $i++) {
                 $data[$i] = self::clean($data[$i]);

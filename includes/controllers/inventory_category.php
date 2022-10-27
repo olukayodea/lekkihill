@@ -1,6 +1,6 @@
 <?php
 class inventory_category extends inventory {
-    public function create($array) {
+    public static function create($array) {
         $replace = array();
         
         $replace[] = "title";
@@ -13,24 +13,24 @@ class inventory_category extends inventory {
         return self::replace(table_name_prefix."inventory_category", $array, $replace);
     }
 
-    public function getCount() {
+    public static function getCount() {
         $query = "SELECT COUNT(`ref`) FROM ".table_name_prefix."inventory_category WHERE `status` = 'ACTIVE'";
         return self::query($query, false, "getCol");
     }
 
-    function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
+    public static function getList($start=false, $limit=false, $order="title", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."inventory_category", $start, $limit, $order, $dir, "`status` != 'DELETED'", $type);
     }
 
-    function getSingle($name, $tag="title", $ref="ref") {
+    public static function getSingle($name, $tag="title", $ref="ref") {
         return self::getOneField(table_name_prefix."inventory_category", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    public static function listOne($id) {
         return self::getOne(table_name_prefix."inventory_category", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'title', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'title', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."inventory_category", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 

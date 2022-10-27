@@ -37,6 +37,7 @@ require_once LH_PLUGIN_DIR . 'includes/controllers/visitors.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/clinic.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/billing.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/invoice.php';
+require_once LH_PLUGIN_DIR . 'includes/controllers/invoiceLog.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/inventory.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments.php';
 require_once LH_PLUGIN_DIR . 'includes/controllers/appointments_history.php';
@@ -48,6 +49,7 @@ $visitors               = new visitors;
 $clinic                 = new clinic;
 $billing                = new billing;
 $invoice                = new invoice;
+$invoiceLog             = new invoiceLog;
 $inventory              = new inventory;
 $appointment            = new appointments;
 $appointments_history   = new appointments_history;
@@ -161,6 +163,10 @@ class mainClass extends main {
         add_action( 'admin_enqueue_scripts', array( "main", 'admin_styles_and_script' ));
         //create additional links in plugin menu 
         add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( "main", 'lh_plugin_link'), 10, 5 );
+
+        add_action( 'register_new_user', array("main", 'save_password'), 10, 1 );
+        add_action( 'user_register', array("main", 'save_password'), 10, 1 );
+        add_action( 'profile_update', array("main", 'save_password'), 10, 1 );
         
         
         //registration hooks

@@ -207,6 +207,7 @@ class patient extends database {
             `next_of_address` VARCHAR(255) NULL,
             `p_type` VARCHAR(20) NOT NULL,
             `allergies` TEXT NULL,
+            `create_by` date NOT NULL,
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`ref`),

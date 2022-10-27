@@ -187,18 +187,97 @@ class users extends database {
         global $wpdb;
         return self::getOne($wpdb->prefix."users", $id, $ref);
     }
+    
+    public function createAdminType($role, $slug, $access, $capability = []) {
+        $value_array = array('title' => $role, 'slug' => $slug, 'read' => intval($access['read']), 'write' => intval($access['write']), 'modify' => intval($access['modify']), 'pages' => implode(",", $capability));
+
+        $id = $this->insert(table_name_prefix."roles", $value_array);
+        
+        if ($id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    static function add_app_token($data, $user_id) {
+        global $wpdb;
+
+        $user = get_userdata($user_id);
+        $role = (array) $user->roles;
+
+        return self::query("UPDATE `".DB_NAME."`.`".$wpdb->prefix."users` SET `app_token` = '".md5(sha1($data['pass1']))."', `user_role` = '".$role[0]."' WHERE `ID` = ".$user_id);
+    }
 
     public function initialize_table() {
         global $wpdb;
         //create database
-        $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `user_token` VARCHAR(500) NOT NULL AFTER `user_pass`";
-        $this->query($query);
+        $check = "SHOW COLUMNS FROM `".DB_NAME."`.`".$wpdb->prefix."users` LIKE 'user_token';";
+        if (!$this->query($check, false, 'list')) {
+            $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `user_token` VARCHAR(500) NOT NULL AFTER `user_pass`";
+            $this->query($query);
+        }
+        $check = "SHOW COLUMNS FROM `".DB_NAME."`.`".$wpdb->prefix."users` LIKE 'app_token';";
+        if (!$this->query($check, false, 'list')) {
+            $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `app_token` VARCHAR(500) NOT NULL AFTER `user_pass`";
+            $this->query($query);
+        }
+        $check = "SHOW COLUMNS FROM `".DB_NAME."`.`".$wpdb->prefix."users` LIKE 'auth_token_expire';";
+        if (!$this->query($check, false, 'list')) {
+            $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `auth_token_expire` VARCHAR(50) NOT NULL AFTER `app_token`";
+            $this->query($query);
+        }
+        $check = "SHOW COLUMNS FROM `".DB_NAME."`.`".$wpdb->prefix."users` LIKE 'user_role';";
+        if (!$this->query($check, false, 'list')) {
+            $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `user_role` VARCHAR(50) NOT NULL AFTER `auth_token_expire`";
+            $this->query($query);
+        }
+        
+        $check = "SHOW COLUMNS FROM `".DB_NAME."`.`".$wpdb->prefix."users` LIKE 'app_status';";
+        if (!$this->query($check, false, 'list')) {
+            $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` ADD `app_status` INT NOT NULL DEFAULT '0' AFTER `user_status`";
+            $this->query($query);
+        }
     }
 
     public function clear_table() {
         global $wpdb;
         //clear database
-        $query = "ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` DROP `user_token`";
+        // $query = "
+        // ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` DROP `user_token`;
+        // ALTER TABLE `".DB_NAME."`.`".$wpdb->prefix."users` DROP `user_role`;";
+
+        // $this->query($query);
+    }
+
+
+    public function initialize_roles_table() {
+        //create database
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."roles` (
+            `ref` INT NOT NULL AUTO_INCREMENT,
+            `title` VARCHAR(50) NOT NULL,
+            `slug` VARCHAR(50) NOT NULL,
+            `read` INT NOT NULL,
+            `write` INT NOT NULL,
+            `modify` INT NOT NULL,
+            `pages` TEXT NULL,
+            `createTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`ref`)
+        ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+
+        $this->query($query);
+    }
+
+    public function clear_role_table() {
+        //clear database
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."roles`";
+
+        $this->query($query);
+    }
+
+    public function delete_role_table() {
+        //clear database
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."roles`";
 
         $this->query($query);
     }

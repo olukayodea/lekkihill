@@ -20,7 +20,7 @@ class settings extends database {
     public static $BadReques = array("status" => 400, "message" => "Bad Reques");
     public static $internalServerError = array("status" => 500, "message" => "Internal Server Error");
 
-    public function manage() {
+    public static function manage() {
         if (isset($_POST['submit'])) {
             unset($_POST['submit']);
 
@@ -47,7 +47,7 @@ class settings extends database {
         include_once(LH_PLUGIN_DIR."includes/pages/settings/manage.php");
     }
 
-    public function get_settings_api($request) {
+    public static function get_settings_api($request) {
         $auth = self::validateSession($request);
         if ($auth['status'] == 200) {
             unset($auth['status']);
@@ -102,6 +102,34 @@ class settings extends database {
 
         self::$return = self::$successResponse;
         return self::$return;
+    }
+
+    public function initialize_table() {
+        //create database
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."settings` (
+            `ref` INT NOT NULL AUTO_INCREMENT,
+            `title` VARCHAR(50) NOT NULL,
+            `value` TEXT NULL,
+            `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`ref`)
+        ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+
+        $this->query($query);
+    }
+
+    public function clear_table() {
+        //clear database
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."settings`";
+
+        $this->query($query);
+    }
+
+    public function delete_table() {
+        //clear database
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."settings`";
+
+        $this->query($query);
     }
 }
 ?>

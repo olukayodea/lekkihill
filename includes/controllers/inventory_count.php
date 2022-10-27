@@ -1,26 +1,26 @@
 <?php
 class inventory_count extends inventory {
-    public function create($array) {
+    public static function create($array) {
         return self::insert(table_name_prefix."inventory_count", $array);
     }
 
-    function getList($start=false, $limit=false, $order="ref", $dir="ASC", $type="list") {
+    public static function getList($start=false, $limit=false, $order="ref", $dir="ASC", $type="list") {
         return self::lists(table_name_prefix."inventory_count", $start, $limit, $order, $dir, false, $type);
     }
 
-    function getSingle($name, $tag="title", $ref="ref") {
+    public static function getSingle($name, $tag="title", $ref="ref") {
         return self::getOneField(table_name_prefix."inventory_count", $name, $ref, $tag);
     }
 
-    function listOne($id) {
+    public static function listOne($id) {
         return self::getOne(table_name_prefix."inventory_count", $id, "ref");
     }
 
-    function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
+    public static function getSortedList($id, $tag, $tag2 = false, $id2 = false, $tag3 = false, $id3 = false, $order = 'ref', $dir = "ASC", $logic = "AND", $start = false, $limit = false) {
         return self::sortAll(table_name_prefix."inventory_count", $id, $tag, $tag2, $id2, $tag3, $id3, $order, $dir, $logic, $start, $limit);
     }
 
-    public function getCount($id) {
+    public static function getCount($id) {
         $query = "SELECT SUM(`inventory_added`) FROM ".table_name_prefix."inventory_count WHERE `inventory_id` = :id";
         $prepare[':id'] = $id;
 
