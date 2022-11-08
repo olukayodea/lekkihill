@@ -659,6 +659,7 @@ class main {
         $clinic_continuation_sheet  = new clinic_continuation_sheet;
         $clinic_medication      =  new clinic_medication;
         $clinic_doctors_report  = new clinic_doctors_report;
+        $common                 = new common;
         $settings               = new settings;
 
         $users->initialize_table();
@@ -682,6 +683,7 @@ class main {
         $clinic_continuation_sheet->initialize_table();
         $clinic_medication->initialize_table();
         $clinic_doctors_report->initialize_table();
+        $common->initialize_table();
         $settings->initialize_table();
 
         //add user roles
@@ -1055,6 +1057,7 @@ class main {
         $clinic_continuation_sheet = new clinic_continuation_sheet;
         $clinic_medication      = new clinic_medication;
         $clinic_doctors_report  = new clinic_doctors_report;
+        $common                 = new common;
         $settings               = new settings;
         
         $inventory->delete_table();
@@ -1076,6 +1079,7 @@ class main {
         $clinic_continuation_sheet->delete_table();
         $clinic_medication->delete_table();
         $clinic_doctors_report->delete_table();
+        $common->initialize_table();
         $settings->delete_table();
     }
 

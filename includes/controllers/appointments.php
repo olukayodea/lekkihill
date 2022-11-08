@@ -406,6 +406,7 @@ class appointments extends database {
             `next_appointment` datetime NOT NULL,
             `status` varchar(20) NOT NULL DEFAULT 'NEW',
             `patient_id` INT NOT NULL, 
+            `create_by` INT NOT NULL, 
             `last_modify` INT NOT NULL, 
             `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `modify_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

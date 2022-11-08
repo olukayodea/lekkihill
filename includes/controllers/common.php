@@ -143,5 +143,35 @@ class common {
         if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"';
         $str = mb_convert_encoding($str, 'UTF-16LE', 'UTF-8');
     }
+
+    public function initialize_table() {
+        global $database;
+        //create database
+        $query = "CREATE TABLE IF NOT EXISTS `".DB_NAME."`.`".table_name_prefix."downloads` (
+            `user_id` INT NOT NULL,
+            `type` VARCHAR(50) NOT NULL,
+            `slug` VARCHAR(50) NOT NULL,
+            `token` VARCHAR(255) NOT NULL,
+            PRIMARY KEY(`user_id`, `type`, `slug`)
+        ) ENGINE = InnoDB;";
+
+        $database->query($query);
+    }
+
+    public function clear_table() {
+        global $database;
+        //clear database
+        $query = "TRUNCATE `".DB_NAME."`.`".table_name_prefix."downloads`";
+
+        $database->query($query);
+    }
+
+    public function delete_table() {
+        global $database;
+        //clear database
+        $query = "DROP TABLE IF EXISTS `".DB_NAME."`.`".table_name_prefix."downloads`";
+
+        $database->query($query);
+    }
 }
 ?>
